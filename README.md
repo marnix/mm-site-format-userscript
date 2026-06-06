@@ -9,6 +9,11 @@ Build the script (see [CONTRIBUTING.md](CONTRIBUTING.md)), then install
 `dist/mm-site-format.user.js` via a userscript manager such as
 [Tampermonkey](https://www.tampermonkey.net/).
 
+## Design and roadmap
+
+See [DESIGN.md](DESIGN.md) for architecture and [TODO.md](TODO.md) for planned
+work.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
