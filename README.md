@@ -5,7 +5,7 @@ A browser userscript that improves the formatting and readability of
 
 ## Installation
 
-Build the script (see below), then install `dist/script.user.js` via a
+Build the script (see below), then install `dist/mm-site-format.user.js` via a
 userscript manager such as [Tampermonkey](https://www.tampermonkey.net/).
 
 ## Development
@@ -21,7 +21,7 @@ npm install
 npm run build
 ```
 
-The built userscript is written to `dist/script.user.js`.
+The built userscript is written to `dist/mm-site-format.user.js`.
 
 ### Dev mode
 
@@ -31,8 +31,8 @@ npm run dev
 
 Rebuilds on every source change and serves `dist/` on `http://localhost:8787`.
 Configure your userscript manager to
-`@require http://localhost:8787/script.user.js` for instant reload on page
-refresh.
+`@require http://localhost:8787/mm-site-format.user.js` for instant reload on
+page refresh.
 
 ### Tests
 

@@ -13,12 +13,12 @@ const header = `\
 // ==/UserScript==`;
 
 export default defineConfig({
-  entry: { script: "src/index.ts" },
+  entry: { "mm-site-format": "src/index.ts" },
   outDir: "dist",
   format: ["iife"],
   outExtension: () => ({ js: ".user.js" }),
   banner: { js: header },
   minify: false,
   sourcemap: false,
-  onSuccess: "prettier --write dist/script.user.js",
+  onSuccess: "prettier --write dist/mm-site-format.user.js",
 });
