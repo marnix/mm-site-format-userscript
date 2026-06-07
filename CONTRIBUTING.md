@@ -13,47 +13,37 @@ npm run build
 
 The built userscript is written to `dist/mm-site-format.user.js`.
 
-## Dev mode
+## Dev workflow
+
+To rebuild automatically on every source change:
 
 ```bash
-npm run dev
+npx tsup --watch
 ```
 
-This does two things concurrently:
+### ViolentMonkey setup
 
-- Watches `src/` for changes and rebuilds `dist/mm-site-format.user.js`
-  automatically.
-- Serves `dist/` over HTTP on `http://localhost:8787`.
+Use [ViolentMonkey](https://violentmonkey.github.io/) with its
+[external editor workflow](https://violentmonkey.github.io/posts/how-to-edit-scripts-with-your-favorite-editor/):
 
-### Tampermonkey dev wrapper
+1. Build the script once with `npm run build`.
+2. Determine the `file://` URL for the built script. On Windows or WSL2:
+   ```
+   file:///C:/path/to/dist/mm-site-format.user.js
+   ```
+   On WSL2, run `wslpath -w dist/mm-site-format.user.js` to get the Windows
+   path.
+3. Open that `file://` URL in the browser. ViolentMonkey will offer to install
+   the script — before confirming, enable **Track external edits**.
+4. Keep the installation tab open. ViolentMonkey polls it and reinstalls
+   automatically whenever the file changes.
 
-Instead of installing the built script directly, install a small _wrapper_
-script in Tampermonkey that loads the build from the local server via
-`@require`:
-
-```js
-// ==UserScript==
-// @name         MM Site Format (dev)
-// @match        *://us.metamath.org/*
-// @match        *://metamath.org/*
-// @require      http://localhost:8787/mm-site-format.user.js
-// @grant        none
-// ==/UserScript==
-```
-
-The wrapper itself contains no logic. On every page load Tampermonkey fetches
-`mm-site-format.user.js` from the local server, so a browser reload is all that
-is needed to pick up a rebuild.
-
-**One-time Tampermonkey setting:** open Tampermonkey → Settings → Externals →
-Require and set it to _Always_, otherwise Tampermonkey may serve a cached copy
-of the file.
-
-With `npm run dev` running in the background, the workflow is:
+The workflow is then:
 
 1. Edit a `.ts` file.
-2. tsup rebuilds in ~100 ms.
-3. Reload the browser page.
+2. tsup rebuilds `dist/mm-site-format.user.js` in ~100 ms.
+3. ViolentMonkey detects the change and reinstalls within a few seconds.
+4. Reload the browser page.
 
 ## Tests
 

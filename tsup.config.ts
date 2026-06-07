@@ -21,4 +21,6 @@ export default defineConfig({
   minify: false,
   sourcemap: false,
   onSuccess: "prettier --write dist/mm-site-format.user.js",
+  // Polling is needed on WSL2 where inotify events are unreliable for /mnt/c/ paths.
+  watchOptions: { usePolling: true, interval: 500 },
 });

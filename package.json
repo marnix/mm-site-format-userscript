@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "build": "tsup",
-    "dev": "concurrently \"tsup --watch\" \"http-server dist -p 8787 --cors -c-1 --silent\"",
     "test": "vitest run",
     "test:watch": "vitest",
     "format": "prettier --write .",
@@ -14,7 +13,6 @@
   "devDependencies": {
     "@types/jsdom": "^28.0.3",
     "concurrently": "^9.1.2",
-    "http-server": "^14.1.1",
     "jsdom": "^29.1.1",
     "prettier": "^3.4.2",
     "tsup": "^8.3.5",
