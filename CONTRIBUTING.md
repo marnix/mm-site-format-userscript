@@ -27,12 +27,11 @@ Use [ViolentMonkey](https://violentmonkey.github.io/) with its
 [external editor workflow](https://violentmonkey.github.io/posts/how-to-edit-scripts-with-your-favorite-editor/):
 
 1. Build the script once with `npm run build`.
-2. Determine the `file://` URL for the built script. On Windows or WSL2:
+2. Determine the `file://` URL for the built script. On WSL2:
    ```
-   file:///C:/path/to/dist/mm-site-format.user.js
+   file:////wsl.localhost/Ubuntu/home/<user>/projects/mm-site-format-userscript/dist/mm-site-format.user.js
    ```
-   On WSL2, run `wslpath -w dist/mm-site-format.user.js` to get the Windows
-   path.
+   Run `wslpath -w dist/mm-site-format.user.js` to get the exact path.
 3. Open that `file://` URL in the browser. ViolentMonkey will offer to install
    the script — before confirming, enable **Track external edits**.
 4. Keep the installation tab open. ViolentMonkey polls it and reinstalls
