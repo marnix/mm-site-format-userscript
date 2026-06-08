@@ -7,47 +7,47 @@ import { extractLinkedPageUrls, loadLinkedPages } from "../src/loader";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-function readFixture(name: string): string {
-  return readFileSync(join(__dirname, "fixtures", name), "utf-8");
+function readFixture(variant: string, name: string): string {
+  return readFileSync(join(__dirname, "fixtures", variant, name), "utf-8");
 }
 
-const PAGE_URL = "https://us.metamath.org/mpeuni/bitrdi.html";
-const BASE = "https://us.metamath.org/mpeuni/";
+const LINKED_NAMES = ["wi.html", "wb.html", "a1i.html", "bitrd.html"];
 
-const LINKED_URLS = [
-  `${BASE}wi.html`,
-  `${BASE}wb.html`,
-  `${BASE}a1i.html`,
-  `${BASE}bitrd.html`,
-];
+function describeVariant(variant: "mpeuni" | "mpegif") {
+  const base = `https://us.metamath.org/${variant}/`;
+  const pageUrl = `${base}bitrdi.html`;
+  const linkedUrls = LINKED_NAMES.map((n) => `${base}${n}`);
 
-describe("bitrdi.html", () => {
-  const doc = new DOMParser().parseFromString(
-    readFixture("bitrdi.html"),
-    "text/html",
-  );
+  describe(`${variant}/bitrdi.html`, () => {
+    const doc = new DOMParser().parseFromString(
+      readFixture(variant, "bitrdi.html"),
+      "text/html",
+    );
 
-  it("extracts exactly the 4 linked page URLs", () => {
-    const urls = extractLinkedPageUrls(doc, PAGE_URL);
-    expect(new Set(urls)).toEqual(new Set(LINKED_URLS));
-  });
-
-  it("loads all 4 linked pages via the fetcher", async () => {
-    const fetcher = vi.fn(async (url: string) => {
-      const name = url.split("/").pop()!;
-      return readFixture(name);
+    it("extracts exactly the 4 linked page URLs", () => {
+      const urls = extractLinkedPageUrls(doc, pageUrl);
+      expect(new Set(urls)).toEqual(new Set(linkedUrls));
     });
 
-    const pages = await loadLinkedPages(doc, PAGE_URL, fetcher);
+    it("loads all 4 linked pages via the fetcher", async () => {
+      const fetcher = vi.fn(async (url: string) => {
+        const name = url.split("/").pop()!;
+        return readFixture(variant, name);
+      });
 
-    expect(fetcher).toHaveBeenCalledTimes(4);
-    for (const url of LINKED_URLS) {
-      expect(fetcher).toHaveBeenCalledWith(url);
-    }
-    expect(pages.size).toBe(4);
-    for (const url of LINKED_URLS) {
-      const linkedDoc = pages.get(url)!;
-      expect(linkedDoc.querySelector("title")).not.toBeNull();
-    }
+      const pages = await loadLinkedPages(doc, pageUrl, fetcher);
+
+      expect(fetcher).toHaveBeenCalledTimes(4);
+      for (const url of linkedUrls) {
+        expect(fetcher).toHaveBeenCalledWith(url);
+      }
+      expect(pages.size).toBe(4);
+      for (const url of linkedUrls) {
+        expect(pages.get(url)!.querySelector("title")).not.toBeNull();
+      }
+    });
   });
-});
+}
+
+describeVariant("mpeuni");
+describeVariant("mpegif");
