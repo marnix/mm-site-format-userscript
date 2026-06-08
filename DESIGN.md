@@ -9,6 +9,14 @@ Initial feature: **hover highlighting** — hovering over any token in an MM
 expression highlights the smallest sub-expression (parse-tree node) containing
 that token.
 
+## HTML interpretation principle
+
+When querying the metamath page DOM, prefer **semantic selectors** — CSS
+classes, meaningful attribute values (e.g. `CLASS=math`,
+`SUMMARY="Proof of theorem"`) — over structural/positional selectors (tag
+nesting, `:nth-child`, etc.). Semantic selectors are stable across cosmetic
+layout changes and make the intent of each query self-documenting.
+
 ## Page structure
 
 A typical proof page (e.g. `bitrdi.html`) contains:
