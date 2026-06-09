@@ -8,9 +8,9 @@ import {
 } from "../src/expression";
 import { readFixture } from "./helpers";
 
-function parse(variant: string): Document {
+function parse(variant: string, name = "bitrdi.html"): Document {
   return new DOMParser().parseFromString(
-    readFixture(variant, "bitrdi.html"),
+    readFixture(variant, name),
     "text/html",
   );
 }
@@ -48,5 +48,12 @@ describe("findGifRuns + extractGifText (mpegif)", () => {
       "|- ( ph -> ( ch <-> th ) )", // proof step 3
       "|- ( ph -> ( ps <-> th ) )", // proof step 4
     ]);
+  });
+
+  it("captures two-token expressions (e.g. 'wff ph') on a definition page", () => {
+    const exprs = findGifRuns(parse("mpegif", "wi.html")).map(extractGifText);
+    // These have only two img tags, so they require the ≥2 (not ≥3) threshold.
+    expect(exprs).toContain("wff ph");
+    expect(exprs).toContain("wff ps");
   });
 });

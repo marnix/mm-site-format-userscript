@@ -28,9 +28,10 @@ export function extractMathText(span: Element): string {
 }
 
 /**
- * mpegif mode: an expression is any run of ≥3 consecutive img[alt] siblings
- * (whitespace-only text nodes between them are ignored). There is no wrapper
- * element, so we scan the whole document and return each run as a group.
+ * mpegif mode: an expression is any run of ≥2 consecutive img[alt] siblings
+ * (whitespace-only text nodes between them are ignored). Two is enough — e.g.
+ * "wff ph" is a valid MM expression. There is no wrapper element, so we scan
+ * the whole document and return each run as a group.
  */
 export function findGifRuns(doc: Document): Element[][] {
   const runs: Element[][] = [];
@@ -38,7 +39,7 @@ export function findGifRuns(doc: Document): Element[][] {
   function scan(parent: Node): void {
     let run: Element[] = [];
     const flush = () => {
-      if (run.length >= 3) runs.push(run);
+      if (run.length >= 2) runs.push(run);
       run = [];
     };
     for (const node of parent.childNodes) {
