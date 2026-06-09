@@ -1,15 +1,7 @@
 // @vitest-environment happy-dom
-import { readFileSync } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
 import { describe, expect, it, vi } from "vitest";
 import { extractLinkedPageUrls, loadLinkedPages } from "../src/loader";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-function readFixture(variant: string, name: string): string {
-  return readFileSync(join(__dirname, "fixtures", variant, name), "utf-8");
-}
+import { readFixture } from "./helpers";
 
 const LINKED_NAMES = ["wi.html", "wb.html", "a1i.html", "bitrd.html"];
 

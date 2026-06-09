@@ -1,58 +1,52 @@
 // @vitest-environment happy-dom
-import { readFileSync } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
 import { describe, expect, it } from "vitest";
-import { extractGifExpressions, extractMathText } from "../src/expression";
+import {
+  extractGifText,
+  extractMathText,
+  findGifRuns,
+  findMathSpans,
+} from "../src/expression";
+import { readFixture } from "./helpers";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-function readFixture(variant: string, name: string): string {
-  return readFileSync(join(__dirname, "fixtures", variant, name), "utf-8");
-}
-
-describe("extractMathText (mpeuni)", () => {
-  const doc = new DOMParser().parseFromString(
-    readFixture("mpeuni", "bitrdi.html"),
+function parse(variant: string): Document {
+  return new DOMParser().parseFromString(
+    readFixture(variant, "bitrdi.html"),
     "text/html",
   );
+}
 
-  const hypSpans = [
-    ...doc.querySelectorAll('table[summary="Hypotheses"] span.math'),
-  ];
-  const assertionSpan = doc.querySelector(
-    'table[summary="Assertion"] span.math',
-  )!;
+describe("findMathSpans + extractMathText (mpeuni)", () => {
+  const doc = parse("mpeuni");
 
-  it("extracts hypothesis 1", () => {
-    expect(extractMathText(hypSpans[0])).toBe("⊢ ( 𝜑 → ( 𝜓 ↔ 𝜒 ))");
-  });
-
-  it("extracts hypothesis 2", () => {
-    expect(extractMathText(hypSpans[1])).toBe("⊢ ( 𝜒 ↔ 𝜃 )");
-  });
-
-  it("extracts the assertion", () => {
-    expect(extractMathText(assertionSpan)).toBe("⊢ ( 𝜑 → ( 𝜓 ↔ 𝜃 ))");
+  it("extracts every span.math expression in document order", () => {
+    const exprs = findMathSpans(doc).map(extractMathText);
+    expect(exprs).toEqual([
+      "⊢ ( 𝜑 → ( 𝜓 ↔ 𝜒 ))", // hypothesis 1
+      "⊢ ( 𝜒 ↔ 𝜃 )", // hypothesis 2
+      "⊢ ( 𝜑 → ( 𝜓 ↔ 𝜃 ))", // assertion
+      "⊢ ( 𝜑 → ( 𝜓 ↔ 𝜒 ))", // proof step 1
+      "⊢ ( 𝜒 ↔ 𝜃 )", // proof step 2
+      "⊢ ( 𝜑 → ( 𝜒 ↔ 𝜃 ))", // proof step 3
+      "⊢ ( 𝜑 → ( 𝜓 ↔ 𝜃 ))", // proof step 4
+      "→", // syntax-hint operator
+      "↔", // syntax-hint operator
+    ]);
   });
 });
 
-describe("extractGifExpressions (mpegif)", () => {
-  const doc = new DOMParser().parseFromString(
-    readFixture("mpegif", "bitrdi.html"),
-    "text/html",
-  );
-  const exprs = extractGifExpressions(doc);
+describe("findGifRuns + extractGifText (mpegif)", () => {
+  const doc = parse("mpegif");
 
-  it("includes hypothesis 1", () => {
-    expect(exprs).toContain("|- ( ph -> ( ps <-> ch ) )");
-  });
-
-  it("includes hypothesis 2", () => {
-    expect(exprs).toContain("|- ( ch <-> th )");
-  });
-
-  it("includes the assertion", () => {
-    expect(exprs).toContain("|- ( ph -> ( ps <-> th ) )");
+  it("extracts every img-run expression in document order", () => {
+    const exprs = findGifRuns(doc).map(extractGifText);
+    expect(exprs).toEqual([
+      "|- ( ph -> ( ps <-> ch ) )", // hypothesis 1
+      "|- ( ch <-> th )", // hypothesis 2
+      "|- ( ph -> ( ps <-> th ) )", // assertion
+      "|- ( ph -> ( ps <-> ch ) )", // proof step 1
+      "|- ( ch <-> th )", // proof step 2
+      "|- ( ph -> ( ch <-> th ) )", // proof step 3
+      "|- ( ph -> ( ps <-> th ) )", // proof step 4
+    ]);
   });
 });

@@ -1,4 +1,9 @@
-import { extractGifExpressions, extractMathText } from "./expression";
+import {
+  extractGifText,
+  extractMathText,
+  findGifRuns,
+  findMathSpans,
+} from "./expression";
 import { loadLinkedPages } from "./loader";
 
 declare const __USERSCRIPT_VERSION__: string;
@@ -10,11 +15,11 @@ if (document.querySelector('table[summary="Proof of theorem"]')) {
     "position:fixed;bottom:0;right:0;background:#333;color:#fff;padding:4px 8px;font-size:12px;opacity:0.8;z-index:9999";
   document.body.appendChild(banner);
 
-  for (const span of document.querySelectorAll("span.math")) {
+  for (const span of findMathSpans(document)) {
     console.log("[mm-site-format]", extractMathText(span));
   }
-  for (const expr of extractGifExpressions(document)) {
-    console.log("[mm-site-format]", expr);
+  for (const imgs of findGifRuns(document)) {
+    console.log("[mm-site-format]", extractGifText(imgs));
   }
 
   const pageUrl = window.location.href;
