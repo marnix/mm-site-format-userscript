@@ -3,7 +3,7 @@ import { readFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { describe, expect, it } from "vitest";
-import { extractMathText } from "../src/expression";
+import { extractGifExpressions, extractMathText } from "../src/expression";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -34,5 +34,25 @@ describe("extractMathText (mpeuni)", () => {
 
   it("extracts the assertion", () => {
     expect(extractMathText(assertionSpan)).toBe("⊢ ( 𝜑 → ( 𝜓 ↔ 𝜃 ))");
+  });
+});
+
+describe("extractGifExpressions (mpegif)", () => {
+  const doc = new DOMParser().parseFromString(
+    readFixture("mpegif", "bitrdi.html"),
+    "text/html",
+  );
+  const exprs = extractGifExpressions(doc);
+
+  it("includes hypothesis 1", () => {
+    expect(exprs).toContain("|- ( ph -> ( ps <-> ch ) )");
+  });
+
+  it("includes hypothesis 2", () => {
+    expect(exprs).toContain("|- ( ch <-> th )");
+  });
+
+  it("includes the assertion", () => {
+    expect(exprs).toContain("|- ( ph -> ( ps <-> th ) )");
   });
 });

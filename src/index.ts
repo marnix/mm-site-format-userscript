@@ -1,4 +1,4 @@
-import { extractMathText } from "./expression";
+import { extractGifExpressions, extractMathText } from "./expression";
 import { loadLinkedPages } from "./loader";
 
 declare const __USERSCRIPT_VERSION__: string;
@@ -12,6 +12,9 @@ if (document.querySelector('table[summary="Proof of theorem"]')) {
 
   for (const span of document.querySelectorAll("span.math")) {
     console.log("[mm-site-format]", extractMathText(span));
+  }
+  for (const expr of extractGifExpressions(document)) {
+    console.log("[mm-site-format]", expr);
   }
 
   const pageUrl = window.location.href;
