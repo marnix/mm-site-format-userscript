@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest";
-import { assembleGifGrammar, TOP_RULE } from "../src/grammar";
+import { assembleGifGrammar, GIF_TOP_RULE } from "../src/grammar";
 import { parseExpression, type KindOf } from "../src/parse";
 import { evaluate } from "../src/proof";
 import { readFixture } from "./helpers";
@@ -21,7 +21,7 @@ describe("assembleGifGrammar", () => {
   it("collects the $TOP rule plus a rule per syntax-hint page (wi, wb)", async () => {
     const rules = await assembleGifGrammar(doc, PAGE_URL, fetcher);
 
-    expect(rules[0]).toEqual(TOP_RULE);
+    expect(rules[0]).toEqual(GIF_TOP_RULE);
     const conclusions = rules.map((r) => r.conclusion.join(" "));
     expect(conclusions).toContain("wff ( ph -> ps )"); // wi
     expect(conclusions).toContain("wff ( ph <-> ps )"); // wb

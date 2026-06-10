@@ -1,33 +1,56 @@
-// Assembles the grammar (set of inference rules) for a page: the built-in $TOP
+// Assembles the grammar (set of inference rules) for a page: a built-in $TOP
 // rule plus one rule per syntax-hint linked page. See DESIGN.md.
 
 import { extractSyntaxHintUrls, type Fetcher } from "./loader";
 import type { InferenceRule } from "./proof";
-import { gifAssertionRule } from "./rule";
+import { gifAssertionRule, uniAssertionRule } from "./rule";
 
-/** The single built-in rule: "wff chi" ==> "$TOP |- chi". */
-export const TOP_RULE: InferenceRule = {
+/** Built-in top rule for GIF pages: "wff chi" ==> "$TOP |- chi". */
+export const GIF_TOP_RULE: InferenceRule = {
   assumptions: [["wff", "chi"]],
   conclusion: ["$TOP", "|-", "chi"],
 };
 
+/** Built-in top rule for Unicode pages: "wff chi" ==> "$TOP ⊢ chi". */
+export const UNI_TOP_RULE: InferenceRule = {
+  assumptions: [["wff", "chi"]],
+  conclusion: ["$TOP", "⊢", "chi"],
+};
+
+type RuleExtractor = (doc: Document) => InferenceRule | null;
+
 /**
- * Assembles the grammar for a GIF page: the built-in $TOP rule followed by one
- * rule per syntax-hint linked page (its Assertion, via gifAssertionRule). One
- * level deep — the syntax-hint pages are not themselves recursed into.
+ * Assembles a grammar: `topRule` followed by one rule per syntax-hint linked
+ * page (extracted with `extract`). One level deep — the syntax-hint pages are
+ * not themselves recursed into.
  */
-export async function assembleGifGrammar(
+async function assembleGrammar(
   doc: Document,
   pageUrl: string,
   fetcher: Fetcher,
+  topRule: InferenceRule,
+  extract: RuleExtractor,
 ): Promise<InferenceRule[]> {
   const parser = new DOMParser();
   const urls = extractSyntaxHintUrls(doc, pageUrl);
   const rules = await Promise.all(
-    urls.map(async (url) => {
-      const linked = parser.parseFromString(await fetcher(url), "text/html");
-      return gifAssertionRule(linked);
-    }),
+    urls.map(async (url) =>
+      extract(parser.parseFromString(await fetcher(url), "text/html")),
+    ),
   );
-  return [TOP_RULE, ...rules.filter((r): r is InferenceRule => r !== null)];
+  return [topRule, ...rules.filter((r): r is InferenceRule => r !== null)];
 }
+
+export const assembleGifGrammar = (
+  doc: Document,
+  pageUrl: string,
+  fetcher: Fetcher,
+): Promise<InferenceRule[]> =>
+  assembleGrammar(doc, pageUrl, fetcher, GIF_TOP_RULE, gifAssertionRule);
+
+export const assembleUniGrammar = (
+  doc: Document,
+  pageUrl: string,
+  fetcher: Fetcher,
+): Promise<InferenceRule[]> =>
+  assembleGrammar(doc, pageUrl, fetcher, UNI_TOP_RULE, uniAssertionRule);

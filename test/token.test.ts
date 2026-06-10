@@ -27,7 +27,8 @@ describe("tokenizeMathSpan (mpeuni)", () => {
       { kind: "wff", text: "𝜓" },
       { kind: null, text: "↔" },
       { kind: "wff", text: "𝜃" },
-      { kind: null, text: "))" },
+      { kind: null, text: ")" },
+      { kind: null, text: ")" },
     ]);
   });
 });

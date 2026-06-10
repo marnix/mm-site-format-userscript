@@ -14,9 +14,16 @@ export type Token =
   | { kind: null; text: string } // constant: operator, parenthesis, turnstile
   | { kind: VariableKind; text: string }; // typed variable
 
-function pushWords(text: string, out: Token[]): void {
-  for (const word of text.split(/\s+/)) {
-    if (word) out.push({ kind: null, text: word });
+/**
+ * Splits constant text into individual MM tokens. Besides whitespace, this also
+ * separates parentheses, because the Unicode rendering runs adjacent constants
+ * together by omitting the whitespace between them (e.g. ") )" → "))").
+ */
+function pushConstants(text: string, out: Token[]): void {
+  for (const piece of text.split(/\s+/)) {
+    for (const token of piece.match(/[()]|[^()]+/g) ?? []) {
+      out.push({ kind: null, text: token });
+    }
   }
 }
 
@@ -35,10 +42,10 @@ export function tokenizeMathSpan(span: Element, kinds: Set<string>): Token[] {
         const text = el.textContent?.trim() ?? "";
         if (text) tokens.push({ kind: cls, text });
       } else {
-        pushWords(el.textContent ?? "", tokens);
+        pushConstants(el.textContent ?? "", tokens);
       }
     } else if (node.nodeType === Node.TEXT_NODE) {
-      pushWords(node.nodeValue ?? "", tokens);
+      pushConstants(node.nodeValue ?? "", tokens);
     }
   }
   return tokens;
@@ -60,7 +67,7 @@ export function tokenizeGifRun(
   const tokens: Token[] = [];
   for (const node of nodes) {
     if (node.nodeType === Node.TEXT_NODE) {
-      pushWords(node.nodeValue ?? "", tokens);
+      pushConstants(node.nodeValue ?? "", tokens);
       continue;
     }
     const img = node as Element;

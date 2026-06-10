@@ -5,7 +5,9 @@
 // linked page. See DESIGN.md "Grammar rules".
 
 import { extractGifText, findGifRuns } from "./expression";
+import { parseKindNames } from "./kind";
 import type { Expression, InferenceRule } from "./proof";
+import { tokenizeMathSpan } from "./token";
 
 /** The tokens of one GIF run (img alts + literal text), as a token sequence. */
 function runTokens(run: Node[]): Expression {
@@ -27,4 +29,24 @@ export function gifAssertionRule(doc: Document): InferenceRule | null {
   const assumptions = hypotheses ? findGifRuns(hypotheses).map(runTokens) : [];
 
   return { assumptions, conclusion: runTokens(conclusionRun) };
+}
+
+/**
+ * Extracts the grammar rule from a Unicode syntax-definition page: the
+ * conclusion from the Assertion's `span.math`, the assumptions from each
+ * Hypotheses `span.math`. Variable kinds come from the span classes (no colour).
+ */
+export function uniAssertionRule(doc: Document): InferenceRule | null {
+  const kinds = parseKindNames(doc);
+  const tokens = (span: Element): Expression =>
+    tokenizeMathSpan(span, kinds).map((t) => t.text);
+
+  const conclusion = doc.querySelector('table[summary="Assertion"] span.math');
+  if (!conclusion) return null;
+
+  const assumptions = [
+    ...doc.querySelectorAll('table[summary="Hypotheses"] span.math'),
+  ].map(tokens);
+
+  return { assumptions, conclusion: tokens(conclusion) };
 }
