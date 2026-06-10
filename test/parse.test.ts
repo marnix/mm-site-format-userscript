@@ -1,0 +1,61 @@
+import { describe, expect, it } from "vitest";
+import { parseExpression, type KindOf } from "../src/parse";
+import { evaluate, type InferenceRule } from "../src/proof";
+
+const wi: InferenceRule = {
+  assumptions: [
+    ["wff", "ph"],
+    ["wff", "ps"],
+  ],
+  conclusion: ["wff", "(", "ph", "->", "ps", ")"],
+};
+const wb: InferenceRule = {
+  assumptions: [
+    ["wff", "ph"],
+    ["wff", "ps"],
+  ],
+  conclusion: ["wff", "(", "ph", "<->", "ps", ")"],
+};
+const top: InferenceRule = {
+  assumptions: [["wff", "chi"]],
+  conclusion: ["$TOP", "|-", "chi"],
+};
+const rules = [wi, wb, top];
+
+const wffVars = new Set(["ph", "ps", "ch", "th", "chi"]);
+const kindOf: KindOf = (t) => (wffVars.has(t) ? "wff" : undefined);
+
+describe("parseExpression", () => {
+  it("parses the bitrdi assertion as a $TOP statement", () => {
+    // |- ( ph -> ( ps <-> th ) )
+    const tokens = ["|-", "(", "ph", "->", "(", "ps", "<->", "th", ")", ")"];
+    const proof = parseExpression(tokens, "$TOP", rules, kindOf);
+    expect(proof).not.toBeNull();
+    // Cross-check via the kernel: it must be a closed proof of the statement.
+    const established = evaluate(proof!);
+    expect(established.conclusion).toEqual([
+      "$TOP", "|-", "(", "ph", "->", "(", "ps", "<->", "th", ")", ")",
+    ]); // prettier-ignore
+    expect(established.assumptions).toEqual([]);
+  });
+
+  it("parses a bare wff expression directly (no $TOP)", () => {
+    const tokens = ["(", "ph", "->", "ps", ")"];
+    const proof = parseExpression(tokens, "wff", rules, kindOf);
+    expect(proof).not.toBeNull();
+    expect(evaluate(proof!).conclusion).toEqual([
+      "wff", "(", "ph", "->", "ps", ")",
+    ]); // prettier-ignore
+  });
+
+  it("returns null for a non-expression", () => {
+    expect(parseExpression(["|-", "(", ")"], "$TOP", rules, kindOf)).toBeNull();
+  });
+
+  it("returns null when tokens are left over", () => {
+    // trailing junk after a complete wff
+    expect(
+      parseExpression(["(", "ph", "->", "ps", ")", "ph"], "wff", rules, kindOf),
+    ).toBeNull();
+  });
+});
