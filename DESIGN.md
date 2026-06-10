@@ -69,7 +69,12 @@ by rendering mode:
   and `getImageData` is allowed. The colour→kind map comes from the "Colors of
   variables:" legend on the same page, which is itself machine-readable, e.g.
   `<SPAN CLASS=wff STYLE="color:blue">wff</SPAN>` (blue→wff, red→setvar,
-  `#C3C`→class).
+  `#C3C`→class). Confirmed empirically: the dominant ink pixel of each variable
+  GIF is an _exact_ match to a legend colour (`_varphi.gif`→`(0,0,255)`,
+  `_x.gif`→`(255,0,0)`, `_ca.gif`→`(204,51,204)`), so kind lookup is an exact
+  colour-equality test — no nearest-colour tolerance needed. Recipe: draw the
+  `<img>` to a canvas, take the most common opaque non-white pixel, match it to
+  the legend.
 
 A page plus its direct links is **self-contained** for parsing: the rules come
 from the syntax-hint links (see Grammar rules), and the leaf kinds come from the
