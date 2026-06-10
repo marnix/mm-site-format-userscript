@@ -5,7 +5,6 @@ import {
   parseKindNames,
   type VariableKind,
 } from "./kind";
-import { loadLinkedPages } from "./loader";
 import { formatTokens, tokenizeGifRun, tokenizeMathSpan } from "./token";
 
 declare const __USERSCRIPT_VERSION__: string;
@@ -39,25 +38,5 @@ if (document.querySelector('table[summary="Proof of theorem"]')) {
         formatTokens(tokenizeGifRun(imgs, gifColors, canvasSampler, gifCache)),
       );
     }
-  });
-
-  const pageUrl = window.location.href;
-  const fetcher = (url: string) => fetch(url).then((r) => r.text());
-  loadLinkedPages(document, pageUrl, fetcher).then((pages) => {
-    console.group(`[mm-site-format] ${pages.size} linked pages`);
-    for (const [url, linkedDoc] of pages) {
-      const name = url.split("/").pop()!.replace(".html", "");
-      const heading =
-        linkedDoc.querySelector("font[size='+1']")?.textContent?.trim() ?? name;
-      const descNode = [...linkedDoc.querySelectorAll("b")].find(
-        (b) => b.textContent?.trim() === "Description:",
-      );
-      const desc = descNode?.parentElement?.textContent
-        ?.replace("Description:", "")
-        .trim()
-        .split(".")[0];
-      console.log(`${name}: ${heading}${desc ? " — " + desc : ""}`);
-    }
-    console.groupEnd();
   });
 }
