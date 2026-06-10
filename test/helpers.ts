@@ -8,3 +8,8 @@ const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "fixtures");
 export function readFixture(variant: string, name: string): string {
   return readFileSync(join(fixturesDir, variant, name), "utf-8");
 }
+
+/** Reads a binary fixture (e.g. a GIF image) as bytes. */
+export function readFixtureBytes(variant: string, name: string): Uint8Array {
+  return new Uint8Array(readFileSync(join(fixturesDir, variant, name)));
+}
