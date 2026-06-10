@@ -115,18 +115,84 @@ wi
     └── χ   (wff leaf)
 ```
 
-## Parsing algorithm
+## Parsing as proof search (GIF pages first)
 
-Given the collected grammar rules and the DOM of a `<SPAN CLASS=math>` element:
+A parse tree _is_ a proof, exactly as the metamath program builds one with
+`improve all` (see the `/tmp/parse-example.mm` experiment). We reproduce that
+model directly. This is built for GIF-based expressions first.
 
-1. **Tokenise**: walk DOM children to produce a flat list of tokens — either a
-   typed-variable span or a literal string (operator / punctuation).
-2. **Recursive-descent parse**: try each grammar rule in turn; a rule matches
-   when its pattern of literals and typed sub-expressions aligns with the
-   remaining token list. Return the first match. Variables are matched by type.
+### Config section (top of the userscript)
 
-Because MM expressions are fully parenthesised, the grammar is unambiguous and
-the parse is deterministic.
+`$TOP` is just an ordinary token (like `|-`, `)`, or `Disj`), chosen because
+`$…` is never a valid MM token, so it cannot clash. The _only_ thing built in
+globally is one inference rule:
+
+    "wff chi"  ==>  "$TOP |- chi"
+
+Parsing an assertion `E` (which itself begins with `|-`) means **proving it with
+target type `$TOP`** — i.e. proving the statement `$TOP <E>`.
+
+### Data types
+
+- **Expression** — a sequence of tokens (each token a string). _Not_ a single
+  string, because Unicode pages render without spaces between tokens. (Whether
+  to embed the variable kind in a token is undecided; for now it is not — a
+  token is recognised as a variable via the page's kind registry.)
+- **Inference rule** — zero or more assumption expressions and one conclusion,
+  `A1 & A2 & … ==> C`. Grammar rules
+  (`wi: wff ph & wff ps ==> wff ( ph -> ps )`), variable typings, and config
+  rules are all inference rules.
+- **Substitution** — a map from variable token to expression. `substitute(σ, R)`
+  returns a variant of rule `R` with all variables replaced simultaneously.
+  (This is a plain function on rules, not a proof node.)
+- **Proof** — one of:
+  - `hyp H` — a leaf; evaluates to `H ==> H`.
+  - `apply R [p1 … pn]` — `R` is an inference rule (e.g. `wi`, or a substituted
+    instance `substitute(σ, wi)`), _not_ a proof. Evaluate each `pi`; check each
+    `pi`'s conclusion is identical to the matching assumption of `R`; the result
+    keeps every `pi`'s assumptions as its assumptions and `R`'s conclusion as
+    its conclusion.
+
+A variable in any rule or goal is recognised via the page's **kind registry**
+(`token → kind`, from colour/class detection) — kinds are not embedded in the
+token. A rule's **result type** is the first token of its conclusion; the rest
+is the pattern matched against an expression.
+
+### Evaluation and validation
+
+`evaluate(proof) → inference rule`. For a correct parse of expression `E`, the
+proof of `$TOP |- E` evaluates to a rule whose assumptions are _exactly_ the
+kind-typings of `E`'s variables, e.g.
+
+    wff ph & wff ps & wff th  ==>  $TOP |- ( ph -> ( ps <-> th ) )
+
+That cross-checks against the kinds detected by colour: the same multiset of
+variable typings, no more and no less.
+
+`evaluate` is a **verification tool for tests only** — it double-checks that a
+generated parse tree really proves what it should. The userscript runtime uses
+the `Proof` tree directly (e.g. for hover highlighting) and does not need
+`evaluate`, so it tree-shakes out of the shipped bundle until something imports
+it.
+
+### The parser (proof search)
+
+Recursive descent directed by target type,
+`parse(tokens, pos, T) → {proof, nextPos}`:
+
+- If the token at `pos` is a variable of kind `T`, it is a leaf: return
+  `hyp([T, token])`, consuming one token.
+- Otherwise try each rule whose result type is `T`. Match its pattern against
+  the tokens: a literal (constant) token must equal the current token; a hole
+  (the rule's variable, of kind `K`) is filled by recursively parsing a
+  sub-expression of type `K`, recording the binding and consuming what it
+  consumes. On a full match, build `σ` from the hole bindings and return
+  `apply(substitute(σ, rule), subProofs)`.
+
+The resulting proof object _is_ the parse tree. If nothing matches the parser
+returns failure — which doubles as the filter for accidental non-expressions.
+Because MM expressions are fully parenthesised the grammar is unambiguous, so
+first-match is expected to be deterministic.
 
 ## Hover highlighting
 
