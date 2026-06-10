@@ -138,20 +138,20 @@ target type `$TOP`** — i.e. proving the statement `$TOP <E>`.
   string, because Unicode pages render without spaces between tokens. (Whether
   to embed the variable kind in a token is undecided; for now it is not — a
   token is recognised as a variable via the page's kind registry.)
-- **Inference rule** — zero or more assumption expressions and one conclusion,
-  `A1 & A2 & … ==> C`. Grammar rules
+- **Inference rule** — a (possibly empty) **unordered** set of assumption
+  expressions and one conclusion, `A1 & A2 & … ==> C`. Grammar rules
   (`wi: wff ph & wff ps ==> wff ( ph -> ps )`), variable typings, and config
   rules are all inference rules.
 - **Substitution** — a map from variable token to expression. `substitute(σ, R)`
   returns a variant of rule `R` with all variables replaced simultaneously.
   (This is a plain function on rules, not a proof node.)
 - **Proof** — one of:
-  - `hyp H` — a leaf; evaluates to `H ==> H`.
-  - `apply R [p1 … pn]` — `R` is an inference rule (e.g. `wi`, or a substituted
-    instance `substitute(σ, wi)`), _not_ a proof. Evaluate each `pi`; check each
-    `pi`'s conclusion is identical to the matching assumption of `R`; the result
-    keeps every `pi`'s assumptions as its assumptions and `R`'s conclusion as
-    its conclusion.
+  - `hyp H` — a leaf; evaluates to `H ==> H` (adds `H` as an assumption).
+  - `apply R σ [p1 … pn]` — combines substitution and application: `R` is a base
+    inference rule, `σ` a substitution; let `R2 = substitute(σ, R)`. Evaluate
+    each `pi`; the set of their conclusions must equal `R2`'s assumptions
+    (unordered); the result keeps the union of the `pi`'s assumptions and `R2`'s
+    conclusion.
 
 A variable in any rule or goal is recognised via the page's **kind registry**
 (`token → kind`, from colour/class detection) — kinds are not embedded in the
