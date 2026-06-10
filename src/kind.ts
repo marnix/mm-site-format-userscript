@@ -53,6 +53,11 @@ export function parseKindColors(doc: Document): KindColors {
   return colors;
 }
 
+/** The variable kind names declared in the legend (e.g. wff, setvar, class). */
+export function parseKindNames(doc: Document): Set<string> {
+  return new Set(parseKindColors(doc).values());
+}
+
 /**
  * Finds the dominant ink colour in a run of RGBA pixels (as returned by
  * `CanvasRenderingContext2D.getImageData().data`): the most common pixel that
@@ -101,11 +106,14 @@ export function variableKindOfImg(
 /** Browser sampler: draws the already-loaded <img> to a canvas and reads it. */
 export const canvasSampler: ImageSampler = (img) => {
   const el = img as HTMLImageElement;
+  const w = el.naturalWidth || el.width;
+  const h = el.naturalHeight || el.height;
+  if (!w || !h) return new Uint8ClampedArray(); // image not loaded yet
   const canvas = document.createElement("canvas");
-  canvas.width = el.naturalWidth || el.width;
-  canvas.height = el.naturalHeight || el.height;
+  canvas.width = w;
+  canvas.height = h;
   const ctx = canvas.getContext("2d");
   if (!ctx) return new Uint8ClampedArray();
   ctx.drawImage(el, 0, 0);
-  return ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  return ctx.getImageData(0, 0, w, h).data;
 };
