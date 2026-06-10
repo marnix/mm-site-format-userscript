@@ -28,16 +28,15 @@ const top: InferenceRule = {
   conclusion: ["$TOP", "|-", "chi"],
 };
 
-const hyp = (expr: string[]): Proof => ({ tag: "hyp", expr });
 const apply = (
   rule: InferenceRule,
   subst: Substitution,
   subproofs: Proof[],
-): Proof => ({ tag: "apply", rule, subst, subproofs });
+): Proof => ({ rule, subst, subproofs });
 const sub = (pairs: [string, string[]][]): Substitution => new Map(pairs);
-
-const assumptionSet = (rule: InferenceRule): Set<string> =>
-  new Set(rule.assumptions.map((a) => a.join(" ")));
+// A leaf: a variable's kind-typing as a zero-assumption rule, no sub-proofs.
+const leaf = (...typing: string[]): Proof =>
+  apply({ assumptions: [], conclusion: typing }, new Map(), []);
 
 // Parse tree of  ( ph -> ( ps <-> th ) )  wrapped as a $TOP statement,
 // matching the tree the metamath binary produces: wi(wph, wb(wps, wth)).
@@ -47,7 +46,7 @@ const wbStep = apply(
     ["ph", ["ps"]],
     ["ps", ["th"]],
   ]),
-  [hyp(["wff", "ps"]), hyp(["wff", "th"])],
+  [leaf("wff", "ps"), leaf("wff", "th")],
 );
 const wiStep = apply(
   wi,
@@ -55,7 +54,7 @@ const wiStep = apply(
     ["ph", ["ph"]],
     ["ps", ["(", "ps", "<->", "th", ")"]],
   ]),
-  [hyp(["wff", "ph"]), wbStep],
+  [leaf("wff", "ph"), wbStep],
 );
 const bitrdiProof = apply(
   top,
@@ -70,10 +69,9 @@ describe("evaluate (bitrdi parse tree)", () => {
     ]); // prettier-ignore
   });
 
-  it("has exactly the variable kind-typings as assumptions", () => {
-    expect(assumptionSet(evaluate(bitrdiProof))).toEqual(
-      new Set(["wff ph", "wff ps", "wff th"]),
-    );
+  it("is a closed proof — no open assumptions left", () => {
+    // Each variable typing is discharged by a zero-assumption leaf rule.
+    expect(evaluate(bitrdiProof).assumptions).toEqual([]);
   });
 });
 
@@ -85,7 +83,7 @@ describe("evaluate (assumption matching)", () => {
         ["ph", ["ps"]],
         ["ps", ["th"]],
       ]),
-      [hyp(["wff", "th"]), hyp(["wff", "ps"])], // reversed
+      [leaf("wff", "th"), leaf("wff", "ps")], // reversed
     );
     expect(evaluate(swapped).conclusion).toEqual([
       "wff", "(", "ps", "<->", "th", ")",
@@ -99,7 +97,7 @@ describe("evaluate (assumption matching)", () => {
         ["ph", ["ps"]],
         ["ps", ["th"]],
       ]),
-      [hyp(["wff", "ps"]), hyp(["wff", "ch"])], // ch, not th
+      [leaf("wff", "ps"), leaf("wff", "ch")], // ch, not th
     );
     expect(() => evaluate(bad)).toThrow();
   });

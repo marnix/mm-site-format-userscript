@@ -17,19 +17,17 @@ export interface InferenceRule {
 export type Substitution = Map<string, Expression>;
 
 /**
- * A proof, which doubles as a parse tree:
- * - `hyp` — a leaf, establishing `expr ==> expr`.
- * - `apply` — substitution + application combined: take base rule `rule`, apply
- *   `subst` to get R2, then discharge R2's assumptions with `subproofs`.
+ * A proof, which doubles as a parse tree: substitution + application combined.
+ * Take base `rule`, apply `subst` to get R2 = substitute(subst, rule), then
+ * discharge R2's assumptions with `subproofs`. A leaf is the degenerate case —
+ * a zero-assumption rule (a variable's kind-typing, `() ==> wff ph`) with no
+ * sub-proofs.
  */
-export type Proof =
-  | { tag: "hyp"; expr: Expression }
-  | {
-      tag: "apply";
-      rule: InferenceRule;
-      subst: Substitution;
-      subproofs: Proof[];
-    };
+export interface Proof {
+  rule: InferenceRule;
+  subst: Substitution;
+  subproofs: Proof[];
+}
 
 const key = (expr: Expression): string => expr.join(" ");
 
@@ -59,20 +57,16 @@ export function substitute(
 }
 
 /**
- * Evaluates a proof to the inference rule it establishes.
- *
- * - `hyp H` establishes `H ==> H`.
- * - `apply R σ [p1…pn]`: with `R2 = substitute(σ, R)`, the set of the
- *   sub-proofs' conclusions must equal `R2`'s (unordered) assumptions; the
- *   result is the union of the sub-proofs' assumptions ==> `R2`'s conclusion.
+ * Evaluates a proof to the inference rule it establishes. With
+ * `R2 = substitute(subst, rule)`, the set of the sub-proofs' conclusions must
+ * equal `R2`'s (unordered) assumptions; the result is the union of the
+ * sub-proofs' assumptions ==> `R2`'s conclusion. A leaf (no sub-proofs, a
+ * zero-assumption rule) just yields that rule.
  *
  * This is a verification tool for tests — it double-checks a generated parse
  * tree. The runtime uses the Proof tree directly and does not call it.
  */
 export function evaluate(proof: Proof): InferenceRule {
-  if (proof.tag === "hyp") {
-    return { assumptions: [proof.expr], conclusion: proof.expr };
-  }
   const rule = substitute(proof.subst, proof.rule);
   const needed = new Set(rule.assumptions.map(key));
   const discharged = new Set<string>();
