@@ -36,8 +36,10 @@ export function extractMathText(span: Element): string {
  * least one image and at least two tokens (images + text words) — that keeps
  * the smallest real expressions ("wff ph", "class Rels") while rejecting prose
  * (no images) and isolated syntax-hint symbols (one token).
+ *
+ * `root` may be the whole document or any element (e.g. one Assertion table).
  */
-export function findGifRuns(doc: Document): Node[][] {
+export function findGifRuns(root: Node): Node[][] {
   const runs: Node[][] = [];
 
   function scan(parent: Node): void {
@@ -72,7 +74,7 @@ export function findGifRuns(doc: Document): Node[][] {
     flush();
   }
 
-  if (doc.body) scan(doc.body);
+  scan(root);
   return runs;
 }
 
