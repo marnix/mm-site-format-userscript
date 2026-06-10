@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { assembleGifGrammar, TOP_RULE } from "../src/grammar";
 import { parseExpression, type KindOf } from "../src/parse";
 import { evaluate } from "../src/proof";
-import { gifSampler, readFixture } from "./helpers";
+import { readFixture } from "./helpers";
 
 const PAGE_URL = "https://us.metamath.org/mpegif/bitrdi.html";
 
@@ -19,12 +19,7 @@ const fetcher = vi.fn(async (url: string) =>
 
 describe("assembleGifGrammar", () => {
   it("collects the $TOP rule plus a rule per syntax-hint page (wi, wb)", async () => {
-    const rules = await assembleGifGrammar(
-      doc,
-      PAGE_URL,
-      fetcher,
-      gifSampler("mpegif"),
-    );
+    const rules = await assembleGifGrammar(doc, PAGE_URL, fetcher);
 
     expect(rules[0]).toEqual(TOP_RULE);
     const conclusions = rules.map((r) => r.conclusion.join(" "));
@@ -34,12 +29,7 @@ describe("assembleGifGrammar", () => {
   });
 
   it("the assembled grammar parses the bitrdi assertion end to end", async () => {
-    const rules = await assembleGifGrammar(
-      doc,
-      PAGE_URL,
-      fetcher,
-      gifSampler("mpegif"),
-    );
+    const rules = await assembleGifGrammar(doc, PAGE_URL, fetcher);
     const wff = new Set(["ph", "ps", "ch", "th", "chi"]);
     const kindOf: KindOf = (t) => (wff.has(t) ? "wff" : undefined);
 

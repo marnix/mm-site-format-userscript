@@ -1,42 +1,30 @@
-// Extracts an inference (grammar) rule from a syntax-definition page. The rule's
-// conclusion is the tokenised Assertion; its assumptions are the kind-typings of
-// the distinct variables occurring in that conclusion (the mandatory $f
-// hypotheses). See DESIGN.md "Grammar rules" / "Parsing as proof search".
+// Extracts an inference (grammar) rule from a GIF syntax-definition page. The
+// conclusion is the Assertion expression; the assumptions are the mandatory
+// variable typings from the Hypotheses table (e.g. "wff ph"). Both are read as
+// plain ALT text — no colour sampling — so this works on a fetched, unrendered
+// linked page. See DESIGN.md "Grammar rules".
 
-import { findGifRuns } from "./expression";
-import type { ImageSampler, KindColors } from "./kind";
+import { extractGifText, findGifRuns } from "./expression";
 import type { Expression, InferenceRule } from "./proof";
-import { tokenizeGifRun, type Token } from "./token";
 
-/**
- * Builds an inference rule from a tokenised expression: the tokens are the
- * conclusion, and each distinct typed-variable token contributes a kind-typing
- * assumption (`ph` of kind `wff` → assumption `wff ph`).
- */
-export function ruleFromTokens(tokens: Token[]): InferenceRule {
-  const conclusion: Expression = tokens.map((t) => t.text);
-  const assumptions: Expression[] = [];
-  const seen = new Set<string>();
-  for (const t of tokens) {
-    if (t.kind !== null && !seen.has(t.text)) {
-      seen.add(t.text);
-      assumptions.push([t.kind, t.text]);
-    }
-  }
-  return { assumptions, conclusion };
+/** The tokens of one GIF run (img alts + literal text), as a token sequence. */
+function runTokens(run: Node[]): Expression {
+  return extractGifText(run).split(" ");
 }
 
 /**
- * Extracts the grammar rule from a GIF syntax-definition page by tokenising the
- * expression in its `SUMMARY="Assertion"` table. Returns null if absent.
+ * Extracts the grammar rule from a GIF syntax-definition page: the conclusion
+ * from `SUMMARY="Assertion"`, the assumptions from `SUMMARY="Hypotheses"` (each
+ * row a variable typing). Returns null if there is no Assertion.
  */
-export function gifAssertionRule(
-  doc: Document,
-  colors: KindColors,
-  sample: ImageSampler,
-): InferenceRule | null {
-  const table = doc.querySelector('table[summary="Assertion"]');
-  if (!table) return null;
-  const [run] = findGifRuns(table);
-  return run ? ruleFromTokens(tokenizeGifRun(run, colors, sample)) : null;
+export function gifAssertionRule(doc: Document): InferenceRule | null {
+  const assertion = doc.querySelector('table[summary="Assertion"]');
+  if (!assertion) return null;
+  const [conclusionRun] = findGifRuns(assertion);
+  if (!conclusionRun) return null;
+
+  const hypotheses = doc.querySelector('table[summary="Hypotheses"]');
+  const assumptions = hypotheses ? findGifRuns(hypotheses).map(runTokens) : [];
+
+  return { assumptions, conclusion: runTokens(conclusionRun) };
 }

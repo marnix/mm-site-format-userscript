@@ -1,7 +1,6 @@
 // Assembles the grammar (set of inference rules) for a page: the built-in $TOP
 // rule plus one rule per syntax-hint linked page. See DESIGN.md.
 
-import { parseKindColors, type ImageSampler } from "./kind";
 import { extractSyntaxHintUrls, type Fetcher } from "./loader";
 import type { InferenceRule } from "./proof";
 import { gifAssertionRule } from "./rule";
@@ -21,14 +20,13 @@ export async function assembleGifGrammar(
   doc: Document,
   pageUrl: string,
   fetcher: Fetcher,
-  sample: ImageSampler,
 ): Promise<InferenceRule[]> {
   const parser = new DOMParser();
   const urls = extractSyntaxHintUrls(doc, pageUrl);
   const rules = await Promise.all(
     urls.map(async (url) => {
       const linked = parser.parseFromString(await fetcher(url), "text/html");
-      return gifAssertionRule(linked, parseKindColors(linked), sample);
+      return gifAssertionRule(linked);
     }),
   );
   return [TOP_RULE, ...rules.filter((r): r is InferenceRule => r !== null)];

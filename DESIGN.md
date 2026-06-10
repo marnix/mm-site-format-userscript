@@ -76,6 +76,14 @@ by rendering mode:
   `<img>` to a canvas, take the most common opaque non-white pixel, match it to
   the legend.
 
+**Colour is only ever needed on the current, rendered page.** A
+syntax-definition page states its variables' kinds as text typecodes in its
+Hypotheses table (`wff ph`, read from the ALT), so rule extraction from a
+fetched (unrendered) linked page needs no colour sampling. Sampling — which
+requires a rendered `<img>` — is confined to the current page, where it supplies
+the kinds of the goal expressions' own variables (e.g. `th`), which carry no
+typecode.
+
 A page plus its direct links is **self-contained** for parsing: the rules come
 from the syntax-hint links (see Grammar rules), and the leaf kinds come from the
 page itself by the means above. Note that a variable like `th` is _not_ given an
