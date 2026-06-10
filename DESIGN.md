@@ -202,6 +202,23 @@ returns failure — which doubles as the filter for accidental non-expressions.
 Because MM expressions are fully parenthesised the grammar is unambiguous, so
 first-match is expected to be deterministic.
 
+### Limitation: incomplete syntax hints
+
+The grammar is assembled only from the page's own "Syntax hints" links (one
+level deep). A proof may _display_ an expression built from a constructor that
+the page's syntax hints omit — when that constructor is introduced only by a
+referenced definition. For example, `mpegif/disjrel.html` shows the proof step
+
+```
+( Disj R <-> ( CnvRefRel ,~ `' R /\ Rel R ) )
+```
+
+(the body of the referenced `df-disjALTV`), but `<->` (`wb`) and `/\` are not
+among disjrel's syntax hints, so this expression cannot be parsed and is left
+unmarked. This is consistent with the ignore-if-no-parse-tree principle; fully
+resolving it would require following the proof's Ref-column links to gather
+their syntax too.
+
 ## Hover highlighting
 
 Each parse-tree node spans a contiguous range of DOM tokens. On `mouseenter`

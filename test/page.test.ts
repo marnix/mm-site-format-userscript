@@ -39,6 +39,44 @@ describe("parseGifExpressions (mpegif/bitrdi)", () => {
   });
 });
 
+describe("parseGifExpressions (mpegif/disjrel)", () => {
+  const doc = new DOMParser().parseFromString(
+    readFixture("mpegif", "disjrel.html"),
+    "text/html",
+  );
+  const fetcher = vi.fn(async (url: string) =>
+    readFixture("mpegif", url.split("/").pop()!),
+  );
+
+  const find = (results: { tokens: { text: string }[] }[], prefix: string) =>
+    results.find((r) =>
+      r.tokens
+        .map((t) => t.text)
+        .join(" ")
+        .startsWith(prefix),
+    );
+
+  it("parses ( Disj R -> Rel R ) — single-hypothesis rules (Rel, Disj)", async () => {
+    const results = await parseGifExpressions(
+      doc,
+      "https://us.metamath.org/mpegif/disjrel.html",
+      fetcher,
+      gifSampler("mpegif"),
+    );
+
+    const stmt = find(results, "|- ( Disj R -> Rel R )");
+    expect(stmt?.proof).not.toBeNull();
+    expect(evaluate(stmt!.proof!).conclusion).toEqual([
+      "$TOP", "|-", "(", "Disj", "R", "->", "Rel", "R", ")",
+    ]); // prettier-ignore
+
+    // The "<->" definitional cross-reference uses constructors (wb, cin) that
+    // are not among this theorem's syntax hints, so it is out of grammar.
+    const def = find(results, "|- ( Disj R <->");
+    expect(def?.proof).toBeNull();
+  });
+});
+
 describe("parseUniExpressions (mpeuni/bitrdi)", () => {
   const doc = new DOMParser().parseFromString(
     readFixture("mpeuni", "bitrdi.html"),

@@ -25,7 +25,8 @@ export function gifAssertionRule(doc: Document): InferenceRule | null {
   const [conclusionRun] = findGifRuns(assertion);
   if (!conclusionRun) return null;
 
-  const hypotheses = doc.querySelector('table[summary="Hypotheses"]');
+  // "Hypothesis" (one mandatory hypothesis) or "Hypotheses" (more than one).
+  const hypotheses = doc.querySelector('table[summary^="Hypothes"]');
   const assumptions = hypotheses ? findGifRuns(hypotheses).map(runTokens) : [];
 
   return { assumptions, conclusion: runTokens(conclusionRun) };
@@ -45,7 +46,7 @@ export function uniAssertionRule(doc: Document): InferenceRule | null {
   if (!conclusion) return null;
 
   const assumptions = [
-    ...doc.querySelectorAll('table[summary="Hypotheses"] span.math'),
+    ...doc.querySelectorAll('table[summary^="Hypothes"] span.math'),
   ].map(tokens);
 
   return { assumptions, conclusion: tokens(conclusion) };
