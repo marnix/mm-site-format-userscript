@@ -51,8 +51,33 @@ A **grammar rule** is read from a syntax-definition page. It contains:
   (`<TABLE SUMMARY="Hypotheses">`), the ordered list of types expected at each
   hole.
 
-Variable leaves have no pattern; they are identified by `<SPAN CLASS=wff>` etc.
-directly inside the expression.
+Variable leaves have no pattern; each is a single variable of a known **kind**
+(`wff`, `setvar`, or `class`). The kind is what lets a leaf fill a typed hole.
+
+## Variable kinds (leaf types)
+
+Every variable occurrence on the page carries its kind; how to read it differs
+by rendering mode:
+
+- **Unicode pages** — each variable is a `<SPAN CLASS=wff>` / `CLASS=setvar` /
+  `CLASS=class`. The kind is read directly off the class, definitively and
+  synchronously.
+- **GIF pages** — the kind is the _colour_ of the variable image. The image
+  carries no class or colour attribute (the colour is baked into the pixels), so
+  it must be sampled by drawing the `<img>` to a `<canvas>` and reading a pixel.
+  The images are same-origin (`us.metamath.org`), so the canvas is not tainted
+  and `getImageData` is allowed. The colour→kind map comes from the "Colors of
+  variables:" legend on the same page, which is itself machine-readable, e.g.
+  `<SPAN CLASS=wff STYLE="color:blue">wff</SPAN>` (blue→wff, red→setvar,
+  `#C3C`→class).
+
+A page plus its direct links is **self-contained** for parsing: the rules come
+from the syntax-hint links (see Grammar rules), and the leaf kinds come from the
+page itself by the means above. Note that a variable like `th` is _not_ given an
+explicit `wff th` typecode anywhere on the page set — its kind is conveyed only
+by class/colour. (Even without it, an unambiguous grammar can often infer a
+single token's kind from the hole it occupies; colour/class reading is the
+direct signal, inference a fallback.)
 
 ## Loading linked pages
 
