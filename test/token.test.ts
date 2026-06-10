@@ -1,13 +1,13 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from "vitest";
-import { findGifRuns, findMathSpans } from "../src/expression";
+import { extractGifText, findGifRuns, findMathSpans } from "../src/expression";
 import { parseKindColors, parseKindNames } from "../src/kind";
 import { formatTokens, tokenizeGifRun, tokenizeMathSpan } from "../src/token";
 import { gifSampler, readFixture } from "./helpers";
 
-function parse(variant: string): Document {
+function parse(variant: string, name = "bitrdi.html"): Document {
   return new DOMParser().parseFromString(
-    readFixture(variant, "bitrdi.html"),
+    readFixture(variant, name),
     "text/html",
   );
 }
@@ -49,6 +49,31 @@ describe("tokenizeGifRun (mpegif)", () => {
       { kind: null, text: "<->" },
       { kind: "wff", text: "th" },
       { kind: null, text: ")" },
+      { kind: null, text: ")" },
+    ]);
+  });
+});
+
+describe("tokenizeGifRun with text tokens (mpegif)", () => {
+  const doc = parse("mpegif", "eldisjsim2.html");
+  const colors = parseKindColors(doc);
+  const sample = gifSampler("mpegif");
+  // The assertion: |- ( R e. Disjs -> R e. Rels )
+  const assertion = findGifRuns(doc).find((run) =>
+    extractGifText(run).startsWith("|- ( R e. Disjs"),
+  )!;
+
+  it("treats text class-constants as constants and R as a class variable", () => {
+    expect(tokenizeGifRun(assertion, colors, sample)).toEqual([
+      { kind: null, text: "|-" },
+      { kind: null, text: "(" },
+      { kind: "class", text: "R" },
+      { kind: null, text: "e." },
+      { kind: null, text: "Disjs" },
+      { kind: null, text: "->" },
+      { kind: "class", text: "R" },
+      { kind: null, text: "e." },
+      { kind: null, text: "Rels" },
       { kind: null, text: ")" },
     ]);
   });

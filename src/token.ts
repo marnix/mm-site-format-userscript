@@ -45,17 +45,25 @@ export function tokenizeMathSpan(span: Element, kinds: Set<string>): Token[] {
 }
 
 /**
- * Tokenizes a GIF img-run. Each <img> is one token: a typed variable if its
- * colour matches a variable kind, otherwise a constant. Colour lookups are
- * memoised per image SRC via the (page-scoped) cache.
+ * Tokenizes a GIF run (img[alt] elements and text nodes, from findGifRuns).
+ * Each <img> is one token — a typed variable if its colour matches a variable
+ * kind, otherwise a constant; each text node splits into constant words (e.g.
+ * defined class-constants like "Disjs"). Colour lookups are memoised per image
+ * SRC via the (page-scoped) cache.
  */
 export function tokenizeGifRun(
-  imgs: Element[],
+  nodes: Node[],
   colors: KindColors,
   sample: ImageSampler,
   cache: Map<string, VariableKind | null> = new Map(),
 ): Token[] {
-  return imgs.map((img) => {
+  const tokens: Token[] = [];
+  for (const node of nodes) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      pushWords(node.nodeValue ?? "", tokens);
+      continue;
+    }
+    const img = node as Element;
     const text = (img.getAttribute("alt") ?? "").trim();
     const src = img.getAttribute("src") ?? "";
     let kind = cache.get(src);
@@ -63,8 +71,9 @@ export function tokenizeGifRun(
       kind = variableKindOfImg(img, colors, sample);
       cache.set(src, kind);
     }
-    return kind === null ? { kind: null, text } : { kind, text };
-  });
+    tokens.push(kind === null ? { kind: null, text } : { kind, text });
+  }
+  return tokens;
 }
 
 /** Renders tokens for display, annotating each typed variable as `text:kind`. */

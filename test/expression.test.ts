@@ -56,4 +56,20 @@ describe("findGifRuns + extractGifText (mpegif)", () => {
     expect(exprs).toContain("wff ph");
     expect(exprs).toContain("wff ps");
   });
+
+  it("includes plain-text tokens interleaved with images", () => {
+    // Disjs and Rels are text, not images, on this page.
+    const exprs = findGifRuns(parse("mpegif", "eldisjsim2.html")).map(
+      extractGifText,
+    );
+    expect(exprs).toContain("|- ( R e. Disjs -> R e. Rels )");
+  });
+
+  it("captures a one-image expression with a text constant (class Rels)", () => {
+    // "class Rels" is one image (the typecode) plus a text token.
+    const exprs = findGifRuns(parse("mpegif", "crels.html")).map(
+      extractGifText,
+    );
+    expect(exprs).toContain("class Rels");
+  });
 });

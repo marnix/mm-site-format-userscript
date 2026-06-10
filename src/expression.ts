@@ -29,30 +29,44 @@ export function extractMathText(span: Element): string {
 
 /**
  * mpegif mode: an expression is any run of ≥2 consecutive img[alt] siblings
- * (whitespace-only text nodes between them are ignored). Two is enough — e.g.
- * "wff ph" is a valid MM expression. There is no wrapper element, so we scan
- * the whole document and return each run as a group.
+ * Some tokens are plain text rather than images (e.g. defined class-constants
+ * like "Disjs", or the "class" typecode on a definition page), so a run is a
+ * maximal stretch of img[alt] elements *and* non-whitespace text nodes,
+ * uninterrupted by any other element. A run is an expression when it has at
+ * least one image and at least two tokens (images + text words) — that keeps
+ * the smallest real expressions ("wff ph", "class Rels") while rejecting prose
+ * (no images) and isolated syntax-hint symbols (one token).
  */
-export function findGifRuns(doc: Document): Element[][] {
-  const runs: Element[][] = [];
+export function findGifRuns(doc: Document): Node[][] {
+  const runs: Node[][] = [];
 
   function scan(parent: Node): void {
-    let run: Element[] = [];
+    let run: Node[] = [];
+    let images = 0;
+    let tokens = 0;
     const flush = () => {
-      if (run.length >= 2) runs.push(run);
+      if (images >= 1 && tokens >= 2) runs.push(run);
       run = [];
+      images = 0;
+      tokens = 0;
     };
     for (const node of parent.childNodes) {
       if (node.nodeType === Node.ELEMENT_NODE) {
         const el = node as Element;
         if (el.tagName === "IMG" && el.hasAttribute("alt")) {
           run.push(el);
+          images++;
+          tokens++;
         } else {
           flush();
           scan(el);
         }
-      } else if (node.nodeType === Node.TEXT_NODE && node.nodeValue?.trim()) {
-        flush();
+      } else if (node.nodeType === Node.TEXT_NODE) {
+        const words = (node.nodeValue ?? "").split(/\s+/).filter(Boolean);
+        if (words.length) {
+          run.push(node);
+          tokens += words.length;
+        }
       }
     }
     flush();
@@ -62,14 +76,21 @@ export function findGifRuns(doc: Document): Element[][] {
   return runs;
 }
 
+/** The MM token text of one run node: an img's alt, or a text node's words. */
+function gifNodeText(node: Node): string {
+  return node.nodeType === Node.TEXT_NODE
+    ? (node.nodeValue ?? "")
+    : ((node as Element).getAttribute("alt") ?? "");
+}
+
 /**
- * Extracts the MM expression from one run of img elements by joining their
- * alt attributes and normalising whitespace to single spaces.
+ * Extracts the MM expression from one run by joining its nodes' text (img alt
+ * attributes and literal text) and normalising whitespace to single spaces.
  */
-export function extractGifText(imgs: Element[]): string {
-  return imgs
-    .map((img) => img.getAttribute("alt") ?? "")
-    .join("")
+export function extractGifText(nodes: Node[]): string {
+  return nodes
+    .map(gifNodeText)
+    .join(" ")
     .split(/\s+/)
     .filter(Boolean)
     .join(" ");

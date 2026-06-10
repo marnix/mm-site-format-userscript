@@ -29,7 +29,9 @@ if (document.querySelector('table[summary="Proof of theorem"]')) {
   const gifRuns = findGifRuns(document);
   // Colour sampling needs the variable images decoded. Let the browser tell us
   // when each is ready via img.decode() rather than guessing a delay.
-  const gifImages = gifRuns.flat() as HTMLImageElement[];
+  const gifImages = gifRuns
+    .flat()
+    .filter((n): n is HTMLImageElement => n.nodeType === Node.ELEMENT_NODE);
   Promise.all(gifImages.map((img) => img.decode().catch(() => {}))).then(() => {
     for (const imgs of gifRuns) {
       console.log(
