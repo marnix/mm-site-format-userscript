@@ -28,4 +28,16 @@ describe("parseProofTable", () => {
       ],
     });
   });
+
+  it("copies each Expression with the leading indentation stripped", () => {
+    const doc = new DOMParser().parseFromString(
+      readFixture("mpeuni", "bitrdi.html"),
+      "text/html",
+    );
+    const tree = parseProofTable(doc)!;
+    // The indentation marker (span.i, e.g. ". 2") is gone; the expression stays.
+    expect(tree.expressionHtml.querySelector("span.i")).toBeNull();
+    expect(tree.expressionHtml.querySelector("span.math")).not.toBeNull();
+    expect(tree.expressionHtml.textContent).toContain("↔"); // the goal's ↔
+  });
 });

@@ -20,12 +20,25 @@ const a1i = ref('<a href="a1i.html">a1i</a>');
 const bitrdi1 = ref("bitrdi.1");
 const bitrdi2 = ref("bitrdi.2");
 
+// Expression-column fragments, likewise shared distinct elements.
+const exprGoal = ref("|- ( ph -> ( ps <-> th ) )");
+const exprHyp1 = ref("|- ( ph -> ( ps <-> ch ) )");
+const exprHyp2 = ref("|- ( ch <-> th )");
+const exprStep3 = ref("|- ( ph -> ( ch <-> th ) )");
+
 // The proof tree the table yields: bitrd over bitrdi.1 and a1i-of-bitrdi.2.
 const bitrdiProofTree: ProofTree = {
   refHtml: bitrd,
+  expressionHtml: exprGoal,
   subproofs: [
-    { refHtml: bitrdi1, subproofs: [] },
-    { refHtml: a1i, subproofs: [{ refHtml: bitrdi2, subproofs: [] }] },
+    { refHtml: bitrdi1, expressionHtml: exprHyp1, subproofs: [] },
+    {
+      refHtml: a1i,
+      expressionHtml: exprStep3,
+      subproofs: [
+        { refHtml: bitrdi2, expressionHtml: exprHyp2, subproofs: [] },
+      ],
+    },
   ],
 };
 
@@ -33,7 +46,10 @@ const bitrdiProofTree: ProofTree = {
 const a1iSub: Calculation = {
   kind: "step",
   inferenceRuleRefHtml: a1i,
-  subcalculations: [{ kind: "given", hypothesisRefHtml: bitrdi2 }],
+  expressionHtml: exprStep3,
+  subcalculations: [
+    { kind: "given", hypothesisRefHtml: bitrdi2, expressionHtml: exprHyp2 },
+  ],
   spine: 0,
 };
 
@@ -44,7 +60,11 @@ const a1iSub: Calculation = {
 const example1a: Calculation = {
   kind: "step",
   inferenceRuleRefHtml: bitrd,
-  subcalculations: [{ kind: "given", hypothesisRefHtml: bitrdi1 }, a1iSub],
+  expressionHtml: exprGoal,
+  subcalculations: [
+    { kind: "given", hypothesisRefHtml: bitrdi1, expressionHtml: exprHyp1 },
+    a1iSub,
+  ],
   spine: 0,
 };
 
@@ -52,7 +72,11 @@ const example1a: Calculation = {
 const example1b: Calculation = {
   kind: "step",
   inferenceRuleRefHtml: bitrd,
-  subcalculations: [{ kind: "given", hypothesisRefHtml: bitrdi1 }, a1iSub],
+  expressionHtml: exprGoal,
+  subcalculations: [
+    { kind: "given", hypothesisRefHtml: bitrdi1, expressionHtml: exprHyp1 },
+    a1iSub,
+  ],
   spine: 1,
 };
 

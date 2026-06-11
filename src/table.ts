@@ -1,12 +1,25 @@
 // Builds the proof tree from the "Proof of Theorem" table. Each data row's Ref
-// cell becomes a node's refHtml; the Hyp column lists the step numbers of that
-// node's subproofs, in order (empty for hypotheses). See DESIGN.md.
+// cell becomes a node's refHtml and its Expression cell (with the leading
+// indentation stripped) its expressionHtml; the Hyp column lists the step
+// numbers of that node's subproofs, in order (empty for hypotheses). See
+// DESIGN.md.
 
 import type { ProofTree } from "./calculation";
 
 interface Row {
   ref: Element; // the Ref column cell
+  expression: Element; // the Expression column, indentation stripped
   hyps: number[]; // step numbers cited in the Hyp column, in order
+}
+
+/**
+ * The Expression cell, copied with its leading ". . . n" indentation marker
+ * (`span.i`) and the step anchor removed, leaving just the rendered expression.
+ */
+function expressionHtml(cell: Element): Element {
+  const clone = cell.cloneNode(true) as Element;
+  for (const node of clone.querySelectorAll("span.i, a[name]")) node.remove();
+  return clone;
 }
 
 /**
@@ -22,13 +35,13 @@ export function parseProofTable(doc: Document): ProofTree | null {
   for (const tr of table.querySelectorAll("tr")) {
     // Header rows use <th>, so they have no <td> and are skipped.
     const tds = tr.querySelectorAll("td");
-    if (tds.length < 3) continue;
+    if (tds.length < 4) continue;
     const step = Number(tds[0].textContent?.trim());
     if (!Number.isInteger(step)) continue;
     const hyps = [...(tds[1].textContent ?? "").matchAll(/\d+/g)].map((m) =>
       Number(m[0]),
     );
-    rows.set(step, { ref: tds[2], hyps });
+    rows.set(step, { ref: tds[2], expression: expressionHtml(tds[3]), hyps });
     if (step > lastStep) lastStep = step;
   }
   if (rows.size === 0) return null;
@@ -36,7 +49,11 @@ export function parseProofTable(doc: Document): ProofTree | null {
   const build = (step: number): ProofTree => {
     const row = rows.get(step);
     if (!row) throw new Error(`proof table references missing step ${step}`);
-    return { refHtml: row.ref, subproofs: row.hyps.map(build) };
+    return {
+      refHtml: row.ref,
+      expressionHtml: row.expression,
+      subproofs: row.hyps.map(build),
+    };
   };
   return build(lastStep);
 }

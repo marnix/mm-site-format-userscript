@@ -31,14 +31,17 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     "position:fixed;bottom:0;right:0;background:#333;color:#fff;padding:4px 8px;font-size:12px;opacity:0.8;z-index:9999";
   document.body.appendChild(banner);
 
-  // Render the proof as a calculation, right above the proof table.
+  // Render the proof as a calculation, right above the table — below the
+  // "Proof of Theorem" caption line, above the grid.
   const proofTable = document.querySelector(
     'table[summary="Proof of theorem"]',
   );
   const proofTree = parseProofTable(document);
-  if (proofTree && proofTable?.parentNode) {
-    const calc = proofTreeToCalculation(proofTree);
-    proofTable.parentNode.insertBefore(renderCalculation(calc), proofTable);
+  if (proofTree && proofTable) {
+    const rendered = renderCalculation(proofTreeToCalculation(proofTree));
+    const caption = proofTable.querySelector("caption");
+    if (caption) caption.appendChild(rendered);
+    else proofTable.parentNode?.insertBefore(rendered, proofTable);
   }
 
   const pageUrl = window.location.href;
