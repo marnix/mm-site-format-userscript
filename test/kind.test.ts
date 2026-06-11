@@ -67,3 +67,16 @@ describe("variableKindOfImg", () => {
     expect(variableKindOfImg(img("_vdash.gif"), colors, sample)).toBeNull();
   });
 });
+
+describe("parseKindColors (ILE old <FONT COLOR> legend)", () => {
+  it("reads the FONT-colour legend and maps the 'set' label to setvar", () => {
+    const ile = new DOMParser().parseFromString(
+      readFixture("ilegif", "speano5.html"),
+      "text/html",
+    );
+    const m = parseKindColors(ile);
+    expect(m.get("0,0,255")).toBe("wff"); // <FONT COLOR="#0000FF">wff
+    expect(m.get("255,0,0")).toBe("setvar"); // <FONT COLOR="#FF0000">set → setvar
+    expect(m.get("204,51,204")).toBe("class"); // <FONT COLOR="#CC33CC">class
+  });
+});

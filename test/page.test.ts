@@ -77,6 +77,32 @@ describe("parseGifExpressions (mpegif/disjrel)", () => {
   });
 });
 
+describe("parseGifExpressions (ilegif/speano5)", () => {
+  const doc = new DOMParser().parseFromString(
+    readFixture("ilegif", "speano5.html"),
+    "text/html",
+  );
+  const fetcher = vi.fn(async (url: string) =>
+    readFixture("ilegif", url.split("/").pop()!),
+  );
+
+  it("parses a statement with a class variable V (old <FONT> legend)", async () => {
+    const results = await parseGifExpressions(
+      doc,
+      "https://us.metamath.org/ilegif/speano5.html",
+      fetcher,
+      gifSampler("ilegif"),
+    );
+    const stmt = results.find((r) =>
+      r.tokens
+        .map((t) => t.text)
+        .join(" ")
+        .startsWith("|- ( ( A e. V"),
+    );
+    expect(stmt?.proof).not.toBeNull();
+  });
+});
+
 describe("parseUniExpressions (mpeuni/bitrdi)", () => {
   const doc = new DOMParser().parseFromString(
     readFixture("mpeuni", "bitrdi.html"),

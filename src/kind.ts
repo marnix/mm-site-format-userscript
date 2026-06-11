@@ -36,19 +36,33 @@ export function parseCssColor(value: string): Rgb | null {
   return [at(0), at(2), at(4)];
 }
 
+/** The colour declared on a legend element, via `style="color:…"` or `color=…`. */
+function colourOf(el: Element): Rgb | null {
+  const style = el.getAttribute("style") ?? "";
+  const m = style.match(/color\s*:\s*([^;]+)/i);
+  if (m) return parseCssColor(m[1]);
+  const attr = el.getAttribute("color");
+  return attr ? parseCssColor(attr) : null;
+}
+
 /**
- * Reads the "Colors of variables" legend into a colour→kind map. Each kind is
- * shown as a coloured `<SPAN CLASS=wff STYLE="color:blue">wff</SPAN>` etc.; the
- * class names the kind and the colour is the ink colour its variables use.
+ * Reads the "Colors of variables" legend into a colour→kind map. Each kind is a
+ * coloured sample whose text is the kind name. Two renderings occur: the newer
+ * `<SPAN CLASS=wff STYLE="color:blue">wff</SPAN>` (MPE) and the older
+ * `<FONT COLOR="#0000FF">wff</FONT>` (ILE). The older one labels the setvar kind
+ * "set", which we rewrite to the actual typecode "setvar".
  */
 export function parseKindColors(doc: Document): KindColors {
   const colors: KindColors = new Map();
-  for (const span of doc.querySelectorAll("span[class][style]")) {
-    const kind = span.getAttribute("class")!.trim();
-    const m = span.getAttribute("style")!.match(/color\s*:\s*([^;]+)/i);
-    if (!m || span.textContent?.trim() !== kind) continue;
-    const rgb = parseCssColor(m[1]);
-    if (rgb) colors.set(rgbKey(rgb), kind);
+  const label = [...doc.querySelectorAll("b")].find((b) =>
+    /colors of variables/i.test((b.textContent ?? "").replace(/\s+/g, " ")),
+  );
+  const cell = label?.closest("td") ?? label?.parentElement;
+  if (!cell) return colors;
+  for (const el of cell.querySelectorAll("[style], [color]")) {
+    const name = el.textContent?.trim();
+    const rgb = colourOf(el);
+    if (name && rgb) colors.set(rgbKey(rgb), name === "set" ? "setvar" : name);
   }
   return colors;
 }
