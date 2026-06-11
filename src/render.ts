@@ -1,10 +1,13 @@
-// Renders a calculation as a DOM element to place above the proof table.
-// Following the spine: a step shows its expression, then a hint with its
-// inference-rule Ref and any given sub-calculations (Ref + expression) embedded;
-// step sub-calculations are rendered indented under the hint, in order. All HTML
-// is cloned, so the table is left intact.
+// Renders a calculation as a two-column layout to place above the proof table.
+// Left column: the `⇐` operator (on the hint rows). Right column: expressions,
+// the `{ rule }` hints, and — indented — the step sub-calculations. Following
+// the spine, the spine sub-calculation continues the main line (a given just
+// contributes its expression; given Refs are not rendered for now). All HTML is
+// cloned, so the table is left intact.
 
 import type { Calculation, Step } from "./calculation";
+
+const OPERATOR = "⇐"; // the `<==` of the calculation
 
 /** Clones an element's content into a fresh inline element. */
 function clone(source: Element): HTMLElement {
@@ -13,44 +16,59 @@ function clone(source: Element): HTMLElement {
   return span;
 }
 
-function renderStep(step: Step, container: HTMLElement): void {
-  const expr = document.createElement("div");
-  expr.appendChild(clone(step.expressionHtml));
-  container.appendChild(expr);
-
-  const hint = document.createElement("div");
-  hint.append("⇐ { ", clone(step.inferenceRuleRefHtml));
-  for (const sub of step.subcalculations) {
-    if (sub.kind === "given") {
-      hint.append(
-        " ",
-        clone(sub.hypothesisRefHtml),
-        " ",
-        clone(sub.expressionHtml),
-      );
-    }
-  }
-  hint.append(" }");
-  container.appendChild(hint);
-
-  for (const sub of step.subcalculations) {
-    if (sub.kind === "step") {
-      const indented = document.createElement("div");
-      indented.style.marginLeft = "2em";
-      renderStep(sub, indented);
-      container.appendChild(indented);
-    }
-  }
+/** A two-column row: the operator on the left, `content` on the right. */
+function row(operator: string, content: Node): HTMLTableRowElement {
+  const tr = document.createElement("tr");
+  const op = document.createElement("td");
+  op.style.cssText =
+    "border:none;padding:0 0.6em 0 0;vertical-align:top;white-space:nowrap";
+  op.textContent = operator;
+  const main = document.createElement("td");
+  main.style.cssText = "border:none;padding:0;vertical-align:top";
+  main.appendChild(content);
+  tr.append(op, main);
+  return tr;
 }
 
-/** Renders a calculation as a DOM element (expressions joined by `<==` hints). */
+function appendStep(step: Step, tbody: HTMLElement): void {
+  tbody.appendChild(row("", clone(step.expressionHtml)));
+
+  const hint = document.createElement("span");
+  hint.append("{ ", clone(step.inferenceRuleRefHtml), " }");
+  tbody.appendChild(row(OPERATOR, hint));
+
+  // Non-spine step sub-calculations: indented sub-derivations, in order.
+  step.subcalculations.forEach((sub, i) => {
+    if (sub.kind === "step" && i !== step.spine)
+      tbody.appendChild(row("", renderCalcTable(sub)));
+  });
+
+  // The spine continues the main line: a step extends it; a given contributes
+  // its expression (its Ref is not rendered for now).
+  const spine = step.subcalculations[step.spine];
+  if (spine?.kind === "given")
+    tbody.appendChild(row("", clone(spine.expressionHtml)));
+  else if (spine?.kind === "step") appendStep(spine, tbody);
+}
+
+function renderCalcTable(calc: Calculation): HTMLTableElement {
+  const table = document.createElement("table");
+  table.style.cssText = "border:none;border-collapse:collapse;margin:0.4em 0";
+  const tbody = document.createElement("tbody");
+  table.appendChild(tbody);
+  if (calc.kind === "given")
+    tbody.appendChild(row("", clone(calc.expressionHtml)));
+  else appendStep(calc, tbody);
+  return table;
+}
+
+/** Renders a calculation as a DOM element (expressions joined by `⇐` hints). */
 export function renderCalculation(calc: Calculation): HTMLElement {
   const box = document.createElement("div");
   box.className = "mm-site-format-calc";
   // No font change; just lay it out left-aligned at normal weight.
   box.style.cssText =
     "border:1px solid #ccc;padding:6px 10px;margin:8px 0;text-align:left;font-weight:normal";
-  if (calc.kind === "given") box.appendChild(clone(calc.expressionHtml));
-  else renderStep(calc, box);
+  box.appendChild(renderCalcTable(calc));
   return box;
 }

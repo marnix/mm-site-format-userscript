@@ -10,7 +10,7 @@ const el = (html: string): Element => {
 };
 
 describe("renderCalculation", () => {
-  it("shows expressions, embeds givens in the hint, indents step sub-derivations", () => {
+  it("lays out operator/expression columns, indents step sub-calcs, omits given Refs", () => {
     const calc: Calculation = {
       kind: "step",
       inferenceRuleRefHtml: el('<a href="bitrd.html">bitrd</a>'),
@@ -40,17 +40,24 @@ describe("renderCalculation", () => {
 
     const box = renderCalculation(calc);
 
-    // The root expression, then a hint with bitrd and the bitrdi.1 given (Ref +
-    // expression) embedded.
-    expect(box.children[0].textContent).toBe("GOAL");
-    expect(box.children[1].textContent).toBe("⇐ { bitrd bitrdi.1 HYP1 }");
+    // Root table (and one nested table for the a1i sub-derivation).
+    expect(box.querySelectorAll("table")).toHaveLength(2);
 
-    // The a1i step is indented, with its own expression and hint.
-    const indented = box.querySelector('div[style*="margin-left"]')!;
-    expect(indented.children[0].textContent).toBe("STEP3");
-    expect(indented.children[1].textContent).toBe("⇐ { a1i bitrdi.2 HYP2 }");
+    // The two-column rows of the root table.
+    const rows = [...box.querySelector("tbody")!.children].map((tr) =>
+      [...tr.children].map((td) => td.textContent),
+    );
+    expect(rows[0]).toEqual(["", "GOAL"]); // the step's expression
+    expect(rows[1]).toEqual(["⇐", "{ bitrd }"]); // operator | hint (rule only)
+    expect(rows[2][0]).toBe(""); // the indented a1i sub-calc
+    expect(rows[2][1]).toContain("STEP3");
+    expect(rows[2][1]).toContain("{ a1i }");
+    expect(rows[2][1]).toContain("HYP2");
+    expect(rows[3]).toEqual(["", "HYP1"]); // the spine given's expression
 
-    // No font-family is set (font unchanged).
+    // Given Refs are not rendered (only their expressions appear).
+    expect(box.textContent).not.toContain("bitrdi");
+    // Font is not changed.
     expect(box.style.fontFamily).toBe("");
   });
 });
