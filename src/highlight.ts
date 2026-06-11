@@ -2,6 +2,7 @@
 // can't disturb other userscripts), and Ranges can cover text-node substrings
 // (e.g. one of a run-together "))" pair). See DESIGN.md "Hover highlighting".
 
+import { HIGHLIGHT_COLOR } from "./config";
 import type { ParsedExpression } from "./page";
 import type { Proof } from "./proof";
 import { nodeSpans, smallestSpanContaining, type Span } from "./spans";
@@ -65,7 +66,6 @@ export function findTokenAt(
 
 const HIGHLIGHT_NAME = "mm-site-format";
 const HIGHLIGHT_CLASS = "mm-site-format-hl";
-const HIGHLIGHT_COLOR = "#ffe066";
 
 interface HighlightLike {
   add(range: Range): void;

@@ -1,3 +1,4 @@
+import "./config";
 import { findGifRuns, findMathSpans } from "./expression";
 import { installHoverByCaret, installHoverByElement } from "./highlight";
 import { canvasSampler } from "./kind";
@@ -10,7 +11,13 @@ import { formatTokens } from "./token";
 
 declare const __USERSCRIPT_VERSION__: string;
 
-if (document.querySelector('table[summary="Proof of theorem"]')) {
+const LOG = "[mm-site-format]";
+
+if (!document.querySelector('table[summary="Proof of theorem"]')) {
+  console.log(`${LOG} (not a metamath proof page; no processing)`);
+} else {
+  console.log(`${LOG} processing proof page…`);
+
   const banner = document.createElement("div");
   banner.textContent = `MM Site Format ${__USERSCRIPT_VERSION__} active`;
   banner.style.cssText =
@@ -20,19 +27,23 @@ if (document.querySelector('table[summary="Proof of theorem"]')) {
   const pageUrl = window.location.href;
   const fetcher = (url: string) => fetch(url).then((r) => r.text());
 
-  const log = (results: ParsedExpression[]) => {
-    for (const { tokens, proof } of results) {
-      console.log("[mm-site-format]", proof ? "✓" : "✗", formatTokens(tokens));
-    }
-  };
+  const finish =
+    (install: (results: ParsedExpression[]) => void) =>
+    (results: ParsedExpression[]) => {
+      for (const { tokens, proof } of results) {
+        if (!proof)
+          console.log(`${LOG} could not parse:`, formatTokens(tokens));
+      }
+      install(results);
+      console.log(`${LOG} finished`);
+    };
 
   if (findMathSpans(document).length > 0) {
     // Unicode page: kinds come from span classes, no image sampling needed.
     // Many tokens are bare text, so hover is caret-based.
-    parseUniExpressions(document, pageUrl, fetcher).then((results) => {
-      log(results);
-      installHoverByCaret(results);
-    });
+    parseUniExpressions(document, pageUrl, fetcher).then(
+      finish(installHoverByCaret),
+    );
   } else {
     // GIF page: colour sampling needs the variable images decoded, so let the
     // browser signal readiness via img.decode() before parsing. Every token is
@@ -44,9 +55,6 @@ if (document.querySelector('table[summary="Proof of theorem"]')) {
       .then(() =>
         parseGifExpressions(document, pageUrl, fetcher, canvasSampler),
       )
-      .then((results) => {
-        log(results);
-        installHoverByElement(results);
-      });
+      .then(finish(installHoverByElement));
   }
 }
