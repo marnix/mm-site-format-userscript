@@ -2,7 +2,13 @@
 import { describe, expect, it } from "vitest";
 import { extractGifText, findGifRuns, findMathSpans } from "../src/expression";
 import { parseKindColors, parseKindNames } from "../src/kind";
-import { formatTokens, tokenizeGifRun, tokenizeMathSpan } from "../src/token";
+import {
+  formatTokens,
+  locateGifRun,
+  locateMathSpan,
+  tokenizeGifRun,
+  tokenizeMathSpan,
+} from "../src/token";
 import { gifSampler, readFixture } from "./helpers";
 
 function parse(variant: string, name = "bitrdi.html"): Document {
@@ -77,6 +83,54 @@ describe("tokenizeGifRun with text tokens (mpegif)", () => {
       { kind: null, text: "Rels" },
       { kind: null, text: ")" },
     ]);
+  });
+});
+
+describe("locateMathSpan (mpeuni)", () => {
+  const doc = parse("mpeuni");
+  const kinds = parseKindNames(doc);
+  const assertion = findMathSpans(doc)[2];
+  const located = locateMathSpan(assertion, kinds);
+
+  it("stays aligned with tokenizeMathSpan", () => {
+    expect(located.map((lt) => lt.token)).toEqual(
+      tokenizeMathSpan(assertion, kinds),
+    );
+  });
+
+  it("locates a variable at its span element", () => {
+    const phi = located[2]; // 𝜑
+    expect(phi.token).toEqual({ kind: "wff", text: "𝜑" });
+    expect(phi.location.type).toBe("element");
+  });
+
+  it("locates the merged ')' ')' as two substrings of one text node", () => {
+    const a = located[8];
+    const b = located[9];
+    expect(a.location).toMatchObject({ type: "text" });
+    expect(b.location).toMatchObject({ type: "text" });
+    if (a.location.type === "text" && b.location.type === "text") {
+      expect(b.location.node).toBe(a.location.node); // same text node
+      expect(b.location.start).toBe(a.location.end); // consecutive offsets
+    }
+  });
+});
+
+describe("locateGifRun (mpegif)", () => {
+  const doc = parse("mpegif");
+  const colors = parseKindColors(doc);
+  const sample = gifSampler("mpegif");
+  const run = findGifRuns(doc)[2];
+  const located = locateGifRun(run, colors, sample);
+
+  it("stays aligned with tokenizeGifRun", () => {
+    expect(located.map((lt) => lt.token)).toEqual(
+      tokenizeGifRun(run, colors, sample),
+    );
+  });
+
+  it("locates each img token at its element", () => {
+    expect(located.every((lt) => lt.location.type === "element")).toBe(true);
   });
 });
 
