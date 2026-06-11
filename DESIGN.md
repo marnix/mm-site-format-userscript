@@ -295,3 +295,37 @@ reconstruct _exactly_ the tree the table shows. This is captured by a
 `Calculation` data structure and a mechanical `evaluate(calculation) → Proof`,
 so a unit test can evaluate a calculation and assert it deep-equals the proof
 tree built from the table.
+
+### Context
+
+A **context** is a set of assumptions together with an expression containing a
+single **hole**, written `$` (a `$…` token never collides; the hole's visual
+rendering is TBD). The calculation's expressions are substituted into the hole,
+and its steps hold under the assumptions.
+
+### Operators
+
+Every step carries its own **operator**. Normally it is the **syntax rule** of
+the relation (`wb` for `<->`, `wi` for `->`, …), rendered with that rule's
+"Syntax hints" icon — horizontally mirrored when the step runs in the reverse
+direction. The exception: an operator may instead be MM inference `==>` or
+`<==`, and then the context's hole expression must be exactly `$` (no
+surrounding structure).
+
+### Chain representation
+
+The chain (`e0 … en`, with a step between adjacent expressions) admits several
+encodings: (1a) first expression + a list of steps; (1b) a list of steps + last
+expression; (2) parallel lists — expressions (n+1) and steps (n); (3a/3b) a
+linked structure that is either an end expression or a step leading to the rest.
+(2) is the most symmetrical; the code uses it provisionally.
+
+### Folding into the proof tree
+
+Each step is backed by a sub-proof of `context[eᵢ operator eᵢ₊₁]`. To rebuild
+the proof tree, transitivity rules remove the **interior** expressions (all but
+the first and last) one at a time, in a specific recorded order; each removal
+merges the two steps adjacent to that expression via a transitivity rule, until
+a single step `e0 … en` remains. That order is part of the calculation — it
+fixes the tree shape — and `evaluateCalculation` replays it to produce the
+kernel `Proof`.
