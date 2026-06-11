@@ -1,5 +1,5 @@
 import { findGifRuns, findMathSpans } from "./expression";
-import { installHighlighting } from "./highlight";
+import { installHoverByCaret, installHoverByElement } from "./highlight";
 import { canvasSampler } from "./kind";
 import {
   parseGifExpressions,
@@ -20,19 +20,23 @@ if (document.querySelector('table[summary="Proof of theorem"]')) {
   const pageUrl = window.location.href;
   const fetcher = (url: string) => fetch(url).then((r) => r.text());
 
-  const handle = (results: ParsedExpression[]) => {
+  const log = (results: ParsedExpression[]) => {
     for (const { tokens, proof } of results) {
       console.log("[mm-site-format]", proof ? "✓" : "✗", formatTokens(tokens));
     }
-    installHighlighting(results);
   };
 
   if (findMathSpans(document).length > 0) {
     // Unicode page: kinds come from span classes, no image sampling needed.
-    parseUniExpressions(document, pageUrl, fetcher).then(handle);
+    // Many tokens are bare text, so hover is caret-based.
+    parseUniExpressions(document, pageUrl, fetcher).then((results) => {
+      log(results);
+      installHoverByCaret(results);
+    });
   } else {
     // GIF page: colour sampling needs the variable images decoded, so let the
-    // browser signal readiness via img.decode() before parsing.
+    // browser signal readiness via img.decode() before parsing. Every token is
+    // an element, so hover is element-based.
     const gifImages = findGifRuns(document)
       .flat()
       .filter((n): n is HTMLImageElement => n.nodeType === Node.ELEMENT_NODE);
@@ -40,6 +44,9 @@ if (document.querySelector('table[summary="Proof of theorem"]')) {
       .then(() =>
         parseGifExpressions(document, pageUrl, fetcher, canvasSampler),
       )
-      .then(handle);
+      .then((results) => {
+        log(results);
+        installHoverByElement(results);
+      });
   }
 }

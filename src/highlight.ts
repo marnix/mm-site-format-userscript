@@ -51,6 +51,28 @@ export function spanRangeAt(
   return span ? rangeForSpan(locations, span) : null;
 }
 
+/**
+ * Index of the token whose location covers the caret position `(node, offset)`,
+ * or null. A text token matches a position inside its substring; an element
+ * token (e.g. a variable span) matches a position anywhere inside it. Pure.
+ */
+export function findTokenAt(
+  locations: TokenLocation[],
+  node: Node,
+  offset: number,
+): number | null {
+  for (let i = 0; i < locations.length; i++) {
+    const loc = locations[i];
+    if (loc.type === "text") {
+      if (loc.node === node && offset >= loc.start && offset < loc.end)
+        return i;
+    } else if (loc.node === node || loc.node.contains(node)) {
+      return i;
+    }
+  }
+  return null;
+}
+
 const HIGHLIGHT_NAME = "mm-site-format";
 
 interface HighlightLike {
@@ -60,27 +82,33 @@ interface HighlightLike {
 declare const Highlight: { new (): HighlightLike };
 declare const CSS: { highlights?: Map<string, HighlightLike> } | undefined;
 
-/**
- * Installs hover highlighting for the parsed expressions (browser only; a no-op
- * where the Highlight API is unavailable). Listeners are attached to each
- * element-rendered token; hovering highlights the smallest containing
- * sub-expression. One shared Highlight holds the active range.
- */
-export function installHighlighting(expressions: ParsedExpression[]): void {
+/** Lazily creates and registers the shared Highlight, or null if unsupported. */
+function ensureHighlight(): HighlightLike | null {
   if (
     typeof CSS === "undefined" ||
     !CSS?.highlights ||
     typeof Highlight === "undefined"
   ) {
-    return;
+    return null;
   }
+  const existing = CSS.highlights.get(HIGHLIGHT_NAME);
+  if (existing) return existing;
   const highlight = new Highlight();
   CSS.highlights.set(HIGHLIGHT_NAME, highlight);
-
   const style = document.createElement("style");
   style.textContent = `::highlight(${HIGHLIGHT_NAME}){background-color:#ffe066}`;
   document.head.appendChild(style);
+  return highlight;
+}
 
+/**
+ * GIF pages: every token is an element (img / variable span), so attach
+ * mouseenter/mouseleave to each and highlight the smallest containing
+ * sub-expression. Browser only; a no-op where the Highlight API is unavailable.
+ */
+export function installHoverByElement(expressions: ParsedExpression[]): void {
+  const highlight = ensureHighlight();
+  if (!highlight) return;
   for (const expr of expressions) {
     const proof = expr.proof;
     if (!proof) continue;
@@ -93,5 +121,50 @@ export function installHighlighting(expressions: ParsedExpression[]): void {
       });
       loc.node.addEventListener("mouseleave", () => highlight.clear());
     });
+  }
+}
+
+function caretAt(x: number, y: number): { node: Node; offset: number } | null {
+  const d = document as unknown as {
+    caretPositionFromPoint?: (
+      x: number,
+      y: number,
+    ) => { offsetNode: Node; offset: number } | null;
+    caretRangeFromPoint?: (x: number, y: number) => Range | null;
+  };
+  if (d.caretPositionFromPoint) {
+    const c = d.caretPositionFromPoint(x, y);
+    return c ? { node: c.offsetNode, offset: c.offset } : null;
+  }
+  if (d.caretRangeFromPoint) {
+    const r = d.caretRangeFromPoint(x, y);
+    return r ? { node: r.startContainer, offset: r.startOffset } : null;
+  }
+  return null;
+}
+
+/**
+ * Unicode pages: many tokens are bare text (operators, parentheses) with no
+ * element to listen on, so hit-test the caret position under the pointer on
+ * mousemove over each expression's container. Browser only.
+ */
+export function installHoverByCaret(expressions: ParsedExpression[]): void {
+  const highlight = ensureHighlight();
+  if (!highlight) return;
+  for (const expr of expressions) {
+    const proof = expr.proof;
+    const container = expr.locations[0]?.node.parentElement;
+    if (!proof || !container) continue;
+    container.addEventListener("mousemove", (event) => {
+      const caret = caretAt(event.clientX, event.clientY);
+      const i = caret
+        ? findTokenAt(expr.locations, caret.node, caret.offset)
+        : null;
+      highlight.clear();
+      if (i === null) return;
+      const range = spanRangeAt(expr.locations, proof, i);
+      if (range) highlight.add(range);
+    });
+    container.addEventListener("mouseleave", () => highlight.clear());
   }
 }
