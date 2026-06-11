@@ -59,3 +59,40 @@ describe("parseExpression", () => {
     ).toBeNull();
   });
 });
+
+describe("parseExpression with the cv coercion", () => {
+  // cv: setvar x ==> class x ; co: ( class class class ) ; caddc: class +
+  const cv: InferenceRule = {
+    assumptions: [["setvar", "x"]],
+    conclusion: ["class", "x"],
+  };
+  const co: InferenceRule = {
+    assumptions: [
+      ["class", "A"],
+      ["class", "B"],
+      ["class", "F"],
+    ],
+    conclusion: ["class", "(", "A", "F", "B", ")"],
+  };
+  const caddc: InferenceRule = { assumptions: [], conclusion: ["class", "+"] };
+  const classRules = [cv, co, caddc];
+  const kinds: KindOf = (t) =>
+    t === "x" || t === "y"
+      ? "setvar"
+      : t === "A" || t === "B" || t === "F"
+        ? "class"
+        : undefined;
+
+  it("parses a setvar in class position via cv: ( x + y )", () => {
+    const proof = parseExpression(
+      ["(", "x", "+", "y", ")"],
+      "class",
+      classRules,
+      kinds,
+    );
+    expect(proof).not.toBeNull();
+    const established = evaluate(proof!);
+    expect(established.conclusion).toEqual(["class", "(", "x", "+", "y", ")"]);
+    expect(established.assumptions).toEqual([]); // closed: leaves are setvar typings discharged by cv
+  });
+});

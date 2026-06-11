@@ -25,7 +25,8 @@ describe("assembleGifGrammar", () => {
     const conclusions = rules.map((r) => r.conclusion.join(" "));
     expect(conclusions).toContain("wff ( ph -> ps )"); // wi
     expect(conclusions).toContain("wff ( ph <-> ps )"); // wb
-    expect(rules).toHaveLength(3);
+    expect(conclusions).toContain("class x"); // cv, always read
+    expect(rules).toHaveLength(4); // $TOP + wi + wb + cv
   });
 
   it("the assembled grammar parses the bitrdi assertion end to end", async () => {

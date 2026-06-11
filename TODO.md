@@ -13,9 +13,6 @@
   page and one level of Ref links are loaded. A fully general parse requires
   following transitive dependencies (syntax hints of syntax hints, etc.) until a
   fixed point. Add depth-limited or full transitive loading.
-- **Handle all expression types**: expressions can be typed `wff`, `setvar`, or
-  `class`. Make sure the parser handles all three and does not assume `wff`
-  everywhere.
 
 ## Features
 
