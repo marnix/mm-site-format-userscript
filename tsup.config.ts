@@ -6,6 +6,23 @@ import pkg from "./package.json";
 // never mistaken for a release.
 const version = process.env.MMSF_VERSION ?? `${pkg.version}-dev`;
 
+// Dev builds stamp the build date-time (in the build machine's local timezone),
+// so you can tell which build is loaded in the browser. Release builds leave it
+// empty.
+const buildTime = process.env.MMSF_VERSION ? "" : buildTimestamp(new Date());
+
+function buildTimestamp(now: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const offsetMin = -now.getTimezoneOffset();
+  const sign = offsetMin >= 0 ? "+" : "-";
+  const abs = Math.abs(offsetMin);
+  const offset = `GMT${sign}${pad(Math.floor(abs / 60))}${pad(abs % 60)}`;
+  return (
+    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ` +
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} ${offset}`
+  );
+}
+
 const header = `\
 // ==UserScript==
 // @name         MM Site Format
@@ -28,7 +45,10 @@ export default defineConfig({
   banner: { js: header },
   minify: false,
   sourcemap: false,
-  define: { __USERSCRIPT_VERSION__: JSON.stringify(version) },
+  define: {
+    __USERSCRIPT_VERSION__: JSON.stringify(version),
+    __USERSCRIPT_BUILD_TIME__: JSON.stringify(buildTime),
+  },
   onSuccess: "prettier --write dist/mm-site-format.user.js",
   watchOptions: { usePolling: true, interval: 500 },
 });

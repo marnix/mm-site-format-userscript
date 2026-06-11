@@ -10,6 +10,7 @@ import {
 import { formatTokens } from "./token";
 
 declare const __USERSCRIPT_VERSION__: string;
+declare const __USERSCRIPT_BUILD_TIME__: string;
 
 const LOG = "[mm-site-format]";
 
@@ -19,7 +20,10 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   console.log(`${LOG} processing proof page…`);
 
   const banner = document.createElement("div");
-  banner.textContent = `MM Site Format ${__USERSCRIPT_VERSION__} active`;
+  const built = __USERSCRIPT_BUILD_TIME__
+    ? ` — built ${__USERSCRIPT_BUILD_TIME__}`
+    : "";
+  banner.textContent = `MM Site Format ${__USERSCRIPT_VERSION__} active${built}`;
   banner.style.cssText =
     "position:fixed;bottom:0;right:0;background:#333;color:#fff;padding:4px 8px;font-size:12px;opacity:0.8;z-index:9999";
   document.body.appendChild(banner);
