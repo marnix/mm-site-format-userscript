@@ -41,16 +41,6 @@ export function spanToHighlight(
   return smallestSpanContaining(shifted, index) ?? null;
 }
 
-/** The DOM Range to highlight when the token at `locationIndex` is hovered. */
-export function spanRangeAt(
-  locations: TokenLocation[],
-  proof: Proof,
-  locationIndex: number,
-): Range | null {
-  const span = spanToHighlight(proof, locations.length, locationIndex);
-  return span ? rangeForSpan(locations, span) : null;
-}
-
 /**
  * Index of the token whose location covers the caret position `(node, offset)`,
  * or null. A text token matches a position inside its substring; an element
@@ -74,6 +64,8 @@ export function findTokenAt(
 }
 
 const HIGHLIGHT_NAME = "mm-site-format";
+const HIGHLIGHT_CLASS = "mm-site-format-hl";
+const HIGHLIGHT_COLOR = "#ffe066";
 
 interface HighlightLike {
   add(range: Range): void;
@@ -82,8 +74,16 @@ interface HighlightLike {
 declare const Highlight: { new (): HighlightLike };
 declare const CSS: { highlights?: Map<string, HighlightLike> } | undefined;
 
-/** Lazily creates and registers the shared Highlight, or null if unsupported. */
-function ensureHighlight(): HighlightLike | null {
+/** Paints the active highlight: text via the Highlight API, elements via a
+ * background class (the Highlight API does not paint replaced elements like the
+ * transparent-background GIF glyphs). */
+interface Painter {
+  paint(locations: TokenLocation[], span: Span): void;
+  clear(): void;
+}
+
+/** Creates the shared painter, or null where the Highlight API is unavailable. */
+function createPainter(): Painter | null {
   if (
     typeof CSS === "undefined" ||
     !CSS?.highlights ||
@@ -91,14 +91,34 @@ function ensureHighlight(): HighlightLike | null {
   ) {
     return null;
   }
-  const existing = CSS.highlights.get(HIGHLIGHT_NAME);
-  if (existing) return existing;
   const highlight = new Highlight();
   CSS.highlights.set(HIGHLIGHT_NAME, highlight);
   const style = document.createElement("style");
-  style.textContent = `::highlight(${HIGHLIGHT_NAME}){background-color:#ffe066}`;
+  style.textContent =
+    `::highlight(${HIGHLIGHT_NAME}){background-color:${HIGHLIGHT_COLOR}}` +
+    `.${HIGHLIGHT_CLASS}{background-color:${HIGHLIGHT_COLOR}}`;
   document.head.appendChild(style);
-  return highlight;
+
+  let painted: Element[] = [];
+  const clear = () => {
+    highlight.clear();
+    for (const el of painted) el.classList.remove(HIGHLIGHT_CLASS);
+    painted = [];
+  };
+  return {
+    clear,
+    paint(locations, [start, end]) {
+      clear();
+      highlight.add(rangeForSpan(locations, [start, end]));
+      for (let i = start; i < end; i++) {
+        const loc = locations[i];
+        if (loc.type === "element") {
+          loc.node.classList.add(HIGHLIGHT_CLASS);
+          painted.push(loc.node);
+        }
+      }
+    },
+  };
 }
 
 /**
@@ -107,19 +127,19 @@ function ensureHighlight(): HighlightLike | null {
  * sub-expression. Browser only; a no-op where the Highlight API is unavailable.
  */
 export function installHoverByElement(expressions: ParsedExpression[]): void {
-  const highlight = ensureHighlight();
-  if (!highlight) return;
+  const painter = createPainter();
+  if (!painter) return;
   for (const expr of expressions) {
     const proof = expr.proof;
     if (!proof) continue;
     expr.locations.forEach((loc, i) => {
       if (loc.type !== "element") return;
       loc.node.addEventListener("mouseenter", () => {
-        const range = spanRangeAt(expr.locations, proof, i);
-        highlight.clear();
-        if (range) highlight.add(range);
+        const span = spanToHighlight(proof, expr.locations.length, i);
+        if (span) painter.paint(expr.locations, span);
+        else painter.clear();
       });
-      loc.node.addEventListener("mouseleave", () => highlight.clear());
+      loc.node.addEventListener("mouseleave", () => painter.clear());
     });
   }
 }
@@ -149,8 +169,8 @@ function caretAt(x: number, y: number): { node: Node; offset: number } | null {
  * mousemove over each expression's container. Browser only.
  */
 export function installHoverByCaret(expressions: ParsedExpression[]): void {
-  const highlight = ensureHighlight();
-  if (!highlight) return;
+  const painter = createPainter();
+  if (!painter) return;
   for (const expr of expressions) {
     const proof = expr.proof;
     const container = expr.locations[0]?.node.parentElement;
@@ -160,11 +180,11 @@ export function installHoverByCaret(expressions: ParsedExpression[]): void {
       const i = caret
         ? findTokenAt(expr.locations, caret.node, caret.offset)
         : null;
-      highlight.clear();
-      if (i === null) return;
-      const range = spanRangeAt(expr.locations, proof, i);
-      if (range) highlight.add(range);
+      const span =
+        i === null ? null : spanToHighlight(proof, expr.locations.length, i);
+      if (span) painter.paint(expr.locations, span);
+      else painter.clear();
     });
-    container.addEventListener("mouseleave", () => highlight.clear());
+    container.addEventListener("mouseleave", () => painter.clear());
   }
 }
