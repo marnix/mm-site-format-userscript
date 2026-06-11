@@ -9,27 +9,35 @@ import { parseKindColors, parseKindNames, type ImageSampler } from "./kind";
 import type { Fetcher } from "./loader";
 import { parseExpression, type KindOf } from "./parse";
 import type { InferenceRule, Proof } from "./proof";
-import { tokenizeGifRun, tokenizeMathSpan, type Token } from "./token";
+import {
+  locateGifRun,
+  locateMathSpan,
+  type LocatedToken,
+  type Token,
+  type TokenLocation,
+} from "./token";
 
 export interface ParsedExpression {
   tokens: Token[];
+  locations: TokenLocation[]; // parallel to tokens; where each was rendered
   proof: Proof | null; // null when the expression does not parse
 }
 
 /**
- * Builds the kind registry and parses each tokenised expression. The registry
- * is the union of the page's own variable kinds and the grammar rules' variable
+ * Builds the kind registry and parses each located expression. The registry is
+ * the union of the page's own variable kinds and the grammar rules' variable
  * typings. A statement beginning with the turnstile (the $TOP rule's first
  * pattern token) is parsed at the synthetic $TOP type; any other expression
  * starts with its own typecode.
  */
-function parseTokenized(
-  tokenized: Token[][],
+function parseLocated(
+  located: LocatedToken[][],
   rules: InferenceRule[],
 ): ParsedExpression[] {
   const registry = new Map<string, string>();
-  for (const tokens of tokenized) {
-    for (const t of tokens) if (t.kind) registry.set(t.text, t.kind);
+  for (const lts of located) {
+    for (const { token } of lts)
+      if (token.kind) registry.set(token.text, token.kind);
   }
   for (const rule of rules) {
     for (const a of rule.assumptions) {
@@ -39,13 +47,15 @@ function parseTokenized(
   const kindOf: KindOf = (token) => registry.get(token);
   const turnstile = rules[0]?.conclusion[1];
 
-  return tokenized.map((tokens) => {
+  return located.map((lts) => {
+    const tokens = lts.map((lt) => lt.token);
+    const locations = lts.map((lt) => lt.location);
     const expr = tokens.map((t) => t.text);
     const proof =
       expr[0] === turnstile
         ? parseExpression(expr, "$TOP", rules, kindOf)
         : parseExpression(expr.slice(1), expr[0] ?? "", rules, kindOf);
-    return { tokens, proof };
+    return { tokens, locations, proof };
   });
 }
 
@@ -58,11 +68,11 @@ export async function parseGifExpressions(
 ): Promise<ParsedExpression[]> {
   const colors = parseKindColors(doc);
   const cache = new Map<string, string | null>();
-  const tokenized = findGifRuns(doc).map((run) =>
-    tokenizeGifRun(run, colors, sample, cache),
+  const located = findGifRuns(doc).map((run) =>
+    locateGifRun(run, colors, sample, cache),
   );
   const rules = await assembleGifGrammar(doc, pageUrl, fetcher);
-  return parseTokenized(tokenized, rules);
+  return parseLocated(located, rules);
 }
 
 /** Parses every Unicode expression on the page (kinds via span class). */
@@ -72,9 +82,7 @@ export async function parseUniExpressions(
   fetcher: Fetcher,
 ): Promise<ParsedExpression[]> {
   const kinds = parseKindNames(doc);
-  const tokenized = findMathSpans(doc).map((span) =>
-    tokenizeMathSpan(span, kinds),
-  );
+  const located = findMathSpans(doc).map((span) => locateMathSpan(span, kinds));
   const rules = await assembleUniGrammar(doc, pageUrl, fetcher);
-  return parseTokenized(tokenized, rules);
+  return parseLocated(located, rules);
 }

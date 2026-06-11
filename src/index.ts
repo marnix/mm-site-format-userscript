@@ -1,4 +1,5 @@
 import { findGifRuns, findMathSpans } from "./expression";
+import { installHighlighting } from "./highlight";
 import { canvasSampler } from "./kind";
 import {
   parseGifExpressions,
@@ -19,15 +20,16 @@ if (document.querySelector('table[summary="Proof of theorem"]')) {
   const pageUrl = window.location.href;
   const fetcher = (url: string) => fetch(url).then((r) => r.text());
 
-  const log = (results: ParsedExpression[]) => {
+  const handle = (results: ParsedExpression[]) => {
     for (const { tokens, proof } of results) {
       console.log("[mm-site-format]", proof ? "✓" : "✗", formatTokens(tokens));
     }
+    installHighlighting(results);
   };
 
   if (findMathSpans(document).length > 0) {
     // Unicode page: kinds come from span classes, no image sampling needed.
-    parseUniExpressions(document, pageUrl, fetcher).then(log);
+    parseUniExpressions(document, pageUrl, fetcher).then(handle);
   } else {
     // GIF page: colour sampling needs the variable images decoded, so let the
     // browser signal readiness via img.decode() before parsing.
@@ -38,6 +40,6 @@ if (document.querySelector('table[summary="Proof of theorem"]')) {
       .then(() =>
         parseGifExpressions(document, pageUrl, fetcher, canvasSampler),
       )
-      .then(log);
+      .then(handle);
   }
 }
