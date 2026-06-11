@@ -1,15 +1,22 @@
 import { defineConfig } from "tsup";
 import pkg from "./package.json";
 
+// Release builds take their version from the git tag (the release workflow sets
+// MMSF_VERSION, e.g. "0.1.0"); local/dev builds are marked "-dev" so they are
+// never mistaken for a release.
+const version = process.env.MMSF_VERSION ?? `${pkg.version}-dev`;
+
 const header = `\
 // ==UserScript==
 // @name         MM Site Format
 // @namespace    https://github.com/marnix/mm-site-format-userscript
-// @version      ${pkg.version}
+// @version      ${version}
 // @description  Formatting improvements for metamath.org proof pages
 // @author       Marnix Klooster
 // @match        *://us.metamath.org/*
 // @match        *://metamath.org/*
+// @downloadURL  https://github.com/marnix/mm-site-format-userscript/releases/latest/download/mm-site-format.user.js
+// @updateURL    https://github.com/marnix/mm-site-format-userscript/releases/latest/download/mm-site-format.user.js
 // @grant        none
 // ==/UserScript==`;
 
@@ -21,7 +28,7 @@ export default defineConfig({
   banner: { js: header },
   minify: false,
   sourcemap: false,
-  define: { __USERSCRIPT_VERSION__: JSON.stringify(pkg.version) },
+  define: { __USERSCRIPT_VERSION__: JSON.stringify(version) },
   onSuccess: "prettier --write dist/mm-site-format.user.js",
   watchOptions: { usePolling: true, interval: 500 },
 });
