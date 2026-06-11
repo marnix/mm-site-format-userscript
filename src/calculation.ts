@@ -1,45 +1,43 @@
-// Calculational proof rendering (phase 2) — see DESIGN.md. Initially we model
-// only `<==` calculations without any context, so every expression is a full,
-// top-level MM statement. evaluateCalculation folds a calculation into the
-// kernel Proof it represents, so a test can confirm it reconstructs the proof
-// tree the "Proof of Theorem" table shows.
+// Calculational proof rendering (phase 2) — see DESIGN.md. For now this is kept
+// independent of the parse kernel (InferenceRule/Proof): a proof tree and a
+// calculation are purely structural and carry the page's own Ref-column HTML, so
+// rendering can later copy it into the new place on the page.
 
-import type { Expression, InferenceRule, Proof } from "./proof";
-
-export type Calculation = Given | Step;
-
-/** A leaf: always a hypothesis (a full MM statement, proved by itself). */
-export interface Given {
-  kind: "given";
-  hypothesis: Expression;
+/**
+ * A proof tree built from the "Proof of Theorem" table. Each node carries the
+ * Ref column's HTML exactly, and one subproof per Hyp entry, in order;
+ * hypotheses (no Hyp entries) have no subproofs.
+ */
+export interface ProofTree {
+  refHtml: Element;
+  subproofs: ProofTree[];
 }
 
 /**
- * A `<==` step: the `first` expression follows, via `rule`, from the
- * subcalculations — one for each of the rule's assumptions. The `spine`
- * subcalculation (by index) is the one that starts with the calculation's second
- * expression; the others justify the rule's remaining assumptions.
+ * Initially only `<==` calculations, without any context — every expression is
+ * a full, top-level MM statement. A calculation is either a given (always a
+ * hypothesis) or a `<==` step. Both carry Ref-column HTML rather than an
+ * inference rule.
  */
-export interface Step {
-  kind: "step";
-  first: Expression;
-  rule: InferenceRule;
-  subcalculations: Calculation[];
-  spine: number;
+export type Calculation = Given | Step;
+
+export interface Given {
+  kind: "given";
+  refHtml: Element;
 }
 
-/** Composes a calculation into the kernel `Proof` it represents. */
-export function evaluateCalculation(calc: Calculation): Proof {
-  if (calc.kind === "given") {
-    return {
-      rule: { assumptions: [], conclusion: calc.hypothesis },
-      subst: new Map(),
-      subproofs: [],
-    };
-  }
+export interface Step {
+  kind: "step";
+  inferenceRuleRefHtml: Element;
+  subcalculations: Calculation[]; // one per assumption of the inference rule
+  spine: number; // index of the spine subcalculation (the second expression); render-only
+}
+
+/** Composes a calculation into the proof tree it represents. */
+export function evaluateCalculation(calc: Calculation): ProofTree {
+  if (calc.kind === "given") return { refHtml: calc.refHtml, subproofs: [] };
   return {
-    rule: calc.rule,
-    subst: new Map(),
+    refHtml: calc.inferenceRuleRefHtml,
     subproofs: calc.subcalculations.map(evaluateCalculation),
   };
 }
