@@ -116,3 +116,31 @@ describe("substitute", () => {
     ).toEqual(["wff", "(", "ps", "<->", "th", ")"]);
   });
 });
+
+// The logical proof tree of the bitrdi page (the "Proof of Theorem" table),
+// rooted at the main |- assertion: bitrd applied to bitrdi.1 and (a1i applied
+// to bitrdi.2). This is the target a calculation will evaluate to (phase 2).
+// Each step is a ground instance read off the table — its rule's assumptions
+// are the cited steps' expressions and its conclusion is the step's expression
+// — and the hypotheses are ground leaves, so the proof is closed.
+describe("evaluate (bitrdi logical proof — the table's proof tree)", () => {
+  const hyp1 = ["|-", "(", "ph", "->", "(", "ps", "<->", "ch", ")", ")"]; // bitrdi.1
+  const hyp2 = ["|-", "(", "ch", "<->", "th", ")"]; // bitrdi.2
+  const step3 = ["|-", "(", "ph", "->", "(", "ch", "<->", "th", ")", ")"]; // a1i
+  const goal = ["|-", "(", "ph", "->", "(", "ps", "<->", "th", ")", ")"]; // bitrd
+
+  const a1iStep = apply({ assumptions: [hyp2], conclusion: step3 }, new Map(), [
+    leaf(...hyp2),
+  ]);
+  const bitrdStep = apply(
+    { assumptions: [hyp1, step3], conclusion: goal },
+    new Map(),
+    [leaf(...hyp1), a1iStep],
+  );
+
+  it("evaluates to the main assertion", () => {
+    const established = evaluate(bitrdStep);
+    expect(established.conclusion).toEqual(goal);
+    expect(established.assumptions).toEqual([]); // hypotheses are ground leaves
+  });
+});

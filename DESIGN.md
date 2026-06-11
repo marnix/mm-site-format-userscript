@@ -233,3 +233,65 @@ over any token element:
    the hovered token.
 2. Add a CSS highlight class to all DOM elements in that range.
 3. Remove the class on `mouseleave`.
+
+## Calculational proof rendering (phase 2)
+
+A second, optional rendering shows the proof in the calculational style of
+Dijkstra
+([EWD1300](https://www.cs.utexas.edu/~EWD/transcriptions/EWD13xx/EWD1300.html)),
+above the "Proof of Theorem" table. It runs only **after** phase-1 parsing, and
+only when **every** expression in the table's Expression column parsed;
+otherwise it logs a message and does nothing.
+
+### Target: the logical proof tree
+
+The "proof tree" here is the same `Proof` kernel structure (inference rules +
+`apply` + leaves), but rooted at the page's main `|- …` assertion rather than a
+`$TOP …` syntax goal. The table's theorems/axioms (e.g. `bitrd`, `a1i`) are the
+inference rules; the named hypotheses (`bitrdi.1`, …) and earlier steps are the
+sub-proofs/leaves. The phase-1 parse trees of the expressions are an _input_ to
+the algorithm — used to find contexts and sub-expressions — not part of this
+tree.
+
+### A calculation
+
+A calculation is a chain of expressions joined by an operator, each step
+carrying a hint and optionally nested calculations, within a context:
+
+```
+[context]
+   e0
+op   { hint: refs to hypotheses / theorems / axioms / sub-proofs }
+     <<nested calculations>>
+   e1
+op   { hint }
+   e2
+   …
+```
+
+- **Top level**: the `eᵢ` are whole `|- …` statements and `op` is MM inference
+  (`==>`, or its reverse `<==`); the context is empty.
+- **Sub level**: the `eᵢ` are sub-expressions and `op` is the visual form of a
+  parse-tree rule — `(<->)` for `wb`, `(->)` for `wi` (i.e. everything but the
+  variables and whitespace) — and a context is always present (the enclosing
+  expression with a hole). `TRUE` may appear as an `eᵢ`.
+
+A later rendering feature may also show the reverse of `wi` (the arrow the other
+way).
+
+### Two special rule shapes
+
+- **Transitivity rules** (e.g. `bitrd`): their two main assumptions map to two
+  consecutive steps of the calculation — folding `a op b` and `b op c` into
+  `a op c`.
+- **Windowing rules** (e.g. `a1i`): their main assumption zooms into part of the
+  conclusion — establishing a step inside a context.
+
+### Invariant and verification
+
+Every `eᵢ op eᵢ₊₁` step, together with its context, corresponds to a complete
+**subtree** of the proof tree; all steps across all (nested) calculations
+reconstruct _exactly_ the tree the table shows. This is captured by a
+`Calculation` data structure and a mechanical `evaluate(calculation) → Proof`,
+so a unit test can evaluate a calculation and assert it deep-equals the proof
+tree built from the table.
