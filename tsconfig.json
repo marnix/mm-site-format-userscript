@@ -4,8 +4,10 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
-    "lib": ["ES2020", "DOM"],
-    "resolveJsonModule": true
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true
   },
-  "include": ["src", "tsup.config.ts"]
+  "include": ["src", "test", "tsup.config.ts"]
 }

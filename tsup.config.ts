@@ -50,5 +50,4 @@ export default defineConfig({
     __USERSCRIPT_BUILD_TIME__: JSON.stringify(buildTime),
   },
   onSuccess: "prettier --write dist/mm-site-format.user.js",
-  watchOptions: { usePolling: true, interval: 500 },
 });

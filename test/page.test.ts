@@ -1,6 +1,10 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest";
-import { parseGifExpressions, parseUniExpressions } from "../src/page";
+import {
+  parseGifExpressions,
+  parseUniExpressions,
+  type ParsedExpression,
+} from "../src/page";
 import { evaluate } from "../src/proof";
 import { gifSampler, readFixture } from "./helpers";
 
@@ -48,7 +52,7 @@ describe("parseGifExpressions (mpegif/disjrel)", () => {
     readFixture("mpegif", url.split("/").pop()!),
   );
 
-  const find = (results: { tokens: { text: string }[] }[], prefix: string) =>
+  const find = (results: ParsedExpression[], prefix: string) =>
     results.find((r) =>
       r.tokens
         .map((t) => t.text)
