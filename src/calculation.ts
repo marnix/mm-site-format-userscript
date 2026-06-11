@@ -23,7 +23,7 @@ export type Calculation = Given | Step;
 
 export interface Given {
   kind: "given";
-  refHtml: Element;
+  hypothesisRefHtml: Element;
 }
 
 export interface Step {
@@ -35,9 +35,26 @@ export interface Step {
 
 /** Composes a calculation into the proof tree it represents. */
 export function evaluateCalculation(calc: Calculation): ProofTree {
-  if (calc.kind === "given") return { refHtml: calc.refHtml, subproofs: [] };
+  if (calc.kind === "given")
+    return { refHtml: calc.hypothesisRefHtml, subproofs: [] };
   return {
     refHtml: calc.inferenceRuleRefHtml,
     subproofs: calc.subcalculations.map(evaluateCalculation),
+  };
+}
+
+/**
+ * The simplest proof-tree → calculation conversion: replicate the tree, with
+ * `spine = 0` everywhere. A leaf (no subproofs) becomes a given; any other node
+ * becomes a `<==` step over its subproofs, in order.
+ */
+export function proofTreeToCalculation(tree: ProofTree): Calculation {
+  if (tree.subproofs.length === 0)
+    return { kind: "given", hypothesisRefHtml: tree.refHtml };
+  return {
+    kind: "step",
+    inferenceRuleRefHtml: tree.refHtml,
+    subcalculations: tree.subproofs.map(proofTreeToCalculation),
+    spine: 0,
   };
 }

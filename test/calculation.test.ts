@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import {
   evaluateCalculation,
+  proofTreeToCalculation,
   type Calculation,
   type ProofTree,
 } from "../src/calculation";
@@ -32,7 +33,7 @@ const bitrdiProofTree: ProofTree = {
 const a1iSub: Calculation = {
   kind: "step",
   inferenceRuleRefHtml: a1i,
-  subcalculations: [{ kind: "given", refHtml: bitrdi2 }],
+  subcalculations: [{ kind: "given", hypothesisRefHtml: bitrdi2 }],
   spine: 0,
 };
 
@@ -43,7 +44,7 @@ const a1iSub: Calculation = {
 const example1a: Calculation = {
   kind: "step",
   inferenceRuleRefHtml: bitrd,
-  subcalculations: [{ kind: "given", refHtml: bitrdi1 }, a1iSub],
+  subcalculations: [{ kind: "given", hypothesisRefHtml: bitrdi1 }, a1iSub],
   spine: 0,
 };
 
@@ -51,7 +52,7 @@ const example1a: Calculation = {
 const example1b: Calculation = {
   kind: "step",
   inferenceRuleRefHtml: bitrd,
-  subcalculations: [{ kind: "given", refHtml: bitrdi1 }, a1iSub],
+  subcalculations: [{ kind: "given", hypothesisRefHtml: bitrdi1 }, a1iSub],
   spine: 1,
 };
 
@@ -62,5 +63,17 @@ describe("evaluateCalculation", () => {
 
   it("reconstructs the proof tree from example 1b (spine through a1i)", () => {
     expect(evaluateCalculation(example1b)).toEqual(bitrdiProofTree);
+  });
+});
+
+describe("proofTreeToCalculation", () => {
+  it("replicates the tree with spine 0 everywhere (= example 1a)", () => {
+    expect(proofTreeToCalculation(bitrdiProofTree)).toEqual(example1a);
+  });
+
+  it("round-trips: evaluate(convert(tree)) equals the tree", () => {
+    expect(
+      evaluateCalculation(proofTreeToCalculation(bitrdiProofTree)),
+    ).toEqual(bitrdiProofTree);
   });
 });

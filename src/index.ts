@@ -1,4 +1,5 @@
 import "./config";
+import { proofTreeToCalculation } from "./calculation";
 import { findGifRuns, findMathSpans } from "./expression";
 import { installHoverByCaret, installHoverByElement } from "./highlight";
 import { canvasSampler } from "./kind";
@@ -7,6 +8,8 @@ import {
   parseUniExpressions,
   type ParsedExpression,
 } from "./page";
+import { renderCalculation } from "./render";
+import { parseProofTable } from "./table";
 import { formatTokens } from "./token";
 
 declare const __USERSCRIPT_VERSION__: string;
@@ -27,6 +30,16 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   banner.style.cssText =
     "position:fixed;bottom:0;right:0;background:#333;color:#fff;padding:4px 8px;font-size:12px;opacity:0.8;z-index:9999";
   document.body.appendChild(banner);
+
+  // Render the proof as a calculation, right above the proof table.
+  const proofTable = document.querySelector(
+    'table[summary="Proof of theorem"]',
+  );
+  const proofTree = parseProofTable(document);
+  if (proofTree && proofTable?.parentNode) {
+    const calc = proofTreeToCalculation(proofTree);
+    proofTable.parentNode.insertBefore(renderCalculation(calc), proofTable);
+  }
 
   const pageUrl = window.location.href;
   const fetcher = (url: string) => fetch(url).then((r) => r.text());
