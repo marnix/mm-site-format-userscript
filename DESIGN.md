@@ -219,6 +219,11 @@ unmarked. This is consistent with the ignore-if-no-parse-tree principle; fully
 resolving it would require following the proof's Ref-column links to gather
 their syntax too.
 
+The omission looks like a metamath website bug (the displayed proof step uses
+syntax the page does not hint). TODO: check whether it is already reported at
+https://groups.google.com/g/metamath or
+https://github.com/metamath/metamath-exe, and report it if not.
+
 ## Hover highlighting
 
 Each parse-tree node spans a contiguous range of DOM tokens. On `mouseenter`
