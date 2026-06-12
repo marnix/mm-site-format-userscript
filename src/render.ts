@@ -1,7 +1,8 @@
 // Renders a calculation as a two-column layout to place above the proof table.
 // Left column: the `⇐` operator (on the hint rows), and the parenthesised Ref
-// in front of a leaf's expression. Right column: expressions, the `{ rule }`
-// hints, and — indented — the step sub-calculations. Following the spine, a step
+// in front of a leaf's expression. Right column: expressions, the
+// `{ using …, and rule }` hints (naming the non-spine premises and the rule),
+// and — indented — the step sub-calculations. Following the spine, a step
 // sub-calculation continues the main line; a given (a leaf) ends it. All HTML is
 // cloned, so the table is left intact.
 
@@ -14,6 +15,17 @@ function clone(source: Element): HTMLElement {
   const span = document.createElement("span");
   for (const node of source.childNodes) span.appendChild(node.cloneNode(true));
   return span;
+}
+
+/** Appends items as an English series: "a", "a and b", "a, b, and c". */
+function appendSeries(parent: HTMLElement, items: Node[]): void {
+  items.forEach((item, i) => {
+    if (i > 0)
+      parent.append(
+        i < items.length - 1 ? ", " : items.length > 2 ? ", and " : " and ",
+      );
+    parent.append(item);
+  });
 }
 
 // EWD1300 layout: expressions stay at the base; the hint is indented after the
@@ -51,8 +63,26 @@ function row(
 function appendStep(step: Step, tbody: HTMLElement): void {
   tbody.appendChild(row("", clone(step.expressionHtml), "0", EXPR_STYLE));
 
+  // Hint: the inference rule, prefixed by the non-spine premises it uses (the
+  // spine premise continues the main line below). A given premise shows its
+  // Ref; a derived premise shows "subproof" — its derivation appears below.
+  const premises: Node[] = [];
+  step.subcalculations.forEach((sub, i) => {
+    if (i === step.spine) return;
+    premises.push(
+      sub.kind === "given"
+        ? clone(sub.hypothesisRefHtml)
+        : document.createTextNode("subproof"),
+    );
+  });
   const hint = document.createElement("span");
-  hint.append("{ ", clone(step.inferenceRuleRefHtml), " }");
+  if (premises.length === 0) {
+    hint.append("{ ", clone(step.inferenceRuleRefHtml), " }");
+  } else {
+    hint.append("{ using ");
+    appendSeries(hint, [...premises, clone(step.inferenceRuleRefHtml)]);
+    hint.append(" }");
+  }
   tbody.appendChild(row(OPERATOR, hint, HINT_VSPACE, HINT_INDENT));
 
   // Non-spine step sub-calculations: indented sub-derivations, in order, each

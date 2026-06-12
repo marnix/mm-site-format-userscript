@@ -49,7 +49,8 @@ describe("renderCalculation", () => {
       [...tr.children].map((td) => td.textContent),
     );
     expect(rows[0]).toEqual(["", "GOAL"]); // the step's expression
-    expect(rows[1]).toEqual(["⇐", "{ bitrd }"]); // operator | hint (rule only)
+    // operator | hint: the non-spine premise (a sub-derivation) and the rule
+    expect(rows[1]).toEqual(["⇐", "{ using subproof and bitrd }"]);
     expect(rows[2][0]).toBe(""); // the indented a1i sub-calc
     expect(rows[2][1]).toContain("STEP3");
     expect(rows[3]).toEqual(["(bitrdi.1)", "HYP1"]); // leaf Ref | its expression
