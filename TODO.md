@@ -1,5 +1,14 @@
 # TODO
 
+## 0.3.0 goals
+
+- **Whitespace via parsing**: use the parse tree to add whitespace within
+  rendered expressions, improving readability even without hover highlighting.
+- **Collapse sub-calculations by default**: render the calculation with
+  sub-calculations collapsed, expanding a sub-calculation on click.
+- **Spine-choosing heuristics**: replace the trivial `spine = 0` everywhere with
+  the first heuristics for picking a more readable spine (main line) per step.
+
 ## Performance
 
 - **Cache linked pages**: currently linked pages are fetched on every page load.
@@ -46,10 +55,6 @@ See DESIGN.md "Calculational proof rendering". Roughly in order:
 
 ## Features
 
-- **Whitespace via parsing**: use the parse tree to add whitespace within
-  rendered expressions, improving readability even without hover highlighting.
-- **Expand/collapse sub-calculations**: let the reader collapse and expand a
-  sub-calculation in the calculational rendering.
 - **Nested hover levels**: clicking a highlighted sub-expression cycles to the
   next-larger enclosing expression.
 - **Rule tooltip on hover**: show the name of the matched syntax rule (e.g.
