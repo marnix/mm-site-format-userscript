@@ -144,9 +144,14 @@ export function locateMathSpan(
       } else if (isSubscript(el) && run.length > 0) {
         // Fold the subscript into the preceding token (e.g. `~` + `R` = `~R`),
         // reusing the base character's position so the token stays located there.
+        // Push per UTF-16 code unit (not per code point), so run indices stay
+        // aligned with the joined run text's offsets — a surrogate-pair subscript
+        // (e.g. `𝑟` in `↑𝑟`) would otherwise desync them and the munch's offsets
+        // would run off the end of `run`.
         const base = run[run.length - 1];
-        for (const ch of el.textContent ?? "")
-          run.push({ ch, node: base.node, offset: base.offset });
+        const sub = el.textContent ?? "";
+        for (let k = 0; k < sub.length; k++)
+          run.push({ ch: sub[k], node: base.node, offset: base.offset });
       } else {
         // Non-kind element (turnstile, typecode, or a stray subscript): its text
         // is constant tokens, located at the element itself.

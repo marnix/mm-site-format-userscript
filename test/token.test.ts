@@ -155,6 +155,23 @@ describe("tokenizeMathSpan (dense Unicode: subscripts and concatenated constants
     expect(located.token).toEqual({ kind: null, text: "~R" });
     expect(located.location.type).toBe("text"); // the "~", not the <sub>
   });
+
+  it("folds a surrogate-pair subscript (e.g. ↑𝑟) without running off the run", () => {
+    // relexpaddg renders relation exponentiation as `↑` with `𝑟` (U+1D45F, a
+    // surrogate pair) in a <sub>. Folding it must stay aligned with the run's
+    // UTF-16 offsets, or the vocabulary munch indexes past the end and throws.
+    const span = document.createElement("span");
+    span.innerHTML =
+      '(<span class="class">𝑅</span>↑<sub>𝑟</sub><span class="class">𝑁</span>)';
+    const vocab = new Set(["(", ")", "↑𝑟"]);
+    expect(tokenizeMathSpan(span, new Set(["class"]), vocab)).toEqual([
+      { kind: null, text: "(" },
+      { kind: "class", text: "𝑅" },
+      { kind: null, text: "↑𝑟" },
+      { kind: "class", text: "𝑁" },
+      { kind: null, text: ")" },
+    ]);
+  });
 });
 
 describe("locateGifRun (mpegif)", () => {
