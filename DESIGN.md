@@ -233,7 +233,11 @@ element. So the Unicode tokenizer folds a subscript element into the preceding
 token, and splits a run of concatenated constants by longest-match against the
 grammar's constant tokens. That constant vocabulary is reliable because each
 constant appears delimited (by the variable spans) on its own syntax-definition
-page, even though it is run together in dense theorem expressions.
+page, even though it is run together in dense theorem expressions. A folded
+token's hover location spans from its base character through the subscript
+element, so the whole glyph (including the subscript) highlights; the fold walks
+the subscript text by UTF-16 code unit, to stay aligned with the run's offsets
+when a subscript is a surrogate pair (e.g. `𝑟` in `↑𝑟`).
 
 ## Hover highlighting
 
@@ -242,8 +246,14 @@ over any token element:
 
 1. Walk up the parse tree to find the smallest node whose token range contains
    the hovered token.
-2. Add a CSS highlight class to all DOM elements in that range.
-3. Remove the class on `mouseleave`.
+2. Highlight that range: text via one CSS Custom Highlight, element tokens (and
+   spacers) via a background class.
+3. Clear it on `mouseleave`.
+
+The page and the calculation each install hover handlers, but they share a
+**single** Highlight registration — registering a second under the same name
+would silently unregister the first, and that painter's text highlighting would
+stop.
 
 ## Whitespace from the parse tree
 
