@@ -1,8 +1,9 @@
 // Renders a calculation as a two-column layout to place above the proof table.
 // Left column: the `⇐` operator (on the hint rows), and the parenthesised Ref
 // in front of a leaf's expression. Right column: expressions, the
-// `{ using …, and rule }` hints (naming the non-spine premises and the rule),
-// and — indented — the step sub-calculations. Following the spine, a step
+// `{ using rule, premise…, subproofs }` hints (the rule, the non-spine given
+// premises, and a count word for any nested sub-derivations), and — indented —
+// the step sub-calculations. Following the spine, a step
 // sub-calculation continues the main line; a given (a leaf) ends it. All HTML is
 // cloned, so the table is left intact.
 
@@ -35,7 +36,9 @@ function appendSeries(parent: HTMLElement, items: Node[]): void {
 // hanging indent.
 const HINT_VSPACE = "0.3em";
 const SUBCALC_VSPACE = "0.5em";
-const HINT_INDENT = "padding-left:1.5em";
+// The hint is indented 1.5em; when it wraps, the continuation hangs by the
+// width of the leading "{ " (≈1.3ch) so it lines up under the list.
+const HINT_INDENT = "padding-left:calc(1.5em + 1.3ch);text-indent:-1.3ch";
 const SUBCALC_INDENT = "padding-left:2em";
 const EXPR_STYLE = "padding-left:1.6em;text-indent:-1.6em"; // hanging indent
 
@@ -63,26 +66,25 @@ function row(
 function appendStep(step: Step, tbody: HTMLElement): void {
   tbody.appendChild(row("", clone(step.expressionHtml), "0", EXPR_STYLE));
 
-  // Hint: the inference rule, prefixed by the non-spine premises it uses (the
-  // spine premise continues the main line below). A given premise shows its
-  // Ref; a derived premise shows "subproof" — its derivation appears below.
-  const premises: Node[] = [];
+  // Hint: the inference rule first, then the non-spine given premises (each by
+  // its Ref), then "subproof"/"subproofs" if any non-spine premise is itself a
+  // derivation (those are shown below). The spine premise continues the main
+  // line below.
+  const items: Node[] = [clone(step.inferenceRuleRefHtml)];
+  let nested = 0;
   step.subcalculations.forEach((sub, i) => {
     if (i === step.spine) return;
-    premises.push(
-      sub.kind === "given"
-        ? clone(sub.hypothesisRefHtml)
-        : document.createTextNode("subproof"),
-    );
+    if (sub.kind === "given") items.push(clone(sub.hypothesisRefHtml));
+    else nested++;
   });
+  if (nested > 0)
+    items.push(
+      document.createTextNode(nested === 1 ? "subproof" : "subproofs"),
+    );
   const hint = document.createElement("span");
-  if (premises.length === 0) {
-    hint.append("{ ", clone(step.inferenceRuleRefHtml), " }");
-  } else {
-    hint.append("{ using ");
-    appendSeries(hint, [...premises, clone(step.inferenceRuleRefHtml)]);
-    hint.append(" }");
-  }
+  hint.append("{ using ");
+  appendSeries(hint, items);
+  hint.append(" }");
   tbody.appendChild(row(OPERATOR, hint, HINT_VSPACE, HINT_INDENT));
 
   // Non-spine step sub-calculations: indented sub-derivations, in order, each
