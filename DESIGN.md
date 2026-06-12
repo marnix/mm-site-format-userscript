@@ -302,11 +302,15 @@ a top-down structural overlap: count nodes that apply the same rule, recursing
 into paired children, with leaf↔leaf counting; a mismatch (different rule, or
 leaf vs node) stops that branch. The spine is the sub-proof of **maximum
 overlap**; among equal-overlap candidates a non-trivial (derived) sub-proof is
-preferred over a trivial one (a leaf), so the main line flows through reasoning;
-two or more non-trivial candidates tied at the maximum mean there is no clear
-main line. This is faithful to shared structure (unlike an HTML LCS it is not
-fooled by tags, glyph encodings, or the whitespace spacers), linear, and can
-pinpoint the rewrite site (where the trees diverge).
+preferred over a trivial one (a leaf), so the main line flows through reasoning.
+When several non-trivial sub-proofs still tie, the **smallest** wins: the
+running expression is one side of the step's rewrite, while a rewrite premise
+(e.g. `( ψ ↔ χ )`, as in an `mpbid`) carries both sides and is larger. Only when
+even the smallest is not unique — a genuinely symmetric step like `bitrd`, whose
+two premises are mirror images — is there no clear main line (the spine ends).
+This is faithful to shared structure (unlike an HTML LCS it is not fooled by
+tags, glyph encodings, or the whitespace spacers), linear, and can pinpoint the
+rewrite site (where the trees diverge).
 
 Note the earlier version's size-aware log-ratio does **not** carry over to node
 counts — a literal port minimises the wrong quantity and would spine optocl to

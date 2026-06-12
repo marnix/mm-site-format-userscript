@@ -110,7 +110,7 @@ describe("chooseSpine", () => {
     ).toBe(1);
   });
 
-  it("two non-trivial sub-proofs tied at the max → none", () => {
+  it("two equal-size non-trivial sub-proofs tied at the max → none (bitrd-like)", () => {
     const concl = node(WI, leaf("wff", "ph"), leaf("wff", "ps"));
     const a = node(WI, leaf("wff", "ph"), leaf("wff", "ch"));
     const b = node(WI, leaf("wff", "ch"), leaf("wff", "ps"));
@@ -120,5 +120,22 @@ describe("chooseSpine", () => {
         { parse: b, trivial: false },
       ]),
     ).toBeNull();
+  });
+
+  it("mpbid: overlap ties, so the smaller premise (ψ, not the rewrite ψ↔χ) wins", () => {
+    // conclusion ( φ → χ ); premises ( φ → ψ ) and ( φ → ( ψ ↔ χ ) )
+    const chi = node(WA, leaf("wff", "a"), leaf("wff", "b"));
+    const psi = node(WCEL, leaf("class", "x"), leaf("class", "y"));
+    const concl = node(WI, leaf("wff", "ph"), chi);
+    const p17 = node(WI, leaf("wff", "ph"), psi); // ( φ → ψ )
+    const p18 = node(WI, leaf("wff", "ph"), node(WB, psi, chi)); // ( φ → ( ψ ↔ χ ) )
+    // Both overlap the conclusion by 2 (wi + φ; the consequent diverges), but
+    // p17 is smaller, so it is the spine — not an end-of-spine.
+    expect(
+      chooseSpine(concl, [
+        { parse: p17, trivial: false },
+        { parse: p18, trivial: false },
+      ]),
+    ).toBe(0);
   });
 });

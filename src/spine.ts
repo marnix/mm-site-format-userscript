@@ -25,12 +25,22 @@ export function structuralOverlap(a: Proof, b: Proof): number {
   return matched;
 }
 
+/** The number of nodes in a parse tree. */
+function treeSize(proof: Proof): number {
+  let n = 1;
+  for (const child of proof.subproofs) n += treeSize(child);
+  return n;
+}
+
 /**
  * The index of the spine sub-proof: the one whose parse tree overlaps the
  * conclusion's the most. Among equal-overlap candidates, prefer a non-trivial
  * (derived) sub-proof over a trivial one (a leaf — a hypothesis / 0-assumption
- * step), so the main line flows through reasoning. Returns null when two or more
- * non-trivial candidates tie — there is no clear main line (end of spine).
+ * step), so the main line flows through reasoning. When several non-trivial
+ * sub-proofs still tie, prefer the smallest: the running expression is one side
+ * of the step's rewrite, while a rewrite premise (e.g. `( ψ ↔ χ )`) carries both
+ * sides and is larger. Returns null only when even the smallest is not unique —
+ * a genuinely symmetric step (e.g. `bitrd`), which has no clear main line.
  */
 export function chooseSpine(
   conclusion: Proof,
@@ -40,10 +50,12 @@ export function chooseSpine(
   const overlap = subproofs.map((s) => structuralOverlap(conclusion, s.parse));
   const best = Math.max(...overlap);
   const top = subproofs
-    .map((s, i) => ({ index: i, trivial: s.trivial }))
+    .map((s, i) => ({ index: i, trivial: s.trivial, size: treeSize(s.parse) }))
     .filter(({ index }) => overlap[index] === best);
   const nonTrivial = top.filter((t) => !t.trivial);
-  if (nonTrivial.length >= 2) return null;
+  if (nonTrivial.length === 0) return top[0].index;
   if (nonTrivial.length === 1) return nonTrivial[0].index;
-  return top[0].index;
+  const minSize = Math.min(...nonTrivial.map((t) => t.size));
+  const smallest = nonTrivial.filter((t) => t.size === minSize);
+  return smallest.length === 1 ? smallest[0].index : null;
 }
