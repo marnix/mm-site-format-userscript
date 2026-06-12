@@ -9,6 +9,7 @@ import type { ProofTree } from "./calculation";
 interface Row {
   ref: Element; // the Ref column cell
   expression: Element; // the Expression column, indentation stripped
+  cell: Element; // the original Expression cell (to match its parsed expression)
   hyps: number[]; // step numbers cited in the Hyp column, in order
 }
 
@@ -41,7 +42,12 @@ export function parseProofTable(doc: Document): ProofTree | null {
     const hyps = [...(tds[1].textContent ?? "").matchAll(/\d+/g)].map((m) =>
       Number(m[0]),
     );
-    rows.set(step, { ref: tds[2], expression: expressionHtml(tds[3]), hyps });
+    rows.set(step, {
+      ref: tds[2],
+      expression: expressionHtml(tds[3]),
+      cell: tds[3],
+      hyps,
+    });
     if (step > lastStep) lastStep = step;
   }
   if (rows.size === 0) return null;
@@ -52,6 +58,7 @@ export function parseProofTable(doc: Document): ProofTree | null {
     return {
       refHtml: row.ref,
       expressionHtml: row.expression,
+      expressionCell: row.cell,
       subproofs: row.hyps.map(build),
     };
   };

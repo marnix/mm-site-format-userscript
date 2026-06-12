@@ -1,0 +1,124 @@
+import { describe, expect, it } from "vitest";
+import type { InferenceRule, Proof } from "../src/proof";
+import { chooseSpine, structuralOverlap } from "../src/spine";
+
+const rule = (conclusion: string[]): InferenceRule => ({
+  assumptions: [],
+  conclusion,
+});
+const leaf = (kind: string, name: string): Proof => ({
+  rule: rule([kind, name]),
+  subst: new Map(),
+  subproofs: [],
+});
+const node = (conclusion: string[], ...subproofs: Proof[]): Proof => ({
+  rule: rule(conclusion),
+  subst: new Map(),
+  subproofs,
+});
+
+// Rule conclusion patterns (only the pattern matters to the overlap).
+const WI = ["wff", "(", "ph", "->", "ps", ")"];
+const WB = ["wff", "(", "ph", "<->", "ps", ")"];
+const WA = ["wff", "(", "ph", "/\\", "ps", ")"];
+const WCEL = ["wff", "A", "e.", "B"];
+const WCEQ = ["wff", "A", "=", "B"];
+const CXP = ["class", "(", "A", "X.", "B", ")"];
+const COP = ["class", "<.", "A", ",", "B", ">."];
+
+describe("structuralOverlap", () => {
+  it("counts matching nodes top-down, leaf↔leaf included", () => {
+    const a = node(WI, leaf("wff", "ph"), leaf("wff", "ps"));
+    const b = node(WI, leaf("wff", "ph"), leaf("wff", "th"));
+    expect(structuralOverlap(a, b)).toBe(3); // wi + ph + (ps↔th, both leaves)
+  });
+
+  it("is 0 when the roots apply different rules", () => {
+    const wi = node(WI, leaf("wff", "ph"), leaf("wff", "ps"));
+    const wceq = node(WCEQ, leaf("class", "A"), leaf("class", "B"));
+    expect(structuralOverlap(wi, wceq)).toBe(0);
+  });
+
+  it("is 0 for leaf vs node", () => {
+    const wb = node(WB, leaf("wff", "ph"), leaf("wff", "ps"));
+    expect(structuralOverlap(leaf("wff", "ps"), wb)).toBe(0);
+  });
+});
+
+describe("chooseSpine", () => {
+  it("optocl: spines to the hypothesis sharing the assertion's shape (.3)", () => {
+    // assertion ( A ∈ D → ψ )
+    const assertion = node(
+      WI,
+      node(WCEL, leaf("class", "A"), leaf("class", "D")),
+      leaf("wff", "ps"),
+    );
+    const h1 = node(
+      WCEQ,
+      leaf("class", "D"),
+      node(CXP, leaf("class", "B"), leaf("class", "C")),
+    ); // D = ( B × C )
+    const h2 = node(
+      WI,
+      node(
+        WCEQ,
+        node(COP, leaf("set", "x"), leaf("set", "y")),
+        leaf("class", "A"),
+      ),
+      node(WB, leaf("wff", "ph"), leaf("wff", "ps")),
+    ); // ( ⟨x,y⟩ = A → ( φ ↔ ψ ) ) — compound consequent
+    const h3 = node(
+      WI,
+      node(
+        WA,
+        node(WCEL, leaf("set", "x"), leaf("class", "B")),
+        node(WCEL, leaf("set", "y"), leaf("class", "C")),
+      ),
+      leaf("wff", "ph"),
+    ); // ( ( x∈B ∧ y∈C ) → φ ) — variable consequent, like the assertion
+
+    expect(
+      chooseSpine(assertion, [
+        { parse: h1, trivial: false },
+        { parse: h2, trivial: false },
+        { parse: h3, trivial: false },
+      ]),
+    ).toBe(2); // optocl.3
+  });
+
+  it("bitrd: equal overlap → prefers the non-trivial (derived) sub-proof", () => {
+    const concl = node(
+      WI,
+      leaf("wff", "ph"),
+      node(WB, leaf("wff", "ps"), leaf("wff", "th")),
+    );
+    const hyp = node(
+      WI,
+      leaf("wff", "ph"),
+      node(WB, leaf("wff", "ps"), leaf("wff", "ch")),
+    ); // bitrdi.1
+    const a1i = node(
+      WI,
+      leaf("wff", "ph"),
+      node(WB, leaf("wff", "ch"), leaf("wff", "th")),
+    ); // step 3
+    expect(
+      chooseSpine(concl, [
+        { parse: hyp, trivial: true },
+        { parse: a1i, trivial: false },
+      ]),
+    ).toBe(1);
+  });
+
+  it("two non-trivial sub-proofs tied at the max → none", () => {
+    const concl = node(WI, leaf("wff", "ph"), leaf("wff", "ps"));
+    const a = node(WI, leaf("wff", "ph"), leaf("wff", "ch"));
+    const b = node(WI, leaf("wff", "ch"), leaf("wff", "ps"));
+    expect(
+      chooseSpine(concl, [
+        { parse: a, trivial: false },
+        { parse: b, trivial: false },
+      ]),
+    ).toBeNull();
+  });
+});

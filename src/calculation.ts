@@ -14,6 +14,9 @@ export interface ProofTree {
   refHtml: Element;
   expressionHtml: Element;
   subproofs: ProofTree[];
+  /** The original Expression cell on the page (not the stripped clone), so the
+   *  node can be matched to its parsed expression for spine selection. */
+  expressionCell?: Element;
 }
 
 /**
@@ -54,11 +57,14 @@ export function evaluateCalculation(calc: Calculation): ProofTree {
 }
 
 /**
- * The simplest proof-tree → calculation conversion: replicate the tree, with
- * `spine = 0` everywhere. A leaf (no subproofs) becomes a given; any other node
- * becomes a `<==` step over its subproofs, in order.
+ * Converts a proof tree to a calculation: a leaf (no subproofs) becomes a given;
+ * any other node becomes a `<==` step over its subproofs, in order. `spineFor`
+ * picks each step's spine sub-proof (defaulting to the first, `0`).
  */
-export function proofTreeToCalculation(tree: ProofTree): Calculation {
+export function proofTreeToCalculation(
+  tree: ProofTree,
+  spineFor: (node: ProofTree) => number = () => 0,
+): Calculation {
   if (tree.subproofs.length === 0)
     return {
       kind: "given",
@@ -69,7 +75,9 @@ export function proofTreeToCalculation(tree: ProofTree): Calculation {
     kind: "step",
     inferenceRuleRefHtml: tree.refHtml,
     expressionHtml: tree.expressionHtml,
-    subcalculations: tree.subproofs.map(proofTreeToCalculation),
-    spine: 0,
+    subcalculations: tree.subproofs.map((s) =>
+      proofTreeToCalculation(s, spineFor),
+    ),
+    spine: spineFor(tree),
   };
 }
