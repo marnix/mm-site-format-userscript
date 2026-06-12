@@ -72,6 +72,11 @@ re-parsed for whitespace and hover. A Calculation / Table view switch
 
 ## Features
 
+- **Indent wrapped Expression-column lines**: in the proof table's Expression
+  column, a long expression that wraps should hang-indent its continuation lines
+  — ideally by the width of the leading "leader" (the `. . . n` step-depth
+  marker) plus the first token and the following space — so wrapped lines line
+  up under the expression rather than under the leader.
 - **Nested hover levels**: clicking a highlighted sub-expression cycles to the
   next-larger enclosing expression.
 - **Rule tooltip on hover**: show the name of the matched syntax rule (e.g.
