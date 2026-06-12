@@ -183,9 +183,11 @@ function renderCalcTable(calc: Calculation): HTMLTableElement {
 export function renderCalculation(calc: Calculation): HTMLElement {
   const box = document.createElement("div");
   box.className = "mm-site-format-calc";
-  // No font change; just lay it out left-aligned at normal weight.
+  // No font change; just lay it out left-aligned at normal weight. border-box so
+  // that a min-width (set to the table's width by the view toggle) includes the
+  // padding and border, rather than overflowing the page by that much.
   box.style.cssText =
-    "border:1px solid #ccc;padding:6px 10px;margin:8px 0;text-align:left;font-weight:normal";
+    "box-sizing:border-box;border:1px solid #ccc;padding:6px 10px;margin:8px 0;text-align:left;font-weight:normal";
   box.appendChild(renderCalcTable(calc));
   return box;
 }
