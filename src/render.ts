@@ -86,14 +86,15 @@ function makeCollapsible(table: HTMLTableElement): void {
   const [conclusion, ...rest] = rows;
   const marker = document.createElement("span");
   marker.className = "mm-site-format-fold";
-  marker.style.cssText =
-    "cursor:pointer;user-select:none;opacity:0.6;margin-left:0.5em";
-  (conclusion.lastElementChild ?? conclusion).appendChild(marker);
+  marker.style.cssText = "cursor:pointer;user-select:none;opacity:0.6";
+  // In the left (operator) column, so it stays put regardless of the
+  // expression's width; ▶/▼ are larger glyphs than the small ▸/▾.
+  (conclusion.firstElementChild ?? conclusion).appendChild(marker);
 
   let collapsed = true;
   const refresh = () => {
     for (const r of rest) r.style.display = collapsed ? "none" : "";
-    marker.textContent = collapsed ? "▸" : "▾";
+    marker.textContent = collapsed ? "▶" : "▼";
   };
   const toggle = () => {
     collapsed = !collapsed;
