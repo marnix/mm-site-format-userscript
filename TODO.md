@@ -2,12 +2,6 @@
 
 ## 0.5.0 goals
 
-- **End-of-spine choice**: when `chooseSpine` finds no clear main line (two or
-  more non-trivial sub-proofs tied at the maximum overlap), end the spine
-  explicitly instead of falling back to the first sub-proof — the choice the
-  earlier hand-crafted script made. Use `bitrd` as the example (its two premises
-  are symmetric, so the spine ties and should end). See "Calculational proof
-  rendering" below.
 - **Calculation / Table view toggle**: a "Calculation version" / "Table version"
   control in the top-right; show one and hide the other. Default to the
   calculational version; remember the choice via a query parameter that switches
@@ -63,14 +57,11 @@
 
 Shipped: the proof tree is read from the proof table (`table.ts`) and rendered
 as a `<==` calculation above it (`calculation.ts`, `render.ts`): Ref/Expression
-HTML copied from the table, the spine chosen by parse-tree overlap (`spine.ts`),
-each leaf's Ref shown in the left column, the step hint naming the non-spine
-premises, and the clones re-parsed for whitespace and hover. Further out:
+HTML copied from the table, the spine chosen by parse-tree overlap (`spine.ts`)
+and ending at a `⇔ TRUE` terminal when symmetric, each leaf's Ref shown in the
+left column, the step hint naming the non-spine premises, and the clones
+re-parsed for whitespace and hover. Further out:
 
-- **End-of-spine terminal**: render the no-clear-main-line case (see the 0.5.0
-  goal) as an explicit ended spine — e.g. a synthetic `… <==> TRUE` line with
-  every sub-proof shown as a side calculation, rather than threading on through
-  the first sub-proof.
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.
 - **Sub-expression calculations**: instead of relating whole `|- …` statements

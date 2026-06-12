@@ -28,9 +28,10 @@ shown above the "Proof of Theorem" table: each step's statement, followed by a
 line follows the sub-derivation closest in structure to the step's conclusion
 (the expression being transformed); the other sub-derivations are indented and
 start collapsed (showing just their conclusion and a `▶` marker), expanding on
-click, while leaf facts (hypotheses and axioms) show their reference inline. The
-calculation's expressions get the same whitespace and hover-highlighting as the
-table below.
+click, while leaf facts (hypotheses and axioms) show their reference inline.
+Where a step combines two symmetric premises with no clear main line, the
+calculation ends that branch at `⇔ TRUE`. The calculation's expressions get the
+same whitespace and hover-highlighting as the table below.
 
 ## Installation
 

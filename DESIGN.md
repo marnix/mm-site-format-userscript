@@ -292,10 +292,10 @@ sub-proof minimising it. If two non-trivial sub-proofs scored within ~0.2 it
 chose **none** (a "trivial" sub-proof being a leaf — a hypothesis or
 0-assumption step); reused ("shared") steps were treated as auxiliary.
 
-When no sub-proof is the clear continuation, the spine **ends**: render a
-synthetic `… <==> TRUE` and show every sub-proof as a side calculation. (That
-was the earlier script's behaviour; not yet implemented here — see the 0.5.0
-goal.)
+When no sub-proof is the clear continuation, the spine **ends**: the step holds
+outright, rendered with the hint operator `⇔` (not `⇐`) down to a final `TRUE`
+line, every premise named and shown as a side calculation. (This matches the
+earlier script's behaviour.)
 
 This is now done on **parse trees** rather than HTML (`spine.ts`). Similarity is
 a top-down structural overlap: count nodes that apply the same rule, recursing
@@ -315,11 +315,9 @@ rewrite site (where the trees diverge).
 Note the earlier version's size-aware log-ratio does **not** carry over to node
 counts — a literal port minimises the wrong quantity and would spine optocl to
 its equality hypothesis; plain maximum overlap is both correct (it spines to
-optocl.3) and simpler. The end-of-spine `… <==> TRUE` is not yet built, so "no
-clear main line" currently falls back to the first sub-proof. (A further
-refinement, deferred: take the structure from the Ref theorem's _general_ rule
-instead of the ground instances, so "optocl always spines to optocl.3" becomes
-an intrinsic, substitution-independent fact.)
+optocl.3) and simpler. (A further refinement, deferred: take the structure from
+the Ref theorem's _general_ rule instead of the ground instances, so "optocl
+always spines to optocl.3" becomes an intrinsic, substitution-independent fact.)
 
 ### Possible future direction
 
