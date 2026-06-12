@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseExpression, type KindOf } from "../src/parse";
 import type { InferenceRule } from "../src/proof";
-import { nodeSpans, smallestSpanContaining } from "../src/spans";
+import { gapUnits, nodeSpans, smallestSpanContaining } from "../src/spans";
 
 const wi: InferenceRule = {
   assumptions: [
@@ -63,5 +63,25 @@ describe("smallestSpanContaining", () => {
 
   it("the turnstile highlights the whole statement", () => {
     expect(at(0)).toEqual([0, 10]);
+  });
+});
+
+describe("gapUnits", () => {
+  it("puts space around the outer operator, none around the inner one", () => {
+    // spacing: leaves -1; ( ps <-> th ) = 0; ( ph -> … ) = 1.
+    // 1 unit before "->" and before the "(" after it (symmetric around "->");
+    // 0 around "<->"; nothing at brackets or the turnstile.
+    expect(gapUnits(proof)).toEqual([
+      0, // |-
+      0, // (
+      0, // ph
+      1, // -> (after ph)
+      1, // (  (before the inner subexpression)
+      0, // ps
+      0, // <->
+      0, // th
+      0, // )
+      0, // )
+    ]);
   });
 });

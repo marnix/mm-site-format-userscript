@@ -13,6 +13,8 @@ import { parseKindColors, parseKindNames, type ImageSampler } from "./kind";
 import type { Fetcher } from "./loader";
 import { parseExpression, type KindOf } from "./parse";
 import type { InferenceRule, Proof } from "./proof";
+import { insertSpacers } from "./space";
+import { gapUnits } from "./spans";
 import {
   locateGifRun,
   locateMathSpan,
@@ -63,6 +65,19 @@ function parseLocated(
   });
 }
 
+/** Re-wraps a parsed expression with freshly re-located tokens (after spacing
+ *  inserted spacers / split text nodes), keeping its proof. */
+function withLocations(
+  expr: ParsedExpression,
+  relocated: LocatedToken[],
+): ParsedExpression {
+  return {
+    tokens: relocated.map((lt) => lt.token),
+    locations: relocated.map((lt) => lt.location),
+    proof: expr.proof,
+  };
+}
+
 /** Parses every GIF expression on the page (kinds via colour sampling). */
 export async function parseGifExpressions(
   doc: Document,
@@ -72,11 +87,20 @@ export async function parseGifExpressions(
 ): Promise<ParsedExpression[]> {
   const colors = parseKindColors(doc);
   const cache = new Map<string, string | null>();
-  const located = findGifRuns(doc).map((run) =>
-    locateGifRun(run, colors, sample, cache),
-  );
+  const runs = findGifRuns(doc);
+  const located = runs.map((run) => locateGifRun(run, colors, sample, cache));
   const rules = await assembleGifGrammar(doc, pageUrl, fetcher);
-  return parseLocated(located, rules);
+  const parsed = parseLocated(located, rules);
+
+  return parsed.map((expr, i) => {
+    if (!expr.proof) return expr;
+    const nodes = [...runs[i]]; // kept in sync as spacing splits text nodes
+    insertSpacers(located[i], gapUnits(expr.proof), (oldNode, freshNode) => {
+      const k = nodes.indexOf(oldNode);
+      if (k >= 0) nodes.splice(k + 1, 0, freshNode);
+    });
+    return withLocations(expr, locateGifRun(nodes, colors, sample, cache));
+  });
 }
 
 /** Parses every Unicode expression on the page (kinds via span class). */
@@ -89,8 +113,13 @@ export async function parseUniExpressions(
   const rules = await assembleUniGrammar(doc, pageUrl, fetcher);
   // Split dense runs of concatenated constants against the grammar's tokens.
   const constants = collectConstants(rules);
-  const located = findMathSpans(doc).map((span) =>
-    locateMathSpan(span, kinds, constants),
-  );
-  return parseLocated(located, rules);
+  const spans = findMathSpans(doc);
+  const located = spans.map((span) => locateMathSpan(span, kinds, constants));
+  const parsed = parseLocated(located, rules);
+
+  return parsed.map((expr, i) => {
+    if (!expr.proof) return expr;
+    insertSpacers(located[i], gapUnits(expr.proof));
+    return withLocations(expr, locateMathSpan(spans[i], kinds, constants));
+  });
 }

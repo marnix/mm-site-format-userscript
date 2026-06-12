@@ -49,3 +49,56 @@ export function smallestSpanContaining(
   }
   return best;
 }
+
+/**
+ * The whitespace "size" of a node: -1 for a leaf, else the max of its children
+ * plus 1 (i.e. the subtree height). A simple, local heuristic — bigger
+ * sub-expressions get more space around their operator. Easy to swap out.
+ */
+function spacingOf(proof: Proof, memo: Map<Proof, number>): number {
+  const cached = memo.get(proof);
+  if (cached !== undefined) return cached;
+  const s =
+    proof.subproofs.length === 0
+      ? -1
+      : Math.max(...proof.subproofs.map((p) => spacingOf(p, memo))) + 1;
+  memo.set(proof, s);
+  return s;
+}
+
+/**
+ * Units of extra whitespace to put *before* each token of the proof's token
+ * sequence (`units[0]` is 0). A node contributes its spacing to the gaps
+ * strictly between its first and last sub-expression — i.e. around its operators
+ * — and nothing before the first or after the last, so brackets stay tight and
+ * the space around an operator is symmetric. See DESIGN.md.
+ */
+export function gapUnits(proof: Proof): number[] {
+  const memo = new Map<Proof, number>();
+  const units: number[] = [];
+
+  function walk(p: Proof, start: number): number {
+    const spacing = spacingOf(p, memo);
+    const pattern = p.rule.conclusion.slice(1);
+    const holes = pattern.flatMap((tok, j) => (p.subst.has(tok) ? [j] : []));
+    const firstHole = holes[0];
+    const lastHole = holes[holes.length - 1];
+
+    let offset = start;
+    let nextSub = 0;
+    pattern.forEach((tok, j) => {
+      if (j > 0) {
+        const interior =
+          firstHole !== undefined && j - 1 >= firstHole && j <= lastHole;
+        units[offset] = interior ? spacing : 0;
+      }
+      if (p.subst.has(tok)) offset = walk(p.subproofs[nextSub++], offset);
+      else offset += 1;
+    });
+    return offset;
+  }
+
+  walk(proof, 0);
+  units[0] = 0;
+  return units;
+}
