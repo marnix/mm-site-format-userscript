@@ -2,11 +2,10 @@
 
 ## 0.6.0 goals
 
-- **Calculation / Table view toggle**: a "Calculation version" / "Table version"
-  control in the top-right; show one and hide the other. Default to the
-  calculational version; remember the choice via a query parameter that switches
-  the calculation _off_ (so a plain URL stays calculational). Use `@match …/*`
-  URL matching — a path/query-constrained `@include` would block the param.
+- **Preserve the chosen view across navigation**: add the `view` query parameter
+  to every outbound link to a metamath.org host (proof-step Refs,
+  related-theorem links, etc.), so the chosen view (table, or the calculational
+  default) carries over as the user follows links.
 
 ## Bugs
 
@@ -60,7 +59,8 @@ as a `<==` calculation above it (`calculation.ts`, `render.ts`): Ref/Expression
 HTML copied from the table, the spine chosen by parse-tree overlap (`spine.ts`)
 and ending at a `⇔ TRUE` terminal when symmetric, each leaf's Ref shown in the
 left column, the step hint naming the non-spine premises, and the clones
-re-parsed for whitespace and hover. Further out:
+re-parsed for whitespace and hover. A Calculation / Table view switch
+(`view.ts`) shows one and hides the other, calculation by default. Further out:
 
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.

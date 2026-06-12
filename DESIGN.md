@@ -275,6 +275,20 @@ Each sub-derivation starts **collapsed**, showing only its conclusion and a `▶
 disclosure marker in the left column; clicking the marker expands it (and the
 hint collapses it again).
 
+### Calculation / Table view (`view.ts`)
+
+The calculation goes inside the table's `<caption>` (below the "Proof of
+Theorem" heading), so the view can show one of the calculation/table and hide
+the other while the heading stays in place — only the table's `<tbody>` is
+hidden, never the caption. A single link offering the _other_ view ("Table
+version" / "Calculation version") is prepended to the page's existing top-right
+"… version" links (a fixed box if that line is absent); clicking it switches.
+The calculation is the default; a `view=table` query parameter selects the
+table, so a plain URL stays calculational. Toggling updates both the view and
+the URL (`history.replaceState`) without reloading. To avoid a flash, the grid
+body is hidden _with its space kept_ (`visibility:hidden`) the moment the script
+runs, so the page below does not jump before the calculation appears.
+
 ### Choosing the spine
 
 Each step picks a _spine_ sub-proof — the main line carried downward — or

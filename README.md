@@ -33,6 +33,10 @@ Where a step combines two symmetric premises with no clear main line, the
 calculation ends that branch at `⇔ TRUE`. The calculation's expressions get the
 same whitespace and hover-highlighting as the table below.
 
+A **Calculation version / Table version** switch — added to the page's top-right
+"… version" links — shows one and hides the other, with the calculation shown by
+default. (Add `?view=table` to a proof URL to start in the table view.)
+
 ## Installation
 
 1. Install a userscript manager such as

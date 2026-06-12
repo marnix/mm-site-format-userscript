@@ -13,6 +13,7 @@ import { renderCalculation } from "./render";
 import { chooseSpine } from "./spine";
 import { parseProofTable } from "./table";
 import { formatTokens } from "./token";
+import { installViewToggle, tableSelected } from "./view";
 
 declare const __USERSCRIPT_VERSION__: string;
 declare const __USERSCRIPT_BUILD_TIME__: string;
@@ -36,10 +37,21 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   // Capture the proof tree now (its Expression-cell clones predate the
   // whitespace pass); render the calculation once expressions are parsed, so the
   // spine can be chosen from their parse trees.
-  const proofTable = document.querySelector(
+  const proofTable = document.querySelector<HTMLTableElement>(
     'table[summary="Proof of theorem"]',
   );
   const proofTree = parseProofTable(document);
+
+  // When the calculation will replace the grid, hide the grid body at once —
+  // keeping its space so the page below does not jump — and reveal the
+  // calculation once it is ready. The caption (heading) stays visible. Restore
+  // the grid if the calculation never appears.
+  const grids = proofTable ? ([...proofTable.tBodies] as HTMLElement[]) : [];
+  if (proofTree && !tableSelected(window.location.search))
+    for (const grid of grids) grid.style.visibility = "hidden";
+  const restoreGrid = () => {
+    for (const grid of grids) grid.style.visibility = "";
+  };
 
   // A spine chooser backed by the page's parsed expressions: each step's spine
   // is the sub-proof whose parse tree most overlaps the step's (matched to a
@@ -82,9 +94,15 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     if (!proofTree || !proofTable) return null;
     const calc = proofTreeToCalculation(proofTree, spineChooser(results));
     const rendered = renderCalculation(calc);
+    // Measure the table's natural width now, before the calculation is inserted
+    // and stretches the caption; the view toggle holds the calculation to it.
+    const tableWidth = proofTable.getBoundingClientRect().width;
+    // Into the caption, below the "Proof of Theorem" heading — so the heading
+    // stays in place whichever view is shown.
     const caption = proofTable.querySelector("caption");
     if (caption) caption.appendChild(rendered);
     else proofTable.parentNode?.insertBefore(rendered, proofTable);
+    installViewToggle(rendered, proofTable, tableWidth);
     return rendered;
   };
 
@@ -114,16 +132,18 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   if (findMathSpans(document).length > 0) {
     // Unicode page: kinds come from span classes, no image sampling needed.
     // Many tokens are bare text, so hover is caret-based.
-    parseUniExpressions(document, pageUrl, fetcher).then((results) => {
-      finish(installHoverByCaret)(results);
-      // The calculation clones expressions; give those clones the same parsing,
-      // whitespace and hover by running the pass again, scoped to the calc.
-      const calc = showCalculation(results);
-      if (calc)
-        parseUniExpressions(document, pageUrl, fetcher, calc).then(
-          installHoverByCaret,
-        );
-    });
+    parseUniExpressions(document, pageUrl, fetcher)
+      .then((results) => {
+        finish(installHoverByCaret)(results);
+        // The calculation clones expressions; give those clones the same
+        // parsing, whitespace and hover by running the pass again, scoped to it.
+        const calc = showCalculation(results);
+        if (calc)
+          parseUniExpressions(document, pageUrl, fetcher, calc).then(
+            installHoverByCaret,
+          );
+      })
+      .catch(restoreGrid);
   } else {
     // GIF page: colour sampling needs the variable images decoded, so let the
     // browser signal readiness via img.decode() before parsing. Every token is
@@ -151,6 +171,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
               ),
             )
             .then(installHoverByElement);
-      });
+      })
+      .catch(restoreGrid);
   }
 }
