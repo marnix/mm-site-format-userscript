@@ -317,16 +317,6 @@ refinement, deferred: take the structure from the Ref theorem's _general_ rule
 instead of the ground instances, so "optocl always spines to optocl.3" becomes
 an intrinsic, substitution-independent fact.)
 
-A worked case that looks surprising but is right: on `elrels2`, step 4
-`( R ∈ V → ( R ∈ Rels ↔ R ⊆ (V × V) ) )` (a `bitrid`) spines to step 3 (`elpwg`,
-`( R ∈ V → ( R ∈ 𝒫(V × V) ↔ R ⊆ (V × V) ) )`), **not** step 2 (`eleq2i`,
-`( R ∈ Rels ↔ R ∈ 𝒫(V × V) )`). Step 3 shares step 4's whole
-`( R ∈ V → ( R ∈ _ ↔ R ⊆ (V × V) ) )` skeleton — differing only `Rels` vs
-`𝒫(V × V)` deep inside — so the overlap is large (~13 nodes); step 2's root is
-`wb`, which differs from step 4's `wi`, so the overlap is ~nil. The choice is
-correct — step 3 is the deduction's running expression and step 2 is the local
-rewrite it threads in — even though step 2 carries the headline term `Rels`.
-
 ### Possible future direction
 
 Instead of relating whole `|- …` statements along the spine, a calculation could
