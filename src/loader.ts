@@ -23,6 +23,26 @@ export function extractSyntaxHintUrls(
 }
 
 /**
+ * Finds the URLs of the theorem/axiom pages linked from the Ref column (the 3rd
+ * TD of each proof-table row) — the assertions the proof's steps cite.
+ */
+export function extractRefUrls(doc: Document, pageUrl: string): string[] {
+  const base = new URL(pageUrl);
+  const urls = new Set<string>();
+  const proofTable = doc.querySelector('table[summary="Proof of theorem"]');
+  for (const tr of proofTable?.querySelectorAll("tr") ?? []) {
+    const tds = tr.querySelectorAll("td");
+    if (tds.length >= 3) {
+      for (const a of tds[2].querySelectorAll("a[href]")) {
+        const href = a.getAttribute("href");
+        if (href && !href.startsWith("#")) urls.add(new URL(href, base).href);
+      }
+    }
+  }
+  return [...urls];
+}
+
+/**
  * Finds the URLs of all pages linked from the syntax hints row and the Ref
  * column of the proof table on a metamath proof page.
  */
@@ -30,24 +50,12 @@ export function extractLinkedPageUrls(
   doc: Document,
   pageUrl: string,
 ): string[] {
-  const base = new URL(pageUrl);
-  const urls = new Set<string>(extractSyntaxHintUrls(doc, pageUrl));
-
-  // Ref column links: 3rd TD in each row of the proof table.
-  const proofTable = doc.querySelector('table[summary="Proof of theorem"]');
-  if (proofTable) {
-    for (const tr of proofTable.querySelectorAll("tr")) {
-      const tds = tr.querySelectorAll("td");
-      if (tds.length >= 3) {
-        for (const a of tds[2].querySelectorAll("a[href]")) {
-          const href = a.getAttribute("href");
-          if (href && !href.startsWith("#")) urls.add(new URL(href, base).href);
-        }
-      }
-    }
-  }
-
-  return [...urls];
+  return [
+    ...new Set([
+      ...extractSyntaxHintUrls(doc, pageUrl),
+      ...extractRefUrls(doc, pageUrl),
+    ]),
+  ];
 }
 
 /**
