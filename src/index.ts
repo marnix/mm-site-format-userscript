@@ -1,6 +1,6 @@
 import "./config";
 import { proofTreeToCalculation, type ProofTree } from "./calculation";
-import { findGifRuns, findMathSpans } from "./expression";
+import { findMathSpans } from "./expression";
 import { installHoverByCaret, installHoverByElement } from "./highlight";
 import { canvasSampler } from "./kind";
 import {
@@ -76,17 +76,27 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     };
   };
 
-  const showCalculation = (results: ParsedExpression[]) => {
-    if (!proofTree || !proofTable) return;
+  const showCalculation = (results: ParsedExpression[]): HTMLElement | null => {
+    if (!proofTree || !proofTable) return null;
     const calc = proofTreeToCalculation(proofTree, spineChooser(results));
     const rendered = renderCalculation(calc);
     const caption = proofTable.querySelector("caption");
     if (caption) caption.appendChild(rendered);
     else proofTable.parentNode?.insertBefore(rendered, proofTable);
+    return rendered;
   };
 
   const pageUrl = window.location.href;
-  const fetcher = (url: string) => fetch(url).then((r) => r.text());
+  // Memoised so the calculation's second (scoped) parse reuses fetched pages.
+  const fetchCache = new Map<string, Promise<string>>();
+  const fetcher = (url: string) => {
+    let body = fetchCache.get(url);
+    if (!body) {
+      body = fetch(url).then((r) => r.text());
+      fetchCache.set(url, body);
+    }
+    return body;
+  };
 
   const finish =
     (install: (results: ParsedExpression[]) => void) =>
@@ -103,23 +113,42 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     // Unicode page: kinds come from span classes, no image sampling needed.
     // Many tokens are bare text, so hover is caret-based.
     parseUniExpressions(document, pageUrl, fetcher).then((results) => {
-      showCalculation(results);
       finish(installHoverByCaret)(results);
+      // The calculation clones expressions; give those clones the same parsing,
+      // whitespace and hover by running the pass again, scoped to the calc.
+      const calc = showCalculation(results);
+      if (calc)
+        parseUniExpressions(document, pageUrl, fetcher, calc).then(
+          installHoverByCaret,
+        );
     });
   } else {
     // GIF page: colour sampling needs the variable images decoded, so let the
     // browser signal readiness via img.decode() before parsing. Every token is
     // an element, so hover is element-based.
-    const gifImages = findGifRuns(document)
-      .flat()
-      .filter((n): n is HTMLImageElement => n.nodeType === Node.ELEMENT_NODE);
-    Promise.all(gifImages.map((img) => img.decode().catch(() => {})))
+    const decoded = (imgs: HTMLImageElement[]) =>
+      Promise.all(imgs.map((img) => img.decode().catch(() => {})));
+    const gifImages = (root: ParentNode) =>
+      [...root.querySelectorAll("img")] as HTMLImageElement[];
+    decoded(gifImages(document))
       .then(() =>
         parseGifExpressions(document, pageUrl, fetcher, canvasSampler),
       )
       .then((results) => {
-        showCalculation(results);
         finish(installHoverByElement)(results);
+        const calc = showCalculation(results);
+        if (calc)
+          decoded(gifImages(calc))
+            .then(() =>
+              parseGifExpressions(
+                document,
+                pageUrl,
+                fetcher,
+                canvasSampler,
+                calc,
+              ),
+            )
+            .then(installHoverByElement);
       });
   }
 }

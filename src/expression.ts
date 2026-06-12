@@ -4,8 +4,8 @@
 // Both modes are run on every page; on a given page only one finds anything.
 
 /** mpeuni mode: every expression is wrapped in a <span class=math>. */
-export function findMathSpans(doc: Document): Element[] {
-  return [...doc.querySelectorAll("span.math")];
+export function findMathSpans(root: ParentNode): Element[] {
+  return [...root.querySelectorAll("span.math")];
 }
 
 /**

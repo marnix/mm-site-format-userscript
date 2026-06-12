@@ -78,16 +78,19 @@ function withLocations(
   };
 }
 
-/** Parses every GIF expression on the page (kinds via colour sampling). */
+/** Parses every GIF expression on the page (kinds via colour sampling). The
+ *  grammar and colour legend come from `doc`; expressions are found under
+ *  `root` (default `doc`), so the calculation's clones can be processed too. */
 export async function parseGifExpressions(
   doc: Document,
   pageUrl: string,
   fetcher: Fetcher,
   sample: ImageSampler,
+  root: Node = doc,
 ): Promise<ParsedExpression[]> {
   const colors = parseKindColors(doc);
   const cache = new Map<string, string | null>();
-  const runs = findGifRuns(doc);
+  const runs = findGifRuns(root);
   const located = runs.map((run) => locateGifRun(run, colors, sample, cache));
   const rules = await assembleGifGrammar(doc, pageUrl, fetcher);
   const parsed = parseLocated(located, rules);
@@ -103,17 +106,20 @@ export async function parseGifExpressions(
   });
 }
 
-/** Parses every Unicode expression on the page (kinds via span class). */
+/** Parses every Unicode expression on the page (kinds via span class). The
+ *  grammar and kind classes come from `doc`; expressions are found under `root`
+ *  (default `doc`), so the calculation's clones can be processed too. */
 export async function parseUniExpressions(
   doc: Document,
   pageUrl: string,
   fetcher: Fetcher,
+  root: ParentNode = doc,
 ): Promise<ParsedExpression[]> {
   const kinds = parseKindNames(doc);
   const rules = await assembleUniGrammar(doc, pageUrl, fetcher);
   // Split dense runs of concatenated constants against the grammar's tokens.
   const constants = collectConstants(rules);
-  const spans = findMathSpans(doc);
+  const spans = findMathSpans(root);
   const located = spans.map((span) => locateMathSpan(span, kinds, constants));
   const parsed = parseLocated(located, rules);
 
