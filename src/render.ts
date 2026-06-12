@@ -1,9 +1,9 @@
 // Renders a calculation as a two-column layout to place above the proof table.
 // Left column: the `⇐` operator (on the hint rows), and the parenthesised Ref
 // in front of a leaf's expression. Right column: expressions, the
-// `{ using rule, premise…, subproofs }` hints (the rule, the non-spine given
-// premises, and a count word for any nested sub-derivations), and — indented —
-// the step sub-calculations. Following the spine, a step
+// `{ using premise…, subproofs, and rule }` hints (the non-spine given
+// premises, a count word for any nested sub-derivations, and the rule last),
+// and — indented — the step sub-calculations. Following the spine, a step
 // sub-calculation continues the main line; a given (a leaf) ends it. All HTML is
 // cloned, so the table is left intact.
 
@@ -66,11 +66,11 @@ function row(
 function appendStep(step: Step, tbody: HTMLElement): void {
   tbody.appendChild(row("", clone(step.expressionHtml), "0", EXPR_STYLE));
 
-  // Hint: the inference rule first, then the non-spine given premises (each by
-  // its Ref), then "subproof"/"subproofs" if any non-spine premise is itself a
-  // derivation (those are shown below). The spine premise continues the main
-  // line below.
-  const items: Node[] = [clone(step.inferenceRuleRefHtml)];
+  // Hint: the non-spine given premises (each by its Ref), then
+  // "subproof"/"subproofs" if any non-spine premise is itself a derivation
+  // (those are shown below), and the inference rule last. The spine premise
+  // continues the main line below.
+  const items: Node[] = [];
   let nested = 0;
   step.subcalculations.forEach((sub, i) => {
     if (i === step.spine) return;
@@ -81,6 +81,7 @@ function appendStep(step: Step, tbody: HTMLElement): void {
     items.push(
       document.createTextNode(nested === 1 ? "subproof" : "subproofs"),
     );
+  items.push(clone(step.inferenceRuleRefHtml));
   const hint = document.createElement("span");
   hint.append("{ using ");
   appendSeries(hint, items);

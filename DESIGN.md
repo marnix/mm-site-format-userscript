@@ -261,10 +261,10 @@ above the "Proof of Theorem" table. The proof tree is read straight from the
 table (`table.ts`): each row's Ref cell and Expression cell become a node, with
 one sub-proof per Hyp entry. That tree is rendered (`render.ts`) as a chain of
 `|- …` statements joined by `⇐` hints, following a chosen _spine_ (the main
-line; see below). Each hint reads `{ using <rule>, <premise>…, subproofs }` —
-the inference rule, then the non-spine premises (a leaf by its Ref, any nested
-derivations summarised as a `subproof`/`subproofs` count and shown indented). A
-leaf ends a spine: its expression is the last line, with its Ref parenthesised
+line; see below). Each hint reads `{ using <premise>…, subproofs, and <rule> }`
+— the non-spine premises (a leaf by its Ref, any nested derivations summarised
+as a `subproof`/`subproofs` count and shown indented), then the inference rule.
+A leaf ends a spine: its expression is the last line, with its Ref parenthesised
 in the (right-aligned) left column. The page's own Ref/Expression HTML is cloned
 into place; the clones are then given the same treatment as the page — the
 calculation is rendered after the page's parse pass and the pass is run a second
