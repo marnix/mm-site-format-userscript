@@ -18,11 +18,6 @@ Expression-column wrap indent, and the GIF `Disj` hover bug (see below).
 - **Highlight on a green-background cell misses part of the expression**: where
   the proof table shades a cell green, the hover highlight does not cover
   everything it should. (Images to come when this is picked up.)
-- **Subscripted token only partly highlighted** (e.g. `0R` — `0` with subscript
-  `R`): hovering the base `0` highlights only `0`; the subscript `R` highlights
-  only as part of a larger expression, never the `0R` token on its own. Likely
-  the subscript-folding in `token.ts` (the folded subscript char reuses the base
-  char's location).
 
 ## Performance
 

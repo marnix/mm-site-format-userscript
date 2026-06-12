@@ -18,8 +18,10 @@ export function rangeForSpan(
   const first = locations[start];
   const last = locations[end - 1];
   if (first.type === "element") range.setStartBefore(first.node);
+  else if (first.type === "folded") range.setStart(first.node, first.offset);
   else range.setStart(first.node, first.start);
   if (last.type === "element") range.setEndAfter(last.node);
+  else if (last.type === "folded") range.setEndAfter(last.sub);
   else range.setEnd(last.node, last.end);
   return range;
 }
@@ -58,6 +60,11 @@ export function findTokenAt(
     if (loc.type === "text") {
       if (loc.node === node && offset >= loc.start && offset < loc.end)
         return i;
+    } else if (loc.type === "folded") {
+      // the base character, or anywhere inside the subscript element
+      if (loc.node === node && offset >= loc.offset && offset < loc.offset + 1)
+        return i;
+      if (loc.sub === node || loc.sub.contains(node)) return i;
     } else if (loc.node === node || loc.node.contains(node)) {
       return i;
     }

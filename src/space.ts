@@ -48,10 +48,14 @@ function insertBefore(
 ): void {
   if (loc.type === "element") {
     loc.node.parentNode?.insertBefore(node, loc.node);
-  } else if (loc.start === 0) {
+    return;
+  }
+  // text or folded: the gap goes before the token's first character.
+  const at = loc.type === "folded" ? loc.offset : loc.start;
+  if (at === 0) {
     loc.node.parentNode?.insertBefore(node, loc.node);
   } else {
-    const fresh = loc.node.splitText(loc.start);
+    const fresh = loc.node.splitText(at);
     onSplit?.(loc.node, fresh);
     fresh.parentNode?.insertBefore(node, fresh);
   }

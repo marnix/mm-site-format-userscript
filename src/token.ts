@@ -21,7 +21,10 @@ export type Token =
 /** Where a token was rendered, enough to build a DOM Range for highlighting. */
 export type TokenLocation =
   | { type: "element"; node: Element } // whole element (img / variable span)
-  | { type: "text"; node: Text; start: number; end: number }; // text substring
+  | { type: "text"; node: Text; start: number; end: number } // text substring
+  // a token folded with a subscript: from char `offset` in `node` through the
+  // subscript element `sub` (e.g. the `~` text char and the `<sub>R</sub>` of `~R`)
+  | { type: "folded"; node: Text; offset: number; sub: Element };
 
 export interface LocatedToken {
   token: Token;
@@ -82,17 +85,23 @@ function isSubscript(el: Element): boolean {
 }
 
 // A character of a constant run, tagged with its source text-node position.
-// Folded subscript characters reuse the position of the character they follow,
-// so a folded token (e.g. `~R`) is located at its base character (the `~`).
-type RunChar = { ch: string; node: Text; offset: number };
+// Folded subscript characters reuse the position of the character they follow
+// and carry the subscript element they came from, so a folded token (e.g. `~R`)
+// is located from its base character through that subscript element.
+type RunChar = { ch: string; node: Text; offset: number; sub?: Element };
 
-/** The text location spanning a token's run characters [start, end). */
+/** The location spanning a token's run characters [start, end): a plain text
+ *  substring, or — if any character was folded from a subscript — a span from
+ *  the base character through the (last) subscript element. */
 function runLocation(
   run: RunChar[],
   start: number,
   end: number,
 ): TokenLocation {
   const a = run[start];
+  let sub: Element | undefined;
+  for (let k = start; k < end; k++) sub = run[k].sub ?? sub;
+  if (sub) return { type: "folded", node: a.node, offset: a.offset, sub };
   const b = run[end - 1];
   const endOffset = b.node === a.node ? b.offset + 1 : a.offset + 1;
   return { type: "text", node: a.node, start: a.offset, end: endOffset };
@@ -149,9 +158,14 @@ export function locateMathSpan(
         // (e.g. `𝑟` in `↑𝑟`) would otherwise desync them and the munch's offsets
         // would run off the end of `run`.
         const base = run[run.length - 1];
-        const sub = el.textContent ?? "";
-        for (let k = 0; k < sub.length; k++)
-          run.push({ ch: sub[k], node: base.node, offset: base.offset });
+        const subText = el.textContent ?? "";
+        for (let k = 0; k < subText.length; k++)
+          run.push({
+            ch: subText[k],
+            node: base.node,
+            offset: base.offset,
+            sub: el,
+          });
       } else {
         // Non-kind element (turnstile, typecode, or a stray subscript): its text
         // is constant tokens, located at the element itself.

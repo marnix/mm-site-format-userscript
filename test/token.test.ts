@@ -9,6 +9,7 @@ import {
   tokenizeGifRun,
   tokenizeMathSpan,
 } from "../src/token";
+import { findTokenAt } from "../src/highlight";
 import { gifSampler, readFixture } from "./helpers";
 
 function parse(variant: string, name = "bitrdi.html"): Document {
@@ -148,12 +149,26 @@ describe("tokenizeMathSpan (dense Unicode: subscripts and concatenated constants
     expect(tokenizeMathSpan(span, kinds)).toEqual([{ kind: null, text: "~R" }]);
   });
 
-  it("locates a folded subscript token at its base text character", () => {
+  it("locates a folded token over the base char and the subscript element", () => {
     const span = document.createElement("span");
     span.innerHTML = "~<i><sub><b>R</b></sub></i>";
     const [located] = locateMathSpan(span, kinds);
     expect(located.token).toEqual({ kind: null, text: "~R" });
-    expect(located.location.type).toBe("text"); // the "~", not the <sub>
+    // The location spans the "~" base char and the subscript element, so the
+    // whole `~R` glyph highlights (not just the "~").
+    expect(located.location.type).toBe("folded");
+    if (located.location.type === "folded") {
+      expect(located.location.node.nodeValue).toBe("~");
+      expect(located.location.sub.textContent).toBe("R");
+    }
+  });
+
+  it("hovering a folded token's subscript hits the token", () => {
+    const span = document.createElement("span");
+    span.innerHTML = "~<i><sub><b>R</b></sub></i>";
+    const locations = locateMathSpan(span, kinds).map((lt) => lt.location);
+    const rText = span.querySelector("b")!.firstChild!; // the "R" text node
+    expect(findTokenAt(locations, rText, 0)).toBe(0);
   });
 
   it("folds a surrogate-pair subscript (e.g. ↑𝑟) without running off the run", () => {
