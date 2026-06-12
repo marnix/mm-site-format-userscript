@@ -54,6 +54,9 @@ export function installViewToggle(
 
   const apply = () => {
     calc.style.display = table ? "none" : "inline-block";
+    // With the grid hidden, the table's own BORDER would still draw a stray line
+    // around the bare caption; suppress it in the calculation view.
+    proofTable.style.border = table ? "" : "none";
     for (const grid of grids) {
       grid.style.display = table ? "" : "none";
       grid.style.visibility = ""; // clear any early hide-with-space
