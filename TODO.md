@@ -1,13 +1,11 @@
 # TODO
 
-## 0.3.0 goals
+## 0.4.0 goals
 
-All planned 0.3.0 goals are done — see below; ready to cut when verified.
-
-Done in 0.3.0-dev: syntax hints from Ref-linked pages; vocabulary-based
-tokenizing of dense Unicode expressions; parse-tree-guided whitespace; collapse
-sub-calculations by default (expand on click); parse-tree spine selection (the
-main line follows the sub-proof structurally closest to the conclusion).
+- **End-of-spine `… <==> TRUE` terminal with leaf-step Refs**: render a
+  calculation's last line as `… <==> { <Ref> } TRUE` — surfacing the Ref of
+  givens / 0-assumption steps, and ending the spine cleanly when `chooseSpine`
+  finds no clear main line. See "Calculational proof rendering" below.
 
 ## Bugs
 
