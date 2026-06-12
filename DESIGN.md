@@ -285,10 +285,12 @@ version" / "Calculation version") is prepended to the page's existing top-right
 "… version" links (a fixed box if that line is absent); clicking it switches.
 The calculation is the default; a `view=table` query parameter selects the
 table, so a plain URL stays calculational. Toggling updates both the view and
-the URL (`history.replaceState`) without reloading. While the table view is
-active, `view=table` is also added — on any matching page, before the proof-page
-check — to every link to a metamath.org page, so the choice persists as the user
-navigates. To avoid a flash, the grid body is hidden _with its space kept_
+the URL (`history.replaceState`) without reloading. Every link to a metamath.org
+page is also kept in sync with the current view — `view=table` added or cleared
+— both on load (before the proof-page check, on any matching page) and whenever
+the switch is toggled, so the choice persists as the user navigates; the two
+updates share one helper (`applyViewToLinks`), and the switch's own link is
+exempt. To avoid a flash, the grid body is hidden _with its space kept_
 (`visibility:hidden`) the moment the script runs, so the page below does not
 jump before the calculation appears.
 

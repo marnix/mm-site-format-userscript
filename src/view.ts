@@ -23,11 +23,18 @@ export function searchWithView(search: string, table: boolean): string {
   return s ? `?${s}` : "";
 }
 
+const TOGGLE_CLASS = "mm-site-format-view"; // the view switch's own link/box
+
 /**
- * The same link with `view=table` added, if it points to a metamath.org page and
- * does not already carry it; otherwise null. `href` is resolved against `base`.
+ * The same link with the `view` parameter set (table) or cleared (calculation)
+ * to match `table`, if it points to a metamath.org page and needs the change;
+ * otherwise null. `href` is resolved against `base`.
  */
-export function linkWithTableView(href: string, base: string): string | null {
+export function linkWithView(
+  href: string,
+  base: string,
+  table: boolean,
+): string | null {
   let url: URL;
   try {
     url = new URL(href, base);
@@ -37,23 +44,25 @@ export function linkWithTableView(href: string, base: string): string | null {
   if (url.protocol !== "http:" && url.protocol !== "https:") return null;
   const host = url.hostname;
   if (host !== "metamath.org" && !host.endsWith(".metamath.org")) return null;
-  if (url.searchParams.get(PARAM) === TABLE) return null;
-  url.searchParams.set(PARAM, TABLE);
+  if ((url.searchParams.get(PARAM) === TABLE) === table) return null; // unchanged
+  if (table) url.searchParams.set(PARAM, TABLE);
+  else url.searchParams.delete(PARAM);
   return url.href;
 }
 
 /**
- * When the table view is active, carry `view=table` onto every link to a
- * metamath.org page, so the chosen view persists as the user navigates. Runs on
- * any matching page (not only proof pages); same-page fragment links are left
+ * Make every link to a metamath.org page agree with the current view: add
+ * `view=table` for the table view, clear it for the calculation view, so the
+ * choice persists as the user navigates. Runs both on load and whenever the view
+ * switch is toggled. Same-page fragment links and the switch's own link are left
  * alone.
  */
-export function propagateTableView(): void {
-  if (!tableSelected(location.search)) return;
+export function applyViewToLinks(table: boolean): void {
   for (const anchor of document.querySelectorAll("a[href]")) {
     const a = anchor as HTMLAnchorElement;
+    if (a.classList.contains(TOGGLE_CLASS)) continue;
     if (a.getAttribute("href")?.startsWith("#")) continue;
-    const next = linkWithTableView(a.href, location.href);
+    const next = linkWithView(a.href, location.href, table);
     if (next) a.href = next;
   }
 }
@@ -96,6 +105,7 @@ export function installViewToggle(
     location.hash;
   // A single link offering the *other* view; clicking it switches.
   const link = document.createElement("a");
+  link.className = TOGGLE_CLASS; // so applyViewToLinks leaves it alone
   const refresh = () => {
     link.textContent = table ? "Calculation version" : "Table version";
     link.href = here(!table);
@@ -106,6 +116,7 @@ export function installViewToggle(
     apply();
     refresh();
     history.replaceState(null, "", here(table));
+    applyViewToLinks(table); // keep the page's links in sync with the new view
   });
 
   const line = versionLine();
@@ -113,7 +124,7 @@ export function installViewToggle(
     line.prepend(link, "  ");
   } else {
     const box = document.createElement("div");
-    box.className = "mm-site-format-view";
+    box.className = TOGGLE_CLASS;
     box.style.cssText =
       "position:fixed;top:0;right:0;background:#f4f4f4;border:1px solid #ccc;" +
       "border-top:none;border-right:none;padding:4px 8px;font-size:13px;z-index:9999";
