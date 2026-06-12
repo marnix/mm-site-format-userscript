@@ -16,13 +16,6 @@
   workaround for incomplete syntax hints (cf. "Transitive syntax loading"; keep
   `cv.html` and the leave-unparsed fallback).
 
-## Possible 0.2.1 (README only)
-
-The README still calls the calculational rendering "in progress", though it
-shipped in 0.2.0. Consider a README-only **0.2.1** on a `0.2.x` maintenance
-branch that documents the feature. (The main-branch README will be updated for
-0.3.0 regardless.)
-
 ## Performance
 
 - **Cache linked pages**: currently linked pages are fetched on every page load.
@@ -60,10 +53,11 @@ a simple structural model — Ref/Expression HTML copied from the table,
 
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.
-- **Richer model** (deferred): sub-expression contexts and explicit
-  transitivity/windowing operators — only if the simple model proves
-  insufficient. DESIGN.md still describes that earlier, more complex model and
-  is out of date with the shipped code.
+- **Sub-expression calculations**: instead of relating whole `|- …` statements
+  along the spine, relate _sub-expressions_ by their syntax operator (`<->` =
+  `wb`, `->` = `wi`, …) within a surrounding context, so an inference reads as a
+  chain of sub-expression rewrites. Considerably more involved — contexts,
+  per-step operators, transitivity/windowing rules; deferred. See DESIGN.md.
 
 ## Features
 
