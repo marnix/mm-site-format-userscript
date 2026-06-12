@@ -1,6 +1,6 @@
 # TODO
 
-## 0.5.0 goals
+## 0.6.0 goals
 
 - **Calculation / Table view toggle**: a "Calculation version" / "Table version"
   control in the top-right; show one and hide the other. Default to the
