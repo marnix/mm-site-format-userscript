@@ -5,6 +5,7 @@
 import { HIGHLIGHT_COLOR } from "./config";
 import type { ParsedExpression } from "./page";
 import type { Proof } from "./proof";
+import { SPACE_CLASS } from "./space";
 import { nodeSpans, smallestSpanContaining, type Span } from "./spans";
 import type { TokenLocation } from "./token";
 
@@ -109,12 +110,26 @@ function createPainter(): Painter | null {
     clear,
     paint(locations, [start, end]) {
       clear();
-      highlight.add(rangeForSpan(locations, [start, end]));
+      const range = rangeForSpan(locations, [start, end]);
+      highlight.add(range);
       for (let i = start; i < end; i++) {
         const loc = locations[i];
         if (loc.type === "element") {
           loc.node.classList.add(HIGHLIGHT_CLASS);
           painted.push(loc.node);
+        }
+      }
+      // Spacers are empty, so the Highlight API does not paint them; colour the
+      // ones inside the range by hand so the highlight has no gaps.
+      const ancestor = range.commonAncestorContainer;
+      const root =
+        ancestor.nodeType === Node.ELEMENT_NODE
+          ? (ancestor as Element)
+          : ancestor.parentElement;
+      for (const spacer of root?.querySelectorAll(`.${SPACE_CLASS}`) ?? []) {
+        if (range.intersectsNode(spacer)) {
+          spacer.classList.add(HIGHLIGHT_CLASS);
+          painted.push(spacer);
         }
       }
     },

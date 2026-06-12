@@ -9,10 +9,16 @@ import type { LocatedToken, TokenLocation } from "./token";
 /** Width of one spacing unit. */
 const EX_PER_UNIT = 0.2;
 
+/** Class on inserted spacers, so the highlighter can colour them too. */
+export const SPACE_CLASS = "mm-site-format-space";
+
+// An inline element whose left padding makes the gap: inline (not inline-block)
+// so it has the line's height and its padding shows a background when the
+// highlighter colours it (an empty inline-block would be zero-height).
 function spacer(units: number): HTMLElement {
   const span = document.createElement("span");
-  span.className = "mm-site-format-space";
-  span.style.cssText = `display:inline-block;width:${(units * EX_PER_UNIT).toFixed(2)}ex`;
+  span.className = SPACE_CLASS;
+  span.style.cssText = `padding-left:${(units * EX_PER_UNIT).toFixed(2)}ex`;
   return span;
 }
 
