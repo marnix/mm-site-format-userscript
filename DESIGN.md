@@ -94,17 +94,19 @@ direct signal, inference a fallback.)
 
 ## Loading linked pages
 
-On page load the script:
+On page load the script assembles the grammar from:
 
-1. Reads **syntax hint links** from the current page → candidate URLs.
-2. Reads **Ref-column links** from the proof table → more candidate URLs.
-3. **Fetches** each URL (relative URL resolved against the current page URL).
-4. For every fetched page that is a syntax definition, extracts a grammar rule.
-5. For every fetched page that is a theorem/axiom, collects its syntax hints
-   (one level of recursion — see TODO).
+1. The current page's **syntax hint** links → syntax-definition pages.
+2. Each **Ref-column** theorem/axiom page (from the proof table): fetched, and
+   _its_ syntax hints added too. Every constructor in a proof step is introduced
+   by some cited assertion, so the union of syntax hints over the page and its
+   Ref pages covers the whole proof table — a workaround for incomplete syntax
+   hints (see below).
+3. `cv.html` always (the setvar→class coercion, needed wherever a setvar sits in
+   a class position, yet never listed in syntax hints).
 
-Fetching is done eagerly on page load. Each fetch is a plain `fetch()` call; the
-result is parsed as HTML using `DOMParser`.
+Each syntax-definition page yields one grammar rule. Fetching is eager; each
+fetch is a plain `fetch()` parsed with `DOMParser`. A failed fetch is skipped.
 
 ## Parse tree
 
@@ -204,25 +206,26 @@ first-match is expected to be deterministic.
 
 ### Limitation: incomplete syntax hints
 
-The grammar is assembled only from the page's own "Syntax hints" links (one
-level deep). A proof may _display_ an expression built from a constructor that
-the page's syntax hints omit — when that constructor is introduced only by a
-referenced definition. For example, `mpegif/disjrel.html` shows the proof step
+A page's own "Syntax hints" can omit a constructor that a proof step actually
+displays. Loading the syntax hints of the Ref-linked theorem pages too (see
+"Loading linked pages") covers the constructors the proof's steps introduce,
+since each is brought in by some cited assertion. A residual gap remains for
+displayed expressions that are _not_ proof steps — e.g. the definitional
+cross-reference on `mpegif/disjrel.html`, `( Disj R <-> … )`, whose `<->` (`wb`)
+etc. are hinted by neither the page nor any Ref page. Such an expression is left
+unparsed (the ignore-if-no-parse-tree principle); fully resolving it would need
+transitive syntax loading (see TODO).
 
-```
-( Disj R <-> ( CnvRefRel ,~ `' R /\ Rel R ) )
-```
+### Tokenizing the Unicode rendering
 
-(the body of the referenced `df-disjALTV`), but `<->` (`wb`) and `/\` are not
-among disjrel's syntax hints, so this expression cannot be parsed and is left
-unmarked. This is consistent with the ignore-if-no-parse-tree principle; fully
-resolving it would require following the proof's Ref-column links to gather
-their syntax too.
-
-The omission looks like a metamath website bug (the displayed proof step uses
-syntax the page does not hint). TODO: check whether it is already reported at
-https://groups.google.com/g/metamath or
-https://github.com/metamath/metamath-exe, and report it if not.
+GIF pages mark each token (one `<img alt>` per token), so tokenizing is direct.
+The Unicode rendering instead runs constants together with no delimiter (e.g.
+`([⟨`) and renders subscript tokens (`~R`, `0R`) with the `R` in a `<sub>`
+element. So the Unicode tokenizer folds a subscript element into the preceding
+token, and splits a run of concatenated constants by longest-match against the
+grammar's constant tokens. That constant vocabulary is reliable because each
+constant appears delimited (by the variable spans) on its own syntax-definition
+page, even though it is run together in dense theorem expressions.
 
 ## Hover highlighting
 
@@ -233,6 +236,22 @@ over any token element:
    the hovered token.
 2. Add a CSS highlight class to all DOM elements in that range.
 3. Remove the class on `mouseleave`.
+
+## Whitespace from the parse tree
+
+To make structure readable without hovering, extra space is added between
+tokens, guided by the parse tree (`spans.gapUnits`). Each node has a `spacing` =
+its subtree height (a leaf is -1, else `max(children) + 1`), and contributes
+that spacing to the gaps **strictly between its first and last sub-expression**
+— i.e. symmetric space around its operators — and nothing before the first or
+after the last child, so brackets stay tight. Bigger sub-expressions therefore
+get more space around their operator; the innermost get none.
+
+Rendering (`space.ts`) inserts an empty inline spacer (left padding ∝ units)
+before each such gap, splitting text nodes where a gap falls mid-text; the
+original glyphs are untouched. The tokenizer is then re-run to refresh hover
+locations (spacers are empty, so they are ignored). Spacers are also coloured by
+the highlighter, since the CSS Highlight API does not paint empty elements.
 
 ## Calculational proof rendering
 

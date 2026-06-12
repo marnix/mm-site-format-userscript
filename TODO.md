@@ -2,14 +2,13 @@
 
 ## 0.3.0 goals
 
-- **Whitespace via parsing**: use the parse tree to add whitespace within
-  rendered expressions, improving readability even without hover highlighting.
 - **Collapse sub-calculations by default**: render the calculation with
   sub-calculations collapsed, expanding a sub-calculation on click.
 - **Spine-choosing heuristics**: replace the trivial `spine = 0` everywhere with
   the first heuristics for picking a more readable spine (main line) per step.
 
-(Done in 0.3.0-dev: loading syntax hints from Ref-linked pages.)
+Done in 0.3.0-dev: syntax hints from Ref-linked pages; vocabulary-based
+tokenizing of dense Unicode expressions; parse-tree-guided whitespace.
 
 ## Bugs
 
