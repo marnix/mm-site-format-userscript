@@ -33,9 +33,16 @@ table below.
 
 ## Installation
 
-Build the script (see [CONTRIBUTING.md](CONTRIBUTING.md)), then install
-`dist/mm-site-format.user.js` via a userscript manager such as
-[Tampermonkey](https://www.tampermonkey.net/).
+1. Install a userscript manager such as
+   [Tampermonkey](https://www.tampermonkey.net/) or
+   [Violentmonkey](https://violentmonkey.github.io/).
+2. Open this URL — your userscript manager will offer to install the script:
+
+   <https://github.com/marnix/mm-site-format-userscript/releases/latest/download/mm-site-format.user.js>
+
+It tracks the latest release and updates itself from that URL.
+
+(To build from source instead, see [CONTRIBUTING.md](CONTRIBUTING.md).)
 
 ## Design and roadmap
 
