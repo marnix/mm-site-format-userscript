@@ -8,13 +8,15 @@
   sub-calculations collapsed, expanding a sub-calculation on click.
 - **Spine-choosing heuristics**: replace the trivial `spine = 0` everywhere with
   the first heuristics for picking a more readable spine (main line) per step.
-- **Syntax hints from Ref pages**: also load the syntax hints of the proof's
-  Ref-linked theorem pages, not just the current page's (the Ref pages are not
-  fetched at runtime today). Every constructor in a proof step is introduced by
-  some cited assertion, so the union of syntax hints over the current page and
-  all Ref pages should cover the whole proof table — a bounded, proof-driven
-  workaround for incomplete syntax hints (cf. "Transitive syntax loading"; keep
-  `cv.html` and the leave-unparsed fallback).
+
+(Done in 0.3.0-dev: loading syntax hints from Ref-linked pages.)
+
+## Bugs
+
+- **GIF hover: `Disj` not highlightable on its own** (mpegif/disjrel.html only):
+  in `|- ( Disj R -> Rel R )`, hovering the `Disj` token does not highlight
+  `Disj R`, though hovering `Rel` highlights `Rel R` fine, and `Disj` does
+  highlight as part of larger expressions. GIF-specific; not seen elsewhere.
 
 ## Performance
 
