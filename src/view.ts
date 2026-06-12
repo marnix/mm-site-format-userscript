@@ -110,14 +110,22 @@ export function installViewToggle(
     link.textContent = table ? "Calculation version" : "Table version";
     link.href = here(!table);
   };
-  link.addEventListener("click", (event: Event) => {
-    event.preventDefault();
-    table = !table;
+  const setView = (next: boolean, pushHistory: boolean) => {
+    table = next;
     apply();
     refresh();
-    history.replaceState(null, "", here(table));
-    applyViewToLinks(table); // keep the page's links in sync with the new view
+    if (pushHistory) history.pushState(null, "", here(table));
+    applyViewToLinks(table); // keep the page's links in sync with the view
+  };
+  link.addEventListener("click", (event: Event) => {
+    event.preventDefault();
+    // Push a history entry, so Back restores the previous view.
+    setView(!table, true);
   });
+  // Follow Back/Forward between those entries (the URL has already changed).
+  window.addEventListener("popstate", () =>
+    setView(tableSelected(location.search), false),
+  );
 
   const line = versionLine();
   if (line) {
