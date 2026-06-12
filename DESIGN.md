@@ -294,7 +294,7 @@ chose **none** (a "trivial" sub-proof being a leaf — a hypothesis or
 
 When no sub-proof is the clear continuation, the spine **ends**: render a
 synthetic `… <==> TRUE` and show every sub-proof as a side calculation. (That
-was the earlier script's behaviour; not yet implemented here — see the 0.4.0
+was the earlier script's behaviour; not yet implemented here — see the 0.5.0
 goal.)
 
 This is now done on **parse trees** rather than HTML (`spine.ts`). Similarity is

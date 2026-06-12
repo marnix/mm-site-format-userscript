@@ -1,11 +1,18 @@
 # TODO
 
-## 0.4.0 goals
+## 0.5.0 goals
 
 - **End-of-spine choice**: when `chooseSpine` finds no clear main line (two or
   more non-trivial sub-proofs tied at the maximum overlap), end the spine
   explicitly instead of falling back to the first sub-proof — the choice the
-  earlier hand-crafted script made. See "Calculational proof rendering" below.
+  earlier hand-crafted script made. Use `bitrd` as the example (its two premises
+  are symmetric, so the spine ties and should end). See "Calculational proof
+  rendering" below.
+- **Calculation / Table view toggle**: a "Calculation version" / "Table version"
+  control in the top-right; show one and hide the other. Default to the
+  calculational version; remember the choice via a query parameter that switches
+  the calculation _off_ (so a plain URL stays calculational). Use `@match …/*`
+  URL matching — a path/query-constrained `@include` would block the param.
 
 ## Bugs
 
@@ -52,7 +59,7 @@ HTML copied from the table, the spine chosen by parse-tree overlap (`spine.ts`),
 each leaf's Ref shown in the left column, the step hint naming the non-spine
 premises, and the clones re-parsed for whitespace and hover. Further out:
 
-- **End-of-spine terminal**: render the no-clear-main-line case (see the 0.4.0
+- **End-of-spine terminal**: render the no-clear-main-line case (see the 0.5.0
   goal) as an explicit ended spine — e.g. a synthetic `… <==> TRUE` line with
   every sub-proof shown as a side calculation, rather than threading on through
   the first sub-proof.
@@ -66,11 +73,6 @@ premises, and the clones re-parsed for whitespace and hover. Further out:
 
 ## Features
 
-- **Calculation / Table view toggle**: a "Calculation version" / "Table version"
-  control in the top-right of the page, showing one and hiding the other.
-  Default to the calculational version; remember the user's last choice — likely
-  a query parameter that _switches the calculation off_ (so the default stays
-  calculational and a plain URL shows it).
 - **Nested hover levels**: clicking a highlighted sub-expression cycles to the
   next-larger enclosing expression.
 - **Rule tooltip on hover**: show the name of the matched syntax rule (e.g.
