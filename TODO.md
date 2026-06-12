@@ -8,6 +8,13 @@
   sub-calculations collapsed, expanding a sub-calculation on click.
 - **Spine-choosing heuristics**: replace the trivial `spine = 0` everywhere with
   the first heuristics for picking a more readable spine (main line) per step.
+- **Syntax hints from Ref pages**: also load the syntax hints of the proof's
+  Ref-linked theorem pages, not just the current page's (the Ref pages are not
+  fetched at runtime today). Every constructor in a proof step is introduced by
+  some cited assertion, so the union of syntax hints over the current page and
+  all Ref pages should cover the whole proof table — a bounded, proof-driven
+  workaround for incomplete syntax hints (cf. "Transitive syntax loading"; keep
+  `cv.html` and the leave-unparsed fallback).
 
 ## Possible 0.2.1 (README only)
 
