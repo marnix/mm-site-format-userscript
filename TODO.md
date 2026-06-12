@@ -48,6 +48,8 @@ See DESIGN.md "Calculational proof rendering". Roughly in order:
 
 - **Whitespace via parsing**: use the parse tree to add whitespace within
   rendered expressions, improving readability even without hover highlighting.
+- **Expand/collapse sub-calculations**: let the reader collapse and expand a
+  sub-calculation in the calculational rendering.
 - **Nested hover levels**: clicking a highlighted sub-expression cycles to the
   next-larger enclosing expression.
 - **Rule tooltip on hover**: show the name of the matched syntax rule (e.g.

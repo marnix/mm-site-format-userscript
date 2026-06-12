@@ -16,14 +16,17 @@ function clone(source: Element): HTMLElement {
   return span;
 }
 
-// Expressions sit indented to the right of the `⇐` operator / hint.
-const EXPR_INDENT = "1.6em";
+// EWD1300 layout: expressions stay at the base; the hint is indented after the
+// operator. Sub-calculations are indented further, with vertical space so
+// consecutive ones do not run together.
+const HINT_INDENT = "padding-left:1.5em";
+const SUBCALC_STYLE = "padding-left:2em;padding-top:0.6em;padding-bottom:0.6em";
 
 /** A two-column row: the operator on the left, `content` on the right. */
 function row(
   operator: string,
   content: Node,
-  indent = false,
+  contentStyle = "",
 ): HTMLTableRowElement {
   const tr = document.createElement("tr");
   const op = document.createElement("td");
@@ -31,41 +34,41 @@ function row(
     "border:none;padding:0 0.6em 0 0;vertical-align:top;white-space:nowrap";
   op.textContent = operator;
   const main = document.createElement("td");
-  main.style.cssText = `border:none;padding:0;vertical-align:top${indent ? `;padding-left:${EXPR_INDENT}` : ""}`;
+  main.style.cssText = `border:none;padding:0;vertical-align:top;${contentStyle}`;
   main.appendChild(content);
   tr.append(op, main);
   return tr;
 }
 
 function appendStep(step: Step, tbody: HTMLElement): void {
-  tbody.appendChild(row("", clone(step.expressionHtml), true));
+  tbody.appendChild(row("", clone(step.expressionHtml)));
 
   const hint = document.createElement("span");
   hint.append("{ ", clone(step.inferenceRuleRefHtml), " }");
-  tbody.appendChild(row(OPERATOR, hint));
+  tbody.appendChild(row(OPERATOR, hint, HINT_INDENT));
 
-  // Non-spine step sub-calculations: indented sub-derivations, in order.
+  // Non-spine step sub-calculations: indented sub-derivations, in order, each
+  // set apart vertically.
   step.subcalculations.forEach((sub, i) => {
     if (sub.kind === "step" && i !== step.spine)
-      tbody.appendChild(row("", renderCalcTable(sub)));
+      tbody.appendChild(row("", renderCalcTable(sub), SUBCALC_STYLE));
   });
 
   // The spine continues the main line: a step extends it; a given contributes
   // its expression (its Ref is not rendered for now).
   const spine = step.subcalculations[step.spine];
   if (spine?.kind === "given")
-    tbody.appendChild(row("", clone(spine.expressionHtml), true));
+    tbody.appendChild(row("", clone(spine.expressionHtml)));
   else if (spine?.kind === "step") appendStep(spine, tbody);
 }
 
 function renderCalcTable(calc: Calculation): HTMLTableElement {
   const table = document.createElement("table");
-  // Vertical space sets each (sub-)calculation apart from its surroundings.
-  table.style.cssText = "border:none;border-collapse:collapse;margin:0.6em 0";
+  table.style.cssText = "border:none;border-collapse:collapse;margin:0";
   const tbody = document.createElement("tbody");
   table.appendChild(tbody);
   if (calc.kind === "given")
-    tbody.appendChild(row("", clone(calc.expressionHtml), true));
+    tbody.appendChild(row("", clone(calc.expressionHtml)));
   else appendStep(calc, tbody);
   return table;
 }
