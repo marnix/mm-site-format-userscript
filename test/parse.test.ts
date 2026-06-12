@@ -96,3 +96,26 @@ describe("parseExpression with the cv coercion", () => {
     expect(established.assumptions).toEqual([]); // closed: leaves are setvar typings discharged by cv
   });
 });
+
+describe("parseExpression on deep nesting", () => {
+  // `t` is a variable of type T; B is tried first and always fails after parsing
+  // the inner hole (no `z` follows), forcing A to re-parse the same inner span —
+  // which is 2^depth work without memoisation, but instant with it.
+  const B: InferenceRule = {
+    assumptions: [],
+    conclusion: ["T", "(", "t", ")", "z"],
+  };
+  const A: InferenceRule = {
+    assumptions: [],
+    conclusion: ["T", "(", "t", ")"],
+  };
+  const kindOf: KindOf = (t) => (t === "t" ? "T" : undefined);
+
+  it("does not blow up exponentially (memoisation)", () => {
+    const depth = 40;
+    const tokens = [...Array(depth).fill("("), "t", ...Array(depth).fill(")")];
+    const proof = parseExpression(tokens, "T", [B, A], kindOf);
+    expect(proof).not.toBeNull(); // A, nested `depth` deep
+    expect(proof?.rule.conclusion.join(" ")).toBe("T ( t )");
+  });
+});

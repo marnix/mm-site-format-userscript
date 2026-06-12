@@ -204,6 +204,14 @@ returns failure — which doubles as the filter for accidental non-expressions.
 Because MM expressions are fully parenthesised the grammar is unambiguous, so
 first-match is expected to be deterministic.
 
+The search is **memoised** (packrat): each `(pos, type)` is parsed at most once
+per expression. Without this, every enclosing rule attempt re-parses the same
+inner sub-span, so a deeply-nested or dense expression takes time exponential in
+its depth — enough to hang the page (e.g. `relexpaddg`, with its nested
+`( … ↑𝑟 … )` terms). A re-entrancy guard returns failure if a `(pos, type)` is
+re-entered while still being computed, so any (degenerate) left-recursive rule
+cannot loop.
+
 ### Limitation: incomplete syntax hints
 
 A page's own "Syntax hints" can omit a constructor that a proof step actually
