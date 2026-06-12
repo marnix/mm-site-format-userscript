@@ -55,12 +55,13 @@ function appendStep(step: Step, tbody: HTMLElement): void {
   tbody.appendChild(row(OPERATOR, hint, HINT_VSPACE, HINT_INDENT));
 
   // Non-spine step sub-calculations: indented sub-derivations, in order, each
-  // set apart with extra vertical space.
+  // set apart with extra vertical space and collapsed by default.
   step.subcalculations.forEach((sub, i) => {
-    if (sub.kind === "step" && i !== step.spine)
-      tbody.appendChild(
-        row("", renderCalcTable(sub), SUBCALC_VSPACE, SUBCALC_INDENT),
-      );
+    if (sub.kind === "step" && i !== step.spine) {
+      const table = renderCalcTable(sub);
+      makeCollapsible(table);
+      tbody.appendChild(row("", table, SUBCALC_VSPACE, SUBCALC_INDENT));
+    }
   });
 
   // The spine continues the main line: a step extends it; a given contributes
@@ -69,6 +70,39 @@ function appendStep(step: Step, tbody: HTMLElement): void {
   if (spine?.kind === "given")
     tbody.appendChild(row("", clone(spine.expressionHtml), "0", EXPR_STYLE));
   else if (spine?.kind === "step") appendStep(spine, tbody);
+}
+
+/**
+ * Collapses a sub-calculation by default: only its conclusion (the first row)
+ * stays visible, with a disclosure marker that hints at the hidden derivation.
+ * Clicking the marker toggles; clicking the hint (visible only when expanded)
+ * collapses it again.
+ */
+function makeCollapsible(table: HTMLTableElement): void {
+  const tbody = table.querySelector("tbody");
+  const rows = [...(tbody?.children ?? [])] as HTMLElement[];
+  if (rows.length < 2) return; // just a conclusion — nothing to fold away
+
+  const [conclusion, ...rest] = rows;
+  const marker = document.createElement("span");
+  marker.className = "mm-site-format-fold";
+  marker.style.cssText =
+    "cursor:pointer;user-select:none;opacity:0.6;margin-left:0.5em";
+  (conclusion.lastElementChild ?? conclusion).appendChild(marker);
+
+  let collapsed = true;
+  const refresh = () => {
+    for (const r of rest) r.style.display = collapsed ? "none" : "";
+    marker.textContent = collapsed ? "▸" : "▾";
+  };
+  const toggle = () => {
+    collapsed = !collapsed;
+    refresh();
+  };
+  marker.addEventListener("click", toggle);
+  rest[0].style.cursor = "pointer"; // the hint row
+  rest[0].addEventListener("click", toggle);
+  refresh();
 }
 
 function renderCalcTable(calc: Calculation): HTMLTableElement {
