@@ -38,7 +38,9 @@ export interface Step {
   inferenceRuleRefHtml: Element;
   expressionHtml: Element;
   subcalculations: Calculation[]; // one per assumption of the inference rule
-  spine: number; // index of the spine subcalculation (the second expression); render-only
+  // index of the spine subcalculation (the next expression), or null to end the
+  // spine (no clear main line) at a `⇔ TRUE` terminal; render-only
+  spine: number | null;
 }
 
 /** Composes a calculation into the proof tree it represents. */
@@ -59,11 +61,12 @@ export function evaluateCalculation(calc: Calculation): ProofTree {
 /**
  * Converts a proof tree to a calculation: a leaf (no subproofs) becomes a given;
  * any other node becomes a `<==` step over its subproofs, in order. `spineFor`
- * picks each step's spine sub-proof (defaulting to the first, `0`).
+ * picks each step's spine sub-proof (defaulting to the first, `0`); `null` ends
+ * the spine.
  */
 export function proofTreeToCalculation(
   tree: ProofTree,
-  spineFor: (node: ProofTree) => number = () => 0,
+  spineFor: (node: ProofTree) => number | null = () => 0,
 ): Calculation {
   if (tree.subproofs.length === 0)
     return {

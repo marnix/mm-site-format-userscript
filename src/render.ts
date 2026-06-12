@@ -4,12 +4,14 @@
 // `{ using premise…, subproofs, and rule }` hints (the non-spine given
 // premises, a count word for any nested sub-derivations, and the rule last),
 // and — indented — the step sub-calculations. Following the spine, a step
-// sub-calculation continues the main line; a given (a leaf) ends it. All HTML is
-// cloned, so the table is left intact.
+// sub-calculation continues the main line and a given (a leaf) ends it; with no
+// clear main line the step holds outright instead — `⇔` down to TRUE. All HTML
+// is cloned, so the table is left intact.
 
 import type { Calculation, Given, Step } from "./calculation";
 
 const OPERATOR = "⇐"; // the `<==` of the calculation
+const TERMINAL = "⇔"; // the `<==>` ending a spine with no clear main line, at TRUE
 
 /** Clones an element's content into a fresh inline element. */
 function clone(source: Element): HTMLElement {
@@ -86,7 +88,12 @@ function appendStep(step: Step, tbody: HTMLElement): void {
   hint.append("{ using ");
   appendSeries(hint, items);
   hint.append(" }");
-  tbody.appendChild(row(OPERATOR, hint, HINT_VSPACE, HINT_INDENT));
+  // With no clear main line (spine === null) the step holds outright: `⇔` down
+  // to TRUE, justified by all its sub-proofs; otherwise the spine continues.
+  const ended = step.spine === null;
+  tbody.appendChild(
+    row(ended ? TERMINAL : OPERATOR, hint, HINT_VSPACE, HINT_INDENT),
+  );
 
   // Non-spine step sub-calculations: indented sub-derivations, in order, each
   // set apart with extra vertical space and collapsed by default.
@@ -98,9 +105,16 @@ function appendStep(step: Step, tbody: HTMLElement): void {
     }
   });
 
+  if (ended) {
+    tbody.appendChild(
+      row("", document.createTextNode("TRUE"), "0", EXPR_STYLE),
+    );
+    return;
+  }
+
   // The spine continues the main line: a step extends it; a given ends it (its
   // expression is the last line, with its Ref in the left column).
-  const spine = step.subcalculations[step.spine];
+  const spine = step.subcalculations[step.spine as number];
   if (spine?.kind === "given") appendGiven(spine, tbody);
   else if (spine?.kind === "step") appendStep(spine, tbody);
 }

@@ -82,4 +82,52 @@ describe("renderCalculation", () => {
     rows[1].click();
     expect(rows[1].style.display).toBe("none");
   });
+
+  it("ends the spine at `⇔ TRUE` when there is no clear main line (spine null)", () => {
+    // Two derived premises, no spine — as for a `bitrd` with symmetric premises.
+    const calc: Calculation = {
+      kind: "step",
+      inferenceRuleRefHtml: el('<a href="bitrd.html">bitrd</a>'),
+      expressionHtml: el("GOAL"),
+      subcalculations: [
+        {
+          kind: "step",
+          inferenceRuleRefHtml: el("r1"),
+          expressionHtml: el("P1"),
+          subcalculations: [
+            {
+              kind: "given",
+              hypothesisRefHtml: el("h1"),
+              expressionHtml: el("HA"),
+            },
+          ],
+          spine: 0,
+        },
+        {
+          kind: "step",
+          inferenceRuleRefHtml: el("r2"),
+          expressionHtml: el("P2"),
+          subcalculations: [
+            {
+              kind: "given",
+              hypothesisRefHtml: el("h2"),
+              expressionHtml: el("HB"),
+            },
+          ],
+          spine: 0,
+        },
+      ],
+      spine: null,
+    };
+    const box = renderCalculation(calc);
+    expect(box.querySelectorAll("table")).toHaveLength(3); // root + 2 sub-calcs
+
+    const rows = [...box.querySelector("tbody")!.children].map((tr) =>
+      [...tr.children].map((td) => td.textContent),
+    );
+    expect(rows[0]).toEqual(["", "GOAL"]);
+    expect(rows[1][0]).toBe("⇔"); // spine ends here, not ⇐
+    expect(rows[1][1]).toBe("{ using subproofs and bitrd }");
+    expect(rows[rows.length - 1]).toEqual(["", "TRUE"]); // …down to TRUE
+  });
 });

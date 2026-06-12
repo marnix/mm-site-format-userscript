@@ -62,16 +62,18 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       cache.set(node, found);
       return found;
     };
-    return (node: ProofTree): number => {
+    return (node: ProofTree): number | null => {
       const conclusion = parseOf(node);
       const subs = node.subproofs.map((s) => ({
         parse: parseOf(s),
         trivial: s.subproofs.length === 0,
       }));
+      // Without parse trees, fall back to the first sub-proof; otherwise a null
+      // from chooseSpine means "no clear main line" — end the spine.
       if (!conclusion || subs.some((s) => !s.parse)) return 0;
-      return (
-        chooseSpine(conclusion, subs as { parse: Proof; trivial: boolean }[]) ??
-        0
+      return chooseSpine(
+        conclusion,
+        subs as { parse: Proof; trivial: boolean }[],
       );
     };
   };
