@@ -16,10 +16,10 @@ It parses by reconstructing each expression's grammar from the page's "Syntax
 hints" links, so an expression is only highlighted once it has been fully
 parsed; anything it cannot parse is left untouched.
 
-**In progress:** an alternative _calculational_ rendering of the proof — in the
-style of Dijkstra's
+It also renders the proof as a **calculation** — in the style of Dijkstra's
 [EWD1300](https://www.cs.utexas.edu/~EWD/transcriptions/EWD13xx/EWD1300.html) —
-shown above the "Proof of Theorem" table.
+shown above the "Proof of Theorem" table: each step's statement, followed by the
+inference it follows from as a `⇐ { … }` hint, with sub-derivations indented.
 
 ## Installation
 

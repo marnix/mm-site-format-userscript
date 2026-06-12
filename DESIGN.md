@@ -234,98 +234,23 @@ over any token element:
 2. Add a CSS highlight class to all DOM elements in that range.
 3. Remove the class on `mouseleave`.
 
-## Calculational proof rendering (phase 2)
+## Calculational proof rendering
 
-A second, optional rendering shows the proof in the calculational style of
-Dijkstra
-([EWD1300](https://www.cs.utexas.edu/~EWD/transcriptions/EWD13xx/EWD1300.html)),
-above the "Proof of Theorem" table. It runs only **after** phase-1 parsing, and
-only when **every** expression in the table's Expression column parsed;
-otherwise it logs a message and does nothing.
+The proof is also shown as a calculation in the style of Dijkstra's
+[EWD1300](https://www.cs.utexas.edu/~EWD/transcriptions/EWD13xx/EWD1300.html),
+above the "Proof of Theorem" table. The proof tree is read straight from the
+table (`table.ts`): each row's Ref cell and Expression cell become a node, with
+one sub-proof per Hyp entry. That tree is rendered (`render.ts`) as a chain of
+`|- …` statements joined by `⇐ { … }` hints — each hint naming the inference
+rule, with sub-derivations indented — following a chosen _spine_ (the main line;
+currently the first sub-proof of each step). It is purely structural: the page's
+own Ref/Expression HTML is cloned into place, so no re-parsing is needed.
 
-### Target: the logical proof tree
+### Possible future direction
 
-The "proof tree" here is the same `Proof` kernel structure (inference rules +
-`apply` + leaves), but rooted at the page's main `|- …` assertion rather than a
-`$TOP …` syntax goal. The table's theorems/axioms (e.g. `bitrd`, `a1i`) are the
-inference rules; the named hypotheses (`bitrdi.1`, …) and earlier steps are the
-sub-proofs/leaves. The phase-1 parse trees of the expressions are an _input_ to
-the algorithm — used to find contexts and sub-expressions — not part of this
-tree.
-
-### A calculation
-
-A calculation is a chain of expressions joined by an operator, each step
-carrying a hint and optionally nested calculations, within a context:
-
-```
-[context]
-   e0
-op   { hint: refs to hypotheses / theorems / axioms / sub-proofs }
-     <<nested calculations>>
-   e1
-op   { hint }
-   e2
-   …
-```
-
-- **Top level**: the `eᵢ` are whole `|- …` statements and `op` is MM inference
-  (`==>`, or its reverse `<==`); the context is empty.
-- **Sub level**: the `eᵢ` are sub-expressions and `op` is the visual form of a
-  parse-tree rule — `(<->)` for `wb`, `(->)` for `wi` (i.e. everything but the
-  variables and whitespace) — and a context is always present (the enclosing
-  expression with a hole). `TRUE` may appear as an `eᵢ`.
-
-A later rendering feature may also show the reverse of `wi` (the arrow the other
-way).
-
-### Two special rule shapes
-
-- **Transitivity rules** (e.g. `bitrd`): their two main assumptions map to two
-  consecutive steps of the calculation — folding `a op b` and `b op c` into
-  `a op c`.
-- **Windowing rules** (e.g. `a1i`): their main assumption zooms into part of the
-  conclusion — establishing a step inside a context.
-
-### Invariant and verification
-
-Every `eᵢ op eᵢ₊₁` step, together with its context, corresponds to a complete
-**subtree** of the proof tree; all steps across all (nested) calculations
-reconstruct _exactly_ the tree the table shows. This is captured by a
-`Calculation` data structure and a mechanical `evaluate(calculation) → Proof`,
-so a unit test can evaluate a calculation and assert it deep-equals the proof
-tree built from the table.
-
-### Context
-
-A **context** is a set of assumptions together with an expression containing a
-single **hole**, written `$` (a `$…` token never collides; the hole's visual
-rendering is TBD). The calculation's expressions are substituted into the hole,
-and its steps hold under the assumptions.
-
-### Operators
-
-Every step carries its own **operator**. Normally it is the **syntax rule** of
-the relation (`wb` for `<->`, `wi` for `->`, …), rendered with that rule's
-"Syntax hints" icon — horizontally mirrored when the step runs in the reverse
-direction. The exception: an operator may instead be MM inference `==>` or
-`<==`, and then the context's hole expression must be exactly `$` (no
-surrounding structure).
-
-### Chain representation
-
-The chain (`e0 … en`, with a step between adjacent expressions) admits several
-encodings: (1a) first expression + a list of steps; (1b) a list of steps + last
-expression; (2) parallel lists — expressions (n+1) and steps (n); (3a/3b) a
-linked structure that is either an end expression or a step leading to the rest.
-(2) is the most symmetrical; the code uses it provisionally.
-
-### Folding into the proof tree
-
-Each step is backed by a sub-proof of `context[eᵢ operator eᵢ₊₁]`. To rebuild
-the proof tree, transitivity rules remove the **interior** expressions (all but
-the first and last) one at a time, in a specific recorded order; each removal
-merges the two steps adjacent to that expression via a transitivity rule, until
-a single step `e0 … en` remains. That order is part of the calculation — it
-fixes the tree shape — and `evaluateCalculation` replays it to produce the
-kernel `Proof`.
+Instead of relating whole `|- …` statements along the spine, a calculation could
+relate _sub-expressions_ by their syntax operator — e.g. `<->` (`wb`) or `->`
+(`wi`) — within a surrounding context, so a single inference reads as a chain of
+sub-expression rewrites. This is considerably more involved (contexts, per-step
+operators, transitivity/windowing rules) and is deferred; the current model is
+intentionally simple.

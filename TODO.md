@@ -28,21 +28,20 @@
   <https://github.com/metamath/metamath-website-scripts> and
   <https://github.com/metamath/metamath-website-seed>.
 
-## Calculational proof rendering (phase 2)
+## Calculational proof rendering
 
-See DESIGN.md "Calculational proof rendering". Roughly in order:
+Shipped in 0.2.0: the proof tree is read from the proof table (`table.ts`) and
+rendered as a `<==` calculation above it (`calculation.ts`, `render.ts`), using
+a simple structural model — Ref/Expression HTML copied from the table, with a
+chosen spine (the main line). Future:
 
-- A `Calculation` data type + a pure `evaluate(calculation): Proof`, tested by
-  hand-building the bitrdi calculation and asserting it matches the bitrdi proof
-  tree. _(Prerequisite — evaluating the hand-built bitrdi proof tree itself — is
-  done.)_
-- Build the proof tree of the main `|- …` assertion from the proof `<table>`
-  (ground instances read off the table, or fetch theorem rules — to decide).
-- The table→calculation algorithm: use the phase-1 parse trees to find the
-  context and sub-expressions, handling transitivity and windowing rules.
-- Render the calculation as Dijkstra-style HTML above the proof table.
-- Reverse-`wi` rendering (the arrow the other way) — separate feature.
-- Guard: only run when every Expression-column cell parsed; else log and stop.
+- **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
+  it reads better.
+- **Sub-expression calculations**: instead of relating whole `|- …` statements
+  along the spine, relate _sub-expressions_ by their syntax operator (`<->` =
+  `wb`, `->` = `wi`, …) within a surrounding context, so an inference reads as a
+  chain of sub-expression rewrites. Considerably more involved — contexts,
+  per-step operators, transitivity/windowing rules; deferred. See DESIGN.md.
 
 ## Features
 
