@@ -1,8 +1,13 @@
 # TODO
 
-## 0.6.0 goals
+## 0.7.0 goals
 
-All planned 0.6.0 goals are done — see below; ready to cut when verified.
+- **Cache linked pages** (see Performance below): the highest-value next step —
+  faster loads, and it removes the calculation's second-pass grammar
+  re-assembly.
+
+Smaller items also queued for this cycle: the subscript-token highlight bug, the
+Expression-column wrap indent, and the GIF `Disj` hover bug (see below).
 
 ## Bugs
 
