@@ -20,6 +20,31 @@ export const UNI_TOP_RULE: InferenceRule = {
 type RuleExtractor = (doc: Document) => InferenceRule | null;
 
 /**
+ * The set of constant token strings the grammar uses: every conclusion-pattern
+ * token that is neither a type code (a result/assumption type) nor a variable
+ * (a single-typing assumption's variable). Used to split runs of concatenated
+ * constants in dense Unicode expressions.
+ */
+export function collectConstants(rules: InferenceRule[]): Set<string> {
+  const types = new Set<string>();
+  const variables = new Set<string>();
+  for (const rule of rules) {
+    types.add(rule.conclusion[0]);
+    for (const a of rule.assumptions) {
+      types.add(a[0]);
+      if (a.length === 2) variables.add(a[1]);
+    }
+  }
+  const constants = new Set<string>();
+  for (const rule of rules) {
+    for (const token of rule.conclusion.slice(1)) {
+      if (!types.has(token) && !variables.has(token)) constants.add(token);
+    }
+  }
+  return constants;
+}
+
+/**
  * Assembles a grammar: `topRule` followed by one rule per syntax-definition
  * page. The syntax-definition pages come from the current page's syntax hints,
  * from each Ref-linked theorem page's syntax hints, and from `cv.html`.

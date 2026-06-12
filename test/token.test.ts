@@ -116,6 +116,47 @@ describe("locateMathSpan (mpeuni)", () => {
   });
 });
 
+describe("tokenizeMathSpan (dense Unicode: subscripts and concatenated constants)", () => {
+  const kinds = new Set(["setvar"]);
+
+  it("splits run-together constants by vocabulary and folds subscripts", () => {
+    // Mimics 00sr step 3: [⟨x, y⟩] ~R 0R, where the brackets are concatenated
+    // with no delimiter and ~R / 0R render with the R in a <sub> element.
+    const span = document.createElement("span");
+    span.innerHTML =
+      '([⟨<span class="setvar">x</span>, <span class="setvar">y</span>⟩] ~<i><sub><b>R</b></sub></i> 0<i><sub><b>R</b></sub></i>)';
+    const vocab = new Set(["(", "[", "⟨", "⟩", "]", "~R", "0R", ",", ")"]);
+
+    expect(tokenizeMathSpan(span, kinds, vocab)).toEqual([
+      { kind: null, text: "(" },
+      { kind: null, text: "[" },
+      { kind: null, text: "⟨" },
+      { kind: "setvar", text: "x" },
+      { kind: null, text: "," },
+      { kind: "setvar", text: "y" },
+      { kind: null, text: "⟩" },
+      { kind: null, text: "]" },
+      { kind: null, text: "~R" },
+      { kind: null, text: "0R" },
+      { kind: null, text: ")" },
+    ]);
+  });
+
+  it("folds a subscript without a vocabulary too (syntax-definition pages)", () => {
+    const span = document.createElement("span");
+    span.innerHTML = "~<i><sub><b>R</b></sub></i>";
+    expect(tokenizeMathSpan(span, kinds)).toEqual([{ kind: null, text: "~R" }]);
+  });
+
+  it("locates a folded subscript token at its base text character", () => {
+    const span = document.createElement("span");
+    span.innerHTML = "~<i><sub><b>R</b></sub></i>";
+    const [located] = locateMathSpan(span, kinds);
+    expect(located.token).toEqual({ kind: null, text: "~R" });
+    expect(located.location.type).toBe("text"); // the "~", not the <sub>
+  });
+});
+
 describe("locateGifRun (mpegif)", () => {
   const doc = parse("mpegif");
   const colors = parseKindColors(doc);

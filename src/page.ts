@@ -3,7 +3,11 @@
 // expression into a proof (= parse tree). Pure logic, independent of the
 // browser — index.ts supplies the real fetch + canvas sampler.
 
-import { assembleGifGrammar, assembleUniGrammar } from "./grammar";
+import {
+  assembleGifGrammar,
+  assembleUniGrammar,
+  collectConstants,
+} from "./grammar";
 import { findGifRuns, findMathSpans } from "./expression";
 import { parseKindColors, parseKindNames, type ImageSampler } from "./kind";
 import type { Fetcher } from "./loader";
@@ -82,7 +86,11 @@ export async function parseUniExpressions(
   fetcher: Fetcher,
 ): Promise<ParsedExpression[]> {
   const kinds = parseKindNames(doc);
-  const located = findMathSpans(doc).map((span) => locateMathSpan(span, kinds));
   const rules = await assembleUniGrammar(doc, pageUrl, fetcher);
+  // Split dense runs of concatenated constants against the grammar's tokens.
+  const constants = collectConstants(rules);
+  const located = findMathSpans(doc).map((span) =>
+    locateMathSpan(span, kinds, constants),
+  );
   return parseLocated(located, rules);
 }
