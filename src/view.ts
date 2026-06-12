@@ -40,17 +40,9 @@ function versionLine(): Element | null {
 export function installViewToggle(
   calc: HTMLElement,
   proofTable: HTMLTableElement,
-  tableWidth: number,
 ): void {
   const grids = [...proofTable.tBodies] as HTMLElement[];
   let table = tableSelected(location.search);
-
-  // The calculation sits in the table's caption. As a full-width block it would
-  // stretch to the page once the grid is hidden, so lay it out as an
-  // inline-block (shrinking to its content); but hold it to at least the width
-  // the table had before the calculation was inserted, so it is as wide as the
-  // table would have been (and no wider than its own content needs).
-  if (tableWidth) calc.style.minWidth = `${Math.round(tableWidth)}px`;
 
   const apply = () => {
     calc.style.display = table ? "none" : "inline-block";

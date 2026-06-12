@@ -62,6 +62,14 @@ left column, the step hint naming the non-spine premises, and the clones
 re-parsed for whitespace and hover. A Calculation / Table view switch
 (`view.ts`) shows one and hides the other, calculation by default. Further out:
 
+- **Drop the calc-box width fudge** (low priority): the calculation box is sized
+  to its measured fully-expanded `max-content` width × 1.1, because the measured
+  width comes out slightly too small and a few lines still wrap. Find the real
+  cause and remove the arbitrary 10%. Lead: the whitespace spacers may not be
+  fully counted at measurement time — the measurement is meant to run after the
+  second parse pass inserts them, but check whether their `ex`-based padding is
+  actually reflected in the measured `max-content` (or whether the spacing
+  effectively lands after the measurement).
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.
 - **Sub-expression calculations**: instead of relating whole `|- …` statements

@@ -130,6 +130,21 @@ function appendGiven(given: Given, tbody: HTMLElement): void {
   tbody.appendChild(row(ref, clone(given.expressionHtml), "0", EXPR_STYLE));
 }
 
+// While a calculation is being built, each collapsible sub-calculation registers
+// a setter here; renderCalculation hands them to setCalcCollapsed via a WeakMap,
+// so a caller can expand everything (e.g. to measure the full width) and then
+// collapse it again.
+const collapseSetters = new WeakMap<
+  HTMLElement,
+  ((collapsed: boolean) => void)[]
+>();
+let pendingSetters: ((collapsed: boolean) => void)[] | null = null;
+
+/** Expand (`false`) or collapse (`true`) every sub-calculation of a rendered box. */
+export function setCalcCollapsed(box: HTMLElement, collapsed: boolean): void {
+  for (const set of collapseSetters.get(box) ?? []) set(collapsed);
+}
+
 /**
  * Collapses a sub-calculation by default: only its conclusion (the first row)
  * stays visible, with a disclosure marker that hints at the hidden derivation.
@@ -167,6 +182,10 @@ function makeCollapsible(table: HTMLTableElement): void {
   rest[0].style.cursor = "pointer"; // the hint row
   rest[0].addEventListener("click", toggle);
   refresh();
+  pendingSetters?.push((c) => {
+    collapsed = c;
+    refresh();
+  });
 }
 
 function renderCalcTable(calc: Calculation): HTMLTableElement {
@@ -184,10 +203,13 @@ export function renderCalculation(calc: Calculation): HTMLElement {
   const box = document.createElement("div");
   box.className = "mm-site-format-calc";
   // No font change; just lay it out left-aligned at normal weight. border-box so
-  // that a min-width (set to the table's width by the view toggle) includes the
+  // an explicit width (set by index.ts to the fully-expanded width) includes the
   // padding and border, rather than overflowing the page by that much.
   box.style.cssText =
     "box-sizing:border-box;border:1px solid #ccc;padding:6px 10px;margin:8px 0;text-align:left;font-weight:normal";
+  pendingSetters = [];
   box.appendChild(renderCalcTable(calc));
+  collapseSetters.set(box, pendingSetters);
+  pendingSetters = null;
   return box;
 }

@@ -9,7 +9,7 @@ import {
   type ParsedExpression,
 } from "./page";
 import type { Proof } from "./proof";
-import { renderCalculation } from "./render";
+import { renderCalculation, setCalcCollapsed } from "./render";
 import { chooseSpine } from "./spine";
 import { parseProofTable } from "./table";
 import { formatTokens } from "./token";
@@ -90,19 +90,38 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     };
   };
 
+  // Experiment: size the calculation box to its fully-expanded width (capped at
+  // the page), then collapse it — so expanding a sub-calculation never reflows
+  // the box. Run this *after* the calc's clones have been spaced (the second
+  // parse pass), or the measured width misses the spacers. All synchronous, so
+  // neither the expanded state nor the temporary display is ever painted.
+  const sizeToExpandedWidth = (box: HTMLElement) => {
+    const display = box.style.display; // none in table view; restore it after
+    setCalcCollapsed(box, false); // expand everything
+    box.style.display = "inline-block";
+    box.style.width = "max-content"; // the no-wrap width of the widest line
+    const rect = box.getBoundingClientRect();
+    // Cap at the space from the box's left to the body's right edge, so the box
+    // is as wide as it needs (no wrapping) without forcing a horizontal scrollbar.
+    const cap = document.body.getBoundingClientRect().right - rect.left - 2;
+    // The measured max-content is slightly too small (some lines still wrap), so
+    // add 10% — capped at the page. TODO: find the real cause, drop the fudge.
+    const want = rect.width * 1.1;
+    box.style.width = `${Math.round(Math.min(want, Math.max(0, cap)))}px`;
+    setCalcCollapsed(box, true); // back to collapsed (the default)
+    box.style.display = display;
+  };
+
   const showCalculation = (results: ParsedExpression[]): HTMLElement | null => {
     if (!proofTree || !proofTable) return null;
     const calc = proofTreeToCalculation(proofTree, spineChooser(results));
     const rendered = renderCalculation(calc);
-    // Measure the table's natural width now, before the calculation is inserted
-    // and stretches the caption; the view toggle holds the calculation to it.
-    const tableWidth = proofTable.getBoundingClientRect().width;
     // Into the caption, below the "Proof of Theorem" heading — so the heading
     // stays in place whichever view is shown.
     const caption = proofTable.querySelector("caption");
     if (caption) caption.appendChild(rendered);
     else proofTable.parentNode?.insertBefore(rendered, proofTable);
-    installViewToggle(rendered, proofTable, tableWidth);
+    installViewToggle(rendered, proofTable);
     return rendered;
   };
 
@@ -140,7 +159,10 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         const calc = showCalculation(results);
         if (calc)
           parseUniExpressions(document, pageUrl, fetcher, calc).then(
-            installHoverByCaret,
+            (calcResults) => {
+              installHoverByCaret(calcResults);
+              sizeToExpandedWidth(calc); // after spacers are inserted
+            },
           );
       })
       .catch(restoreGrid);
@@ -170,7 +192,10 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
                 calc,
               ),
             )
-            .then(installHoverByElement);
+            .then((calcResults) => {
+              installHoverByElement(calcResults);
+              sizeToExpandedWidth(calc); // after spacers are inserted
+            });
       })
       .catch(restoreGrid);
   }

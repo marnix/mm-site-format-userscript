@@ -289,6 +289,12 @@ the URL (`history.replaceState`) without reloading. To avoid a flash, the grid
 body is hidden _with its space kept_ (`visibility:hidden`) the moment the script
 runs, so the page below does not jump before the calculation appears.
 
+The box's width is fixed once, in `index.ts`, to the calculation's
+**fully-expanded** width (capped at the page width): everything is expanded, the
+width measured, then everything collapsed again — all synchronously, so the
+expanded state is never painted. This keeps the box from reflowing as
+sub-calculations are expanded, and is independent of the table's width.
+
 ### Choosing the spine
 
 Each step picks a _spine_ sub-proof — the main line carried downward — or
