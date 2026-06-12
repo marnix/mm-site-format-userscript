@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
-import { describe, expect, it, vi } from "vitest";
-import { findTokenAt, spanToHighlight } from "../src/highlight";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createPainter, findTokenAt, spanToHighlight } from "../src/highlight";
 import { parseUniExpressions } from "../src/page";
 import { readFixture } from "./helpers";
 
@@ -55,5 +55,34 @@ describe("spanToHighlight (mpeuni/bitrdi assertion)", () => {
     if (opLoc.type === "text") {
       expect(findTokenAt(a.locations, opLoc.node, opLoc.start)).toBe(6);
     }
+  });
+});
+
+describe("createPainter", () => {
+  // Minimal stand-ins for the CSS Custom Highlight API (happy-dom has neither).
+  beforeEach(() => {
+    (globalThis as unknown as { CSS: unknown }).CSS = {
+      highlights: new Map<string, unknown>(),
+    };
+    (globalThis as unknown as { Highlight: unknown }).Highlight = class {
+      add() {}
+      clear() {}
+    };
+  });
+
+  it("keeps one shared highlight registered across calls (a second painter must not replace it)", () => {
+    const registered = () =>
+      [
+        ...(
+          globalThis as unknown as { CSS: { highlights: Map<string, unknown> } }
+        ).CSS.highlights.values(),
+      ][0];
+
+    expect(createPainter()).not.toBeNull();
+    const first = registered();
+    expect(createPainter()).not.toBeNull();
+    const second = registered();
+
+    expect(second).toBe(first); // the page's highlight stays registered
   });
 });

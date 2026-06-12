@@ -6,8 +6,8 @@
   faster loads, and it removes the calculation's second-pass grammar
   re-assembly.
 
-Smaller items also queued for this cycle: the subscript-token highlight bug, the
-Expression-column wrap indent, and the GIF `Disj` hover bug (see below).
+Smaller items also queued for this cycle: the Expression-column wrap indent and
+the GIF `Disj` hover bug (see below).
 
 ## Bugs
 
@@ -15,9 +15,6 @@ Expression-column wrap indent, and the GIF `Disj` hover bug (see below).
   in `|- ( Disj R -> Rel R )`, hovering the `Disj` token does not highlight
   `Disj R`, though hovering `Rel` highlights `Rel R` fine, and `Disj` does
   highlight as part of larger expressions. GIF-specific; not seen elsewhere.
-- **Highlight on a green-background cell misses part of the expression**: where
-  the proof table shades a cell green, the hover highlight does not cover
-  everything it should. (Images to come when this is picked up.)
 
 ## Performance
 

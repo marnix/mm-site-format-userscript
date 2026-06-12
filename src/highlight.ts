@@ -90,8 +90,14 @@ interface Painter {
   clear(): void;
 }
 
-/** Creates the shared painter, or null where the Highlight API is unavailable. */
-function createPainter(): Painter | null {
+// One Highlight registration shared by every painter: the page and the
+// calculation each install hover handlers, and registering a second Highlight
+// under the same name would unregister (silently break) the first.
+let sharedHighlight: HighlightLike | null = null;
+
+/** Creates a painter over the shared highlight, or null where the Highlight API
+ *  is unavailable. */
+export function createPainter(): Painter | null {
   if (
     typeof CSS === "undefined" ||
     !CSS?.highlights ||
@@ -99,13 +105,16 @@ function createPainter(): Painter | null {
   ) {
     return null;
   }
-  const highlight = new Highlight();
-  CSS.highlights.set(HIGHLIGHT_NAME, highlight);
-  const style = document.createElement("style");
-  style.textContent =
-    `::highlight(${HIGHLIGHT_NAME}){background-color:${HIGHLIGHT_COLOR}}` +
-    `.${HIGHLIGHT_CLASS}{background-color:${HIGHLIGHT_COLOR}}`;
-  document.head.appendChild(style);
+  if (!sharedHighlight) {
+    sharedHighlight = new Highlight();
+    CSS.highlights.set(HIGHLIGHT_NAME, sharedHighlight);
+    const style = document.createElement("style");
+    style.textContent =
+      `::highlight(${HIGHLIGHT_NAME}){background-color:${HIGHLIGHT_COLOR}}` +
+      `.${HIGHLIGHT_CLASS}{background-color:${HIGHLIGHT_COLOR}}`;
+    document.head.appendChild(style);
+  }
+  const highlight = sharedHighlight;
 
   let painted: Element[] = [];
   const clear = () => {
