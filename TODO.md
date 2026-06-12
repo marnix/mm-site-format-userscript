@@ -9,6 +9,13 @@
 - **Spine-choosing heuristics**: replace the trivial `spine = 0` everywhere with
   the first heuristics for picking a more readable spine (main line) per step.
 
+## Possible 0.2.1 (README only)
+
+The README still calls the calculational rendering "in progress", though it
+shipped in 0.2.0. Consider a README-only **0.2.1** on a `0.2.x` maintenance
+branch that documents the feature. (The main-branch README will be updated for
+0.3.0 regardless.)
+
 ## Performance
 
 - **Cache linked pages**: currently linked pages are fetched on every page load.
@@ -37,21 +44,19 @@
   <https://github.com/metamath/metamath-website-scripts> and
   <https://github.com/metamath/metamath-website-seed>.
 
-## Calculational proof rendering (phase 2)
+## Calculational proof rendering
 
-See DESIGN.md "Calculational proof rendering". Roughly in order:
+Shipped in 0.2.0: the proof tree is read from the proof table (`table.ts`) and
+rendered as a `<==` calculation above it (`calculation.ts`, `render.ts`), using
+a simple structural model — Ref/Expression HTML copied from the table,
+`spine = 0` everywhere. Near-term work is under "0.3.0 goals". Further out:
 
-- A `Calculation` data type + a pure `evaluate(calculation): Proof`, tested by
-  hand-building the bitrdi calculation and asserting it matches the bitrdi proof
-  tree. _(Prerequisite — evaluating the hand-built bitrdi proof tree itself — is
-  done.)_
-- Build the proof tree of the main `|- …` assertion from the proof `<table>`
-  (ground instances read off the table, or fetch theorem rules — to decide).
-- The table→calculation algorithm: use the phase-1 parse trees to find the
-  context and sub-expressions, handling transitivity and windowing rules.
-- Render the calculation as Dijkstra-style HTML above the proof table.
-- Reverse-`wi` rendering (the arrow the other way) — separate feature.
-- Guard: only run when every Expression-column cell parsed; else log and stop.
+- **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
+  it reads better.
+- **Richer model** (deferred): sub-expression contexts and explicit
+  transitivity/windowing operators — only if the simple model proves
+  insufficient. DESIGN.md still describes that earlier, more complex model and
+  is out of date with the shipped code.
 
 ## Features
 
