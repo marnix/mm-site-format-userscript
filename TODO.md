@@ -2,12 +2,12 @@
 
 ## 0.3.0 goals
 
-- **Spine-choosing heuristics**: replace the trivial `spine = 0` everywhere with
-  the first heuristics for picking a more readable spine (main line) per step.
+All planned 0.3.0 goals are done — see below; ready to cut when verified.
 
 Done in 0.3.0-dev: syntax hints from Ref-linked pages; vocabulary-based
 tokenizing of dense Unicode expressions; parse-tree-guided whitespace; collapse
-sub-calculations by default (expand on click).
+sub-calculations by default (expand on click); parse-tree spine selection (the
+main line follows the sub-proof structurally closest to the conclusion).
 
 ## Bugs
 
@@ -21,7 +21,9 @@ sub-calculations by default (expand on click).
 - **Cache linked pages**: currently linked pages are fetched on every page load.
   Cache parsed grammar rules in `sessionStorage` (or `localStorage` for
   longer-lived caching) keyed by URL, to avoid redundant fetches when navigating
-  between pages that share dependencies.
+  between pages that share dependencies. (Would also drop the cost of the
+  calculation's second parse pass, which re-assembles the grammar from the
+  now-memoised fetches rather than reusing the first pass's rules.)
 
 ## Correctness / completeness
 
@@ -47,10 +49,16 @@ sub-calculations by default (expand on click).
 ## Calculational proof rendering
 
 Shipped in 0.2.0: the proof tree is read from the proof table (`table.ts`) and
-rendered as a `<==` calculation above it (`calculation.ts`, `render.ts`), using
-a simple structural model — Ref/Expression HTML copied from the table,
-`spine = 0` everywhere. Near-term work is under "0.3.0 goals". Further out:
+rendered as a `<==` calculation above it (`calculation.ts`, `render.ts`):
+Ref/Expression HTML copied from the table, the spine chosen by parse-tree
+overlap (`spine.ts`), and the clones re-parsed for whitespace and hover. Further
+out:
 
+- **End-of-spine `… <==> TRUE` terminal**: when `chooseSpine` finds no clear
+  main line (two or more non-trivial sub-proofs tied), it currently falls back
+  to the first sub-proof. Instead render the spine as ended — a synthetic
+  `… <==> TRUE` line with every sub-proof shown as a side calculation. Pairs
+  with the leaf-Ref item below.
 - **Show the Ref for leaf steps**: a given (hypothesis) and a zero-assumption
   theorem/axiom step carry a Ref (e.g. `bitrdi.1`, an axiom name) that the
   rendering currently drops — only their expression is shown. Surface that Ref.

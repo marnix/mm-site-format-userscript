@@ -262,8 +262,11 @@ table (`table.ts`): each row's Ref cell and Expression cell become a node, with
 one sub-proof per Hyp entry. That tree is rendered (`render.ts`) as a chain of
 `|- …` statements joined by `⇐ { … }` hints — each hint naming the inference
 rule, with sub-derivations indented — following a chosen _spine_ (the main line;
-currently the first sub-proof of each step). It is purely structural: the page's
-own Ref/Expression HTML is cloned into place, so no re-parsing is needed.
+see below). The page's own Ref/Expression HTML is cloned into place. Those
+clones are then given the same treatment as the page: the calculation is
+rendered after the page's parse pass and the pass is run a second time scoped to
+the calculation (`index.ts`), so its expressions get the same parsing,
+whitespace, and hover-highlighting.
 
 Each sub-derivation starts **collapsed**, showing only its conclusion and a `▶`
 disclosure marker in the left column; clicking the marker expands it (and the
@@ -290,13 +293,22 @@ When no sub-proof is the clear continuation, the spine **ends**: render a
 synthetic `… <==> TRUE` and show every sub-proof as a side calculation. (Not yet
 implemented; relates to the leaf-Ref TODO.)
 
-Direction: do this on **parse trees** rather than HTML. A top-down structural
-overlap — count nodes that apply the same rule, recursing into paired children,
-with leaf↔leaf counting — is a truer measure of shared structure than an HTML
-LCS: it is not fooled by tags, glyph encodings, or the inserted whitespace
-spacers; it is linear rather than quadratic; and it can pinpoint the rewrite
-site (where the trees diverge). The same size-aware comparison, the ties→none
-rule, and the trivial-leaf handling carry over, now over node counts. (A further
+This is now done on **parse trees** rather than HTML (`spine.ts`). Similarity is
+a top-down structural overlap: count nodes that apply the same rule, recursing
+into paired children, with leaf↔leaf counting; a mismatch (different rule, or
+leaf vs node) stops that branch. The spine is the sub-proof of **maximum
+overlap**; among equal-overlap candidates a non-trivial (derived) sub-proof is
+preferred over a trivial one (a leaf), so the main line flows through reasoning;
+two or more non-trivial candidates tied at the maximum mean there is no clear
+main line. This is faithful to shared structure (unlike an HTML LCS it is not
+fooled by tags, glyph encodings, or the whitespace spacers), linear, and can
+pinpoint the rewrite site (where the trees diverge).
+
+Note the earlier version's size-aware log-ratio does **not** carry over to node
+counts — a literal port minimises the wrong quantity and would spine optocl to
+its equality hypothesis; plain maximum overlap is both correct (it spines to
+optocl.3) and simpler. The end-of-spine `… <==> TRUE` is not yet built, so "no
+clear main line" currently falls back to the first sub-proof. (A further
 refinement, deferred: take the structure from the Ref theorem's _general_ rule
 instead of the ground instances, so "optocl always spines to optocl.3" becomes
 an intrinsic, substitution-independent fact.)
