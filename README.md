@@ -25,6 +25,8 @@ It also renders the proof as a **calculation** — in the style of Dijkstra's
 [EWD1300](https://www.cs.utexas.edu/~EWD/transcriptions/EWD13xx/EWD1300.html) —
 shown above the "Proof of Theorem" table: each step's statement, followed by the
 inference it follows from as a `⇐ { … }` hint, with sub-derivations indented.
+Sub-derivations start collapsed (showing just their conclusion and a `▶` marker)
+and expand on click.
 
 ## Installation
 

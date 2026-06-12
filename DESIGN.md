@@ -265,6 +265,10 @@ rule, with sub-derivations indented — following a chosen _spine_ (the main lin
 currently the first sub-proof of each step). It is purely structural: the page's
 own Ref/Expression HTML is cloned into place, so no re-parsing is needed.
 
+Each sub-derivation starts **collapsed**, showing only its conclusion and a `▶`
+disclosure marker in the left column; clicking the marker expands it (and the
+hint collapses it again).
+
 ### Possible future direction
 
 Instead of relating whole `|- …` statements along the spine, a calculation could

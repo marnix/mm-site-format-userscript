@@ -2,13 +2,12 @@
 
 ## 0.3.0 goals
 
-- **Collapse sub-calculations by default**: render the calculation with
-  sub-calculations collapsed, expanding a sub-calculation on click.
 - **Spine-choosing heuristics**: replace the trivial `spine = 0` everywhere with
   the first heuristics for picking a more readable spine (main line) per step.
 
 Done in 0.3.0-dev: syntax hints from Ref-linked pages; vocabulary-based
-tokenizing of dense Unicode expressions; parse-tree-guided whitespace.
+tokenizing of dense Unicode expressions; parse-tree-guided whitespace; collapse
+sub-calculations by default (expand on click).
 
 ## Bugs
 
@@ -52,6 +51,12 @@ rendered as a `<==` calculation above it (`calculation.ts`, `render.ts`), using
 a simple structural model — Ref/Expression HTML copied from the table,
 `spine = 0` everywhere. Near-term work is under "0.3.0 goals". Further out:
 
+- **Show the Ref for leaf steps**: a given (hypothesis) and a zero-assumption
+  theorem/axiom step carry a Ref (e.g. `bitrdi.1`, an axiom name) that the
+  rendering currently drops — only their expression is shown. Surface that Ref.
+  It is always the last line of a (sub-)calculation. Idea: append a synthetic
+  `… <==> { <Ref HTML> } TRUE` step there — probably visual-only, not part of
+  the `Calculation` data. (Shape still to be settled.)
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.
 - **Sub-expression calculations**: instead of relating whole `|- …` statements
