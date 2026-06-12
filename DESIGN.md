@@ -269,6 +269,38 @@ Each sub-derivation starts **collapsed**, showing only its conclusion and a `▶
 disclosure marker in the left column; clicking the marker expands it (and the
 hint collapses it again).
 
+### Choosing the spine
+
+Each step picks a _spine_ sub-proof — the main line carried downward — or
+decides there is none. The guiding idea: a calculation transforms one
+expression, so the spine sub-proof is the one whose conclusion is **most like
+the step's conclusion** (it is the running expression, rewritten in one place),
+while the other sub-proofs justify that local rewrite and become side
+calculations.
+
+An earlier hand-crafted version measured this on the expression **HTML
+strings**: for each sub-proof it took the longest-common-subsequence length `l`
+of the sub-proof's and the conclusion's expression HTML, then a size-aware
+relative difference `log2((|sub| − l + 1) / (|concl| − l + 1))`, and chose the
+sub-proof minimising it. If two non-trivial sub-proofs scored within ~0.2 it
+chose **none** (a "trivial" sub-proof being a leaf — a hypothesis or
+0-assumption step); reused ("shared") steps were treated as auxiliary.
+
+When no sub-proof is the clear continuation, the spine **ends**: render a
+synthetic `… <==> TRUE` and show every sub-proof as a side calculation. (Not yet
+implemented; relates to the leaf-Ref TODO.)
+
+Direction: do this on **parse trees** rather than HTML. A top-down structural
+overlap — count nodes that apply the same rule, recursing into paired children,
+with leaf↔leaf counting — is a truer measure of shared structure than an HTML
+LCS: it is not fooled by tags, glyph encodings, or the inserted whitespace
+spacers; it is linear rather than quadratic; and it can pinpoint the rewrite
+site (where the trees diverge). The same size-aware comparison, the ties→none
+rule, and the trivial-leaf handling carry over, now over node counts. (A further
+refinement, deferred: take the structure from the Ref theorem's _general_ rule
+instead of the ground instances, so "optocl always spines to optocl.3" becomes
+an intrinsic, substitution-independent fact.)
+
 ### Possible future direction
 
 Instead of relating whole `|- …` statements along the spine, a calculation could
