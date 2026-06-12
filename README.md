@@ -35,7 +35,9 @@ same whitespace and hover-highlighting as the table below.
 
 A **Calculation version / Table version** switch — added to the page's top-right
 "… version" links — shows one and hides the other, with the calculation shown by
-default. (Add `?view=table` to a proof URL to start in the table view.)
+default. (Add `?view=table` to a proof URL to start in the table view.) Choosing
+the table view carries onto the metamath.org links you follow, so the whole site
+stays in that view until you switch back.
 
 ## Installation
 

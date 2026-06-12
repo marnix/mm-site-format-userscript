@@ -13,12 +13,16 @@ import { renderCalculation, setCalcCollapsed } from "./render";
 import { chooseSpine } from "./spine";
 import { parseProofTable } from "./table";
 import { formatTokens } from "./token";
-import { installViewToggle, tableSelected } from "./view";
+import { installViewToggle, propagateTableView, tableSelected } from "./view";
 
 declare const __USERSCRIPT_VERSION__: string;
 declare const __USERSCRIPT_BUILD_TIME__: string;
 
 const LOG = "[mm-site-format]";
+
+// On any matching page, before deciding whether this is a proof page: if the
+// table view is active, carry that choice onto every metamath.org link.
+propagateTableView();
 
 if (!document.querySelector('table[summary="Proof of theorem"]')) {
   console.log(`${LOG} (not a metamath proof page; no processing)`);

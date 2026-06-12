@@ -2,10 +2,7 @@
 
 ## 0.6.0 goals
 
-- **Preserve the chosen view across navigation**: add the `view` query parameter
-  to every outbound link to a metamath.org host (proof-step Refs,
-  related-theorem links, etc.), so the chosen view (table, or the calculational
-  default) carries over as the user follows links.
+All planned 0.6.0 goals are done — see below; ready to cut when verified.
 
 ## Bugs
 
@@ -60,7 +57,8 @@ HTML copied from the table, the spine chosen by parse-tree overlap (`spine.ts`)
 and ending at a `⇔ TRUE` terminal when symmetric, each leaf's Ref shown in the
 left column, the step hint naming the non-spine premises, and the clones
 re-parsed for whitespace and hover. A Calculation / Table view switch
-(`view.ts`) shows one and hides the other, calculation by default. Further out:
+(`view.ts`) shows one and hides the other, calculation by default, and carries
+the table choice onto metamath.org links. Further out:
 
 - **Drop the calc-box width fudge** (low priority): the calculation box is sized
   to its measured fully-expanded `max-content` width × 1.1, because the measured

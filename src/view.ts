@@ -23,6 +23,41 @@ export function searchWithView(search: string, table: boolean): string {
   return s ? `?${s}` : "";
 }
 
+/**
+ * The same link with `view=table` added, if it points to a metamath.org page and
+ * does not already carry it; otherwise null. `href` is resolved against `base`.
+ */
+export function linkWithTableView(href: string, base: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(href, base);
+  } catch {
+    return null;
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+  const host = url.hostname;
+  if (host !== "metamath.org" && !host.endsWith(".metamath.org")) return null;
+  if (url.searchParams.get(PARAM) === TABLE) return null;
+  url.searchParams.set(PARAM, TABLE);
+  return url.href;
+}
+
+/**
+ * When the table view is active, carry `view=table` onto every link to a
+ * metamath.org page, so the chosen view persists as the user navigates. Runs on
+ * any matching page (not only proof pages); same-page fragment links are left
+ * alone.
+ */
+export function propagateTableView(): void {
+  if (!tableSelected(location.search)) return;
+  for (const anchor of document.querySelectorAll("a[href]")) {
+    const a = anchor as HTMLAnchorElement;
+    if (a.getAttribute("href")?.startsWith("#")) continue;
+    const next = linkWithTableView(a.href, location.href);
+    if (next) a.href = next;
+  }
+}
+
 /** The page's existing "… version" links line, found by one of its anchors. */
 function versionLine(): Element | null {
   for (const a of document.querySelectorAll("a"))
