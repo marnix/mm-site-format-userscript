@@ -1,6 +1,6 @@
 # TODO
 
-## 0.7.0 goals
+## 0.8.0 goals
 
 - **Cache linked pages** (see Performance below): the highest-value next step —
   faster loads, and it removes the calculation's second-pass grammar
