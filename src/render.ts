@@ -16,22 +16,29 @@ function clone(source: Element): HTMLElement {
   return span;
 }
 
+// Expressions sit indented to the right of the `⇐` operator / hint.
+const EXPR_INDENT = "1.6em";
+
 /** A two-column row: the operator on the left, `content` on the right. */
-function row(operator: string, content: Node): HTMLTableRowElement {
+function row(
+  operator: string,
+  content: Node,
+  indent = false,
+): HTMLTableRowElement {
   const tr = document.createElement("tr");
   const op = document.createElement("td");
   op.style.cssText =
     "border:none;padding:0 0.6em 0 0;vertical-align:top;white-space:nowrap";
   op.textContent = operator;
   const main = document.createElement("td");
-  main.style.cssText = "border:none;padding:0;vertical-align:top";
+  main.style.cssText = `border:none;padding:0;vertical-align:top${indent ? `;padding-left:${EXPR_INDENT}` : ""}`;
   main.appendChild(content);
   tr.append(op, main);
   return tr;
 }
 
 function appendStep(step: Step, tbody: HTMLElement): void {
-  tbody.appendChild(row("", clone(step.expressionHtml)));
+  tbody.appendChild(row("", clone(step.expressionHtml), true));
 
   const hint = document.createElement("span");
   hint.append("{ ", clone(step.inferenceRuleRefHtml), " }");
@@ -47,17 +54,18 @@ function appendStep(step: Step, tbody: HTMLElement): void {
   // its expression (its Ref is not rendered for now).
   const spine = step.subcalculations[step.spine];
   if (spine?.kind === "given")
-    tbody.appendChild(row("", clone(spine.expressionHtml)));
+    tbody.appendChild(row("", clone(spine.expressionHtml), true));
   else if (spine?.kind === "step") appendStep(spine, tbody);
 }
 
 function renderCalcTable(calc: Calculation): HTMLTableElement {
   const table = document.createElement("table");
-  table.style.cssText = "border:none;border-collapse:collapse;margin:0.4em 0";
+  // Vertical space sets each (sub-)calculation apart from its surroundings.
+  table.style.cssText = "border:none;border-collapse:collapse;margin:0.6em 0";
   const tbody = document.createElement("tbody");
   table.appendChild(tbody);
   if (calc.kind === "given")
-    tbody.appendChild(row("", clone(calc.expressionHtml)));
+    tbody.appendChild(row("", clone(calc.expressionHtml), true));
   else appendStep(calc, tbody);
   return table;
 }
