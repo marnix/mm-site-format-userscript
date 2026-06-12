@@ -1,11 +1,11 @@
 // Renders a calculation as a two-column layout to place above the proof table.
-// Left column: the `⇐` operator (on the hint rows). Right column: expressions,
-// the `{ rule }` hints, and — indented — the step sub-calculations. Following
-// the spine, the spine sub-calculation continues the main line (a given just
-// contributes its expression; given Refs are not rendered for now). All HTML is
+// Left column: the `⇐` operator (on the hint rows), and the parenthesised Ref
+// in front of a leaf's expression. Right column: expressions, the `{ rule }`
+// hints, and — indented — the step sub-calculations. Following the spine, a step
+// sub-calculation continues the main line; a given (a leaf) ends it. All HTML is
 // cloned, so the table is left intact.
 
-import type { Calculation, Step } from "./calculation";
+import type { Calculation, Given, Step } from "./calculation";
 
 const OPERATOR = "⇐"; // the `<==` of the calculation
 
@@ -31,15 +31,16 @@ const EXPR_STYLE = "padding-left:1.6em;text-indent:-1.6em"; // hanging indent
  *  `vspace` is the symmetric top/bottom padding; `contentStyle` styles the
  *  right cell. */
 function row(
-  operator: string,
+  operator: string | Node,
   content: Node,
   vspace = "0",
   contentStyle = "",
 ): HTMLTableRowElement {
   const tr = document.createElement("tr");
   const op = document.createElement("td");
-  op.style.cssText = `border:none;padding:${vspace} 0.6em ${vspace} 0;vertical-align:top;white-space:nowrap`;
-  op.textContent = operator;
+  op.style.cssText = `border:none;padding:${vspace} 0.6em ${vspace} 0;vertical-align:top;white-space:nowrap;text-align:right`;
+  if (typeof operator === "string") op.textContent = operator;
+  else op.appendChild(operator);
   const main = document.createElement("td");
   main.style.cssText = `border:none;padding:${vspace} 0;vertical-align:top;${contentStyle}`;
   main.appendChild(content);
@@ -64,12 +65,22 @@ function appendStep(step: Step, tbody: HTMLElement): void {
     }
   });
 
-  // The spine continues the main line: a step extends it; a given contributes
-  // its expression (its Ref is not rendered for now).
+  // The spine continues the main line: a step extends it; a given ends it (its
+  // expression is the last line, with its Ref in the left column).
   const spine = step.subcalculations[step.spine];
-  if (spine?.kind === "given")
-    tbody.appendChild(row("", clone(spine.expressionHtml), "0", EXPR_STYLE));
+  if (spine?.kind === "given") appendGiven(spine, tbody);
   else if (spine?.kind === "step") appendStep(spine, tbody);
+}
+
+/**
+ * A given is a leaf (a hypothesis or a 0-assumption axiom/theorem) and ends a
+ * spine: its expression is the calculation's last line, with its Ref in the
+ * left column, parenthesised, in front of it.
+ */
+function appendGiven(given: Given, tbody: HTMLElement): void {
+  const ref = document.createElement("span");
+  ref.append("(", clone(given.hypothesisRefHtml), ")");
+  tbody.appendChild(row(ref, clone(given.expressionHtml), "0", EXPR_STYLE));
 }
 
 /**
@@ -88,8 +99,13 @@ function makeCollapsible(table: HTMLTableElement): void {
   marker.className = "mm-site-format-fold";
   marker.style.cssText = "cursor:pointer;user-select:none;opacity:0.6";
   // In the left (operator) column, so it stays put regardless of the
-  // expression's width; ▶/▼ are larger glyphs than the small ▸/▾.
-  (conclusion.firstElementChild ?? conclusion).appendChild(marker);
+  // expression's width; ▶/▼ are larger glyphs than the small ▸/▾. The column is
+  // right-aligned (to keep operators by the expressions), but the marker stays
+  // left-aligned at the column's edge.
+  const markerCell = (conclusion.firstElementChild ??
+    conclusion) as HTMLElement;
+  markerCell.style.textAlign = "left";
+  markerCell.appendChild(marker);
 
   let collapsed = true;
   const refresh = () => {
@@ -111,8 +127,7 @@ function renderCalcTable(calc: Calculation): HTMLTableElement {
   table.style.cssText = "border:none;border-collapse:collapse;margin:0";
   const tbody = document.createElement("tbody");
   table.appendChild(tbody);
-  if (calc.kind === "given")
-    tbody.appendChild(row("", clone(calc.expressionHtml), "0", EXPR_STYLE));
+  if (calc.kind === "given") appendGiven(calc, tbody);
   else appendStep(calc, tbody);
   return table;
 }

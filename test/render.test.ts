@@ -38,7 +38,7 @@ const sample = (): Calculation => ({
 });
 
 describe("renderCalculation", () => {
-  it("lays out operator/expression columns, indents step sub-calcs, omits given Refs", () => {
+  it("lays out operator/expression columns, indents step sub-calcs, puts a leaf's Ref in the left column", () => {
     const box = renderCalculation(sample());
 
     // Root table (and one nested table for the a1i sub-derivation).
@@ -52,10 +52,8 @@ describe("renderCalculation", () => {
     expect(rows[1]).toEqual(["⇐", "{ bitrd }"]); // operator | hint (rule only)
     expect(rows[2][0]).toBe(""); // the indented a1i sub-calc
     expect(rows[2][1]).toContain("STEP3");
-    expect(rows[3]).toEqual(["", "HYP1"]); // the spine given's expression
+    expect(rows[3]).toEqual(["(bitrdi.1)", "HYP1"]); // leaf Ref | its expression
 
-    // Given Refs are not rendered (only their expressions appear).
-    expect(box.textContent).not.toContain("bitrdi");
     // Font is not changed.
     expect(box.style.fontFamily).toBe("");
   });
