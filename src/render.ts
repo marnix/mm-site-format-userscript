@@ -17,10 +17,11 @@ function clone(source: Element): HTMLElement {
 }
 
 // EWD1300 layout: expressions stay at the base; the hint is indented after the
-// operator. Sub-calculations are indented further, with vertical space so
-// consecutive ones do not run together.
+// operator. Sub-calculations are indented further. Uniform vertical spacing
+// comes from the table's border-spacing, so the gap above and below each hint is
+// symmetric.
 const HINT_INDENT = "padding-left:1.5em";
-const SUBCALC_STYLE = "padding-left:2em;padding-top:0.6em;padding-bottom:0.6em";
+const SUBCALC_STYLE = "padding-left:2em";
 
 /** A two-column row: the operator on the left, `content` on the right. */
 function row(
@@ -64,7 +65,10 @@ function appendStep(step: Step, tbody: HTMLElement): void {
 
 function renderCalcTable(calc: Calculation): HTMLTableElement {
   const table = document.createElement("table");
-  table.style.cssText = "border:none;border-collapse:collapse;margin:0";
+  // border-spacing gives a uniform vertical gap between rows, so each hint has
+  // equal space above and below it.
+  table.style.cssText =
+    "border:none;border-collapse:separate;border-spacing:0 0.4em;margin:0";
   const tbody = document.createElement("tbody");
   table.appendChild(tbody);
   if (calc.kind === "given")
