@@ -2,10 +2,10 @@
 
 ## 0.4.0 goals
 
-- **End-of-spine `… <==> TRUE` terminal with leaf-step Refs**: render a
-  calculation's last line as `… <==> { <Ref> } TRUE` — surfacing the Ref of
-  givens / 0-assumption steps, and ending the spine cleanly when `chooseSpine`
-  finds no clear main line. See "Calculational proof rendering" below.
+- **End-of-spine choice**: when `chooseSpine` finds no clear main line (two or
+  more non-trivial sub-proofs tied at the maximum overlap), end the spine
+  explicitly instead of falling back to the first sub-proof — the choice the
+  earlier hand-crafted script made. See "Calculational proof rendering" below.
 
 ## Bugs
 
@@ -46,23 +46,16 @@
 
 ## Calculational proof rendering
 
-Shipped in 0.2.0: the proof tree is read from the proof table (`table.ts`) and
-rendered as a `<==` calculation above it (`calculation.ts`, `render.ts`):
-Ref/Expression HTML copied from the table, the spine chosen by parse-tree
-overlap (`spine.ts`), and the clones re-parsed for whitespace and hover. Further
-out:
+Shipped: the proof tree is read from the proof table (`table.ts`) and rendered
+as a `<==` calculation above it (`calculation.ts`, `render.ts`): Ref/Expression
+HTML copied from the table, the spine chosen by parse-tree overlap (`spine.ts`),
+each leaf's Ref shown in the left column, the step hint naming the non-spine
+premises, and the clones re-parsed for whitespace and hover. Further out:
 
-- **End-of-spine `… <==> TRUE` terminal**: when `chooseSpine` finds no clear
-  main line (two or more non-trivial sub-proofs tied), it currently falls back
-  to the first sub-proof. Instead render the spine as ended — a synthetic
-  `… <==> TRUE` line with every sub-proof shown as a side calculation. Pairs
-  with the leaf-Ref item below.
-- **Show the Ref for leaf steps**: a given (hypothesis) and a zero-assumption
-  theorem/axiom step carry a Ref (e.g. `bitrdi.1`, an axiom name) that the
-  rendering currently drops — only their expression is shown. Surface that Ref.
-  It is always the last line of a (sub-)calculation. Idea: append a synthetic
-  `… <==> { <Ref HTML> } TRUE` step there — probably visual-only, not part of
-  the `Calculation` data. (Shape still to be settled.)
+- **End-of-spine terminal**: render the no-clear-main-line case (see the 0.4.0
+  goal) as an explicit ended spine — e.g. a synthetic `… <==> TRUE` line with
+  every sub-proof shown as a side calculation, rather than threading on through
+  the first sub-proof.
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.
 - **Sub-expression calculations**: instead of relating whole `|- …` statements
@@ -73,6 +66,11 @@ out:
 
 ## Features
 
+- **Calculation / Table view toggle**: a "Calculation version" / "Table version"
+  control in the top-right of the page, showing one and hiding the other.
+  Default to the calculational version; remember the user's last choice — likely
+  a query parameter that _switches the calculation off_ (so the default stays
+  calculational and a plain URL shows it).
 - **Nested hover levels**: clicking a highlighted sub-expression cycles to the
   next-larger enclosing expression.
 - **Rule tooltip on hover**: show the name of the matched syntax rule (e.g.

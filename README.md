@@ -23,11 +23,12 @@ without hovering.
 
 It also renders the proof as a **calculation** — in the style of Dijkstra's
 [EWD1300](https://www.cs.utexas.edu/~EWD/transcriptions/EWD13xx/EWD1300.html) —
-shown above the "Proof of Theorem" table: each step's statement, followed by the
-inference it follows from as a `⇐ { … }` hint. The main line follows the
-sub-derivation closest in structure to the step's conclusion (the expression
-being transformed); the other sub-derivations are indented and start collapsed
-(showing just their conclusion and a `▶` marker), expanding on click. The
+shown above the "Proof of Theorem" table: each step's statement, followed by a
+`⇐ { using … }` hint naming the inference rule and the facts it uses. The main
+line follows the sub-derivation closest in structure to the step's conclusion
+(the expression being transformed); the other sub-derivations are indented and
+start collapsed (showing just their conclusion and a `▶` marker), expanding on
+click, while leaf facts (hypotheses and axioms) show their reference inline. The
 calculation's expressions get the same whitespace and hover-highlighting as the
 table below.
 

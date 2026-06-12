@@ -260,13 +260,16 @@ The proof is also shown as a calculation in the style of Dijkstra's
 above the "Proof of Theorem" table. The proof tree is read straight from the
 table (`table.ts`): each row's Ref cell and Expression cell become a node, with
 one sub-proof per Hyp entry. That tree is rendered (`render.ts`) as a chain of
-`|- …` statements joined by `⇐ { … }` hints — each hint naming the inference
-rule, with sub-derivations indented — following a chosen _spine_ (the main line;
-see below). The page's own Ref/Expression HTML is cloned into place. Those
-clones are then given the same treatment as the page: the calculation is
-rendered after the page's parse pass and the pass is run a second time scoped to
-the calculation (`index.ts`), so its expressions get the same parsing,
-whitespace, and hover-highlighting.
+`|- …` statements joined by `⇐` hints, following a chosen _spine_ (the main
+line; see below). Each hint reads `{ using <rule>, <premise>…, subproofs }` —
+the inference rule, then the non-spine premises (a leaf by its Ref, any nested
+derivations summarised as a `subproof`/`subproofs` count and shown indented). A
+leaf ends a spine: its expression is the last line, with its Ref parenthesised
+in the (right-aligned) left column. The page's own Ref/Expression HTML is cloned
+into place; the clones are then given the same treatment as the page — the
+calculation is rendered after the page's parse pass and the pass is run a second
+time scoped to the calculation (`index.ts`), so its expressions get the same
+parsing, whitespace, and hover-highlighting.
 
 Each sub-derivation starts **collapsed**, showing only its conclusion and a `▶`
 disclosure marker in the left column; clicking the marker expands it (and the
@@ -290,8 +293,9 @@ chose **none** (a "trivial" sub-proof being a leaf — a hypothesis or
 0-assumption step); reused ("shared") steps were treated as auxiliary.
 
 When no sub-proof is the clear continuation, the spine **ends**: render a
-synthetic `… <==> TRUE` and show every sub-proof as a side calculation. (Not yet
-implemented; relates to the leaf-Ref TODO.)
+synthetic `… <==> TRUE` and show every sub-proof as a side calculation. (That
+was the earlier script's behaviour; not yet implemented here — see the 0.4.0
+goal.)
 
 This is now done on **parse trees** rather than HTML (`spine.ts`). Similarity is
 a top-down structural overlap: count nodes that apply the same rule, recursing
@@ -312,6 +316,16 @@ clear main line" currently falls back to the first sub-proof. (A further
 refinement, deferred: take the structure from the Ref theorem's _general_ rule
 instead of the ground instances, so "optocl always spines to optocl.3" becomes
 an intrinsic, substitution-independent fact.)
+
+A worked case that looks surprising but is right: on `elrels2`, step 4
+`( R ∈ V → ( R ∈ Rels ↔ R ⊆ (V × V) ) )` (a `bitrid`) spines to step 3 (`elpwg`,
+`( R ∈ V → ( R ∈ 𝒫(V × V) ↔ R ⊆ (V × V) ) )`), **not** step 2 (`eleq2i`,
+`( R ∈ Rels ↔ R ∈ 𝒫(V × V) )`). Step 3 shares step 4's whole
+`( R ∈ V → ( R ∈ _ ↔ R ⊆ (V × V) ) )` skeleton — differing only `Rels` vs
+`𝒫(V × V)` deep inside — so the overlap is large (~13 nodes); step 2's root is
+`wb`, which differs from step 4's `wi`, so the overlap is ~nil. The choice is
+correct — step 3 is the deduction's running expression and step 2 is the local
+rewrite it threads in — even though step 2 carries the headline term `Rels`.
 
 ### Possible future direction
 
