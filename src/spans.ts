@@ -34,6 +34,19 @@ export function nodeSpans(proof: Proof): Span[] {
 }
 
 /**
+ * The proof's node spans shifted into location-index space, so they align with
+ * a `ParsedExpression`'s `locations`/`tokens`. A "|-" statement parses the whole
+ * token list (shift 0); a typecode statement drops its leading typecode
+ * (shift 1). `locationCount` is the number of rendered tokens. Pure.
+ */
+export function nodeLocationSpans(proof: Proof, locationCount: number): Span[] {
+  const spans = nodeSpans(proof);
+  const rootEnd = Math.max(...spans.map((s) => s[1]));
+  const base = locationCount - rootEnd;
+  return spans.map(([s, e]) => [s + base, e + base]);
+}
+
+/**
  * The narrowest span that contains `index` (the deepest, i.e. smallest,
  * sub-expression node covering that token), or undefined if none does.
  */

@@ -2,11 +2,11 @@
 // can't disturb other userscripts), and Ranges can cover text-node substrings
 // (e.g. one of a run-together "))" pair). See DESIGN.md "Hover highlighting".
 
-import { HIGHLIGHT_COLOR } from "./config";
+import { HIGHLIGHT_COLOR, HIGHLIGHT_MATCH_COLOR } from "./config";
 import type { ParsedExpression } from "./page";
 import type { Proof } from "./proof";
 import { SPACE_CLASS } from "./space";
-import { nodeSpans, smallestSpanContaining, type Span } from "./spans";
+import { nodeLocationSpans, smallestSpanContaining, type Span } from "./spans";
 import type { TokenLocation } from "./token";
 
 /** Builds a DOM Range covering the tokens in [start, end) of `locations`. */
@@ -38,11 +38,42 @@ export function spanToHighlight(
   locationCount: number,
   index: number,
 ): Span | null {
-  const spans = nodeSpans(proof);
-  const rootEnd = Math.max(...spans.map((s) => s[1]));
-  const base = locationCount - rootEnd;
-  const shifted: Span[] = spans.map(([s, e]) => [s + base, e + base]);
-  return smallestSpanContaining(shifted, index) ?? null;
+  return (
+    smallestSpanContaining(nodeLocationSpans(proof, locationCount), index) ??
+    null
+  );
+}
+
+/** One occurrence of a sub-expression: which expression, and its span there. */
+export interface Occurrence {
+  expr: ParsedExpression;
+  span: Span;
+}
+
+/**
+ * Every sub-expression node, across all `expressions`, whose token sequence
+ * equals `tokens`. The token sequence determines the parse tree (the grammar is
+ * unambiguous), so equal tokens means the same sub-expression; rendered spacing
+ * is irrelevant because spacers are not tokens. Includes the hovered occurrence
+ * itself — callers filter it out. Pure (no DOM).
+ */
+export function matchingOccurrences(
+  expressions: ParsedExpression[],
+  tokens: string[],
+): Occurrence[] {
+  const out: Occurrence[] = [];
+  for (const expr of expressions) {
+    if (!expr.proof) continue;
+    for (const span of nodeLocationSpans(expr.proof, expr.locations.length)) {
+      const seq = expr.tokens.slice(span[0], span[1]);
+      if (
+        seq.length === tokens.length &&
+        seq.every((t, i) => t.text === tokens[i])
+      )
+        out.push({ expr, span });
+    }
+  }
+  return out;
 }
 
 /**
@@ -74,6 +105,8 @@ export function findTokenAt(
 
 const HIGHLIGHT_NAME = "mm-site-format";
 const HIGHLIGHT_CLASS = "mm-site-format-hl";
+const MATCH_NAME = "mm-site-format-match";
+const MATCH_CLASS = "mm-site-format-match-hl";
 
 interface HighlightLike {
   add(range: Range): void;
@@ -82,22 +115,33 @@ interface HighlightLike {
 declare const Highlight: { new (): HighlightLike };
 declare const CSS: { highlights?: Map<string, HighlightLike> } | undefined;
 
-/** Paints the active highlight: text via the Highlight API, elements via a
- * background class (the Highlight API does not paint replaced elements like the
- * transparent-background GIF glyphs). */
+/** A sub-expression to paint: where its tokens are, and which span of them. */
+interface PaintItem {
+  locations: TokenLocation[];
+  span: Span;
+}
+
+/** Paints highlights: text via the Highlight API, elements via a background
+ * class (the Highlight API does not paint replaced elements like the
+ * transparent-background GIF glyphs). One painter owns one named highlight. */
 interface Painter {
-  paint(locations: TokenLocation[], span: Span): void;
+  paint(items: PaintItem[]): void;
   clear(): void;
 }
 
-// One Highlight registration shared by every painter: the page and the
-// calculation each install hover handlers, and registering a second Highlight
-// under the same name would unregister (silently break) the first.
-let sharedHighlight: HighlightLike | null = null;
+// One Highlight registration shared per name: the page and the calculation each
+// install hover handlers, and registering a second Highlight under the same
+// name would unregister (silently break) the first.
+const sharedHighlights = new Map<string, HighlightLike>();
 
-/** Creates a painter over the shared highlight, or null where the Highlight API
- *  is unavailable. */
-export function createPainter(): Painter | null {
+/** Creates a painter over the shared highlight of the given name (defaulting to
+ *  the primary hover highlight), or null where the Highlight API is
+ *  unavailable. */
+export function createPainter(
+  name: string = HIGHLIGHT_NAME,
+  className: string = HIGHLIGHT_CLASS,
+  color: string = HIGHLIGHT_COLOR,
+): Painter | null {
   if (
     typeof CSS === "undefined" ||
     !CSS?.highlights ||
@@ -105,49 +149,88 @@ export function createPainter(): Painter | null {
   ) {
     return null;
   }
-  if (!sharedHighlight) {
-    sharedHighlight = new Highlight();
-    CSS.highlights.set(HIGHLIGHT_NAME, sharedHighlight);
+  let highlight = sharedHighlights.get(name);
+  if (!highlight) {
+    highlight = new Highlight();
+    CSS.highlights.set(name, highlight);
+    sharedHighlights.set(name, highlight);
     const style = document.createElement("style");
     style.textContent =
-      `::highlight(${HIGHLIGHT_NAME}){background-color:${HIGHLIGHT_COLOR}}` +
-      `.${HIGHLIGHT_CLASS}{background-color:${HIGHLIGHT_COLOR}}`;
+      `::highlight(${name}){background-color:${color}}` +
+      `.${className}{background-color:${color}}`;
     document.head.appendChild(style);
   }
-  const highlight = sharedHighlight;
 
   let painted: Element[] = [];
   const clear = () => {
     highlight.clear();
-    for (const el of painted) el.classList.remove(HIGHLIGHT_CLASS);
+    for (const el of painted) el.classList.remove(className);
     painted = [];
+  };
+  const paintOne = ({ locations, span: [start, end] }: PaintItem) => {
+    const range = rangeForSpan(locations, [start, end]);
+    highlight.add(range);
+    for (let i = start; i < end; i++) {
+      const loc = locations[i];
+      if (loc.type === "element") {
+        loc.node.classList.add(className);
+        painted.push(loc.node);
+      }
+    }
+    // Spacers are empty, so the Highlight API does not paint them; colour the
+    // ones inside the range by hand so the highlight has no gaps.
+    const ancestor = range.commonAncestorContainer;
+    const root =
+      ancestor.nodeType === Node.ELEMENT_NODE
+        ? (ancestor as Element)
+        : ancestor.parentElement;
+    for (const spacer of root?.querySelectorAll(`.${SPACE_CLASS}`) ?? []) {
+      if (range.intersectsNode(spacer)) {
+        spacer.classList.add(className);
+        painted.push(spacer);
+      }
+    }
   };
   return {
     clear,
-    paint(locations, [start, end]) {
+    paint(items) {
       clear();
-      const range = rangeForSpan(locations, [start, end]);
-      highlight.add(range);
-      for (let i = start; i < end; i++) {
-        const loc = locations[i];
-        if (loc.type === "element") {
-          loc.node.classList.add(HIGHLIGHT_CLASS);
-          painted.push(loc.node);
-        }
-      }
-      // Spacers are empty, so the Highlight API does not paint them; colour the
-      // ones inside the range by hand so the highlight has no gaps.
-      const ancestor = range.commonAncestorContainer;
-      const root =
-        ancestor.nodeType === Node.ELEMENT_NODE
-          ? (ancestor as Element)
-          : ancestor.parentElement;
-      for (const spacer of root?.querySelectorAll(`.${SPACE_CLASS}`) ?? []) {
-        if (range.intersectsNode(spacer)) {
-          spacer.classList.add(HIGHLIGHT_CLASS);
-          painted.push(spacer);
-        }
-      }
+      for (const item of items) paintOne(item);
+    },
+  };
+}
+
+/** Coordinates the two highlights: the hovered sub-expression in the bright
+ * colour, plus its other occurrences across the same expressions in a lighter
+ * shade. Null where the Highlight API is unavailable. */
+export interface Highlighter {
+  highlight(all: ParsedExpression[], expr: ParsedExpression, span: Span): void;
+  clear(): void;
+}
+
+export function createHighlighter(): Highlighter | null {
+  const primary = createPainter();
+  const secondary = createPainter(
+    MATCH_NAME,
+    MATCH_CLASS,
+    HIGHLIGHT_MATCH_COLOR,
+  );
+  if (!primary || !secondary) return null;
+  return {
+    clear() {
+      primary.clear();
+      secondary.clear();
+    },
+    highlight(all, expr, span) {
+      const [start, end] = span;
+      const tokens = expr.tokens.slice(start, end).map((t) => t.text);
+      const others = matchingOccurrences(all, tokens).filter(
+        (o) => o.expr !== expr || o.span[0] !== start || o.span[1] !== end,
+      );
+      secondary.paint(
+        others.map((o) => ({ locations: o.expr.locations, span: o.span })),
+      );
+      primary.paint([{ locations: expr.locations, span }]);
     },
   };
 }
@@ -158,8 +241,8 @@ export function createPainter(): Painter | null {
  * sub-expression. Browser only; a no-op where the Highlight API is unavailable.
  */
 export function installHoverByElement(expressions: ParsedExpression[]): void {
-  const painter = createPainter();
-  if (!painter) return;
+  const highlighter = createHighlighter();
+  if (!highlighter) return;
   for (const expr of expressions) {
     const proof = expr.proof;
     if (!proof) continue;
@@ -167,10 +250,10 @@ export function installHoverByElement(expressions: ParsedExpression[]): void {
       if (loc.type !== "element") return;
       loc.node.addEventListener("mouseenter", () => {
         const span = spanToHighlight(proof, expr.locations.length, i);
-        if (span) painter.paint(expr.locations, span);
-        else painter.clear();
+        if (span) highlighter.highlight(expressions, expr, span);
+        else highlighter.clear();
       });
-      loc.node.addEventListener("mouseleave", () => painter.clear());
+      loc.node.addEventListener("mouseleave", () => highlighter.clear());
     });
   }
 }
@@ -200,8 +283,8 @@ function caretAt(x: number, y: number): { node: Node; offset: number } | null {
  * mousemove over each expression's container. Browser only.
  */
 export function installHoverByCaret(expressions: ParsedExpression[]): void {
-  const painter = createPainter();
-  if (!painter) return;
+  const highlighter = createHighlighter();
+  if (!highlighter) return;
   for (const expr of expressions) {
     const proof = expr.proof;
     const container = expr.locations[0]?.node.parentElement;
@@ -213,9 +296,9 @@ export function installHoverByCaret(expressions: ParsedExpression[]): void {
         : null;
       const span =
         i === null ? null : spanToHighlight(proof, expr.locations.length, i);
-      if (span) painter.paint(expr.locations, span);
-      else painter.clear();
+      if (span) highlighter.highlight(expressions, expr, span);
+      else highlighter.clear();
     });
-    container.addEventListener("mouseleave", () => painter.clear());
+    container.addEventListener("mouseleave", () => highlighter.clear());
   }
 }

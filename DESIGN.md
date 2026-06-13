@@ -259,12 +259,21 @@ over any token element:
    the hovered token.
 2. Highlight that range: text via one CSS Custom Highlight, element tokens (and
    spacers) via a background class.
-3. Clear it on `mouseleave`.
+3. Highlight every **other occurrence** of the same sub-expression in a lighter
+   shade (a second Highlight registration). "Same" means an identical token
+   sequence — which, the grammar being unambiguous, means an identical parse
+   tree; rendered spacing is irrelevant because spacers are not tokens. The
+   match is found by `highlight.matchingOccurrences`, which scans the node spans
+   of every expression in the same region for one whose tokens equal the hovered
+   span's (pure, no DOM).
+4. Clear both on `mouseleave`.
 
-The page and the calculation each install hover handlers, but they share a
-**single** Highlight registration — registering a second under the same name
-would silently unregister the first, and that painter's text highlighting would
-stop.
+The page and the calculation each install hover handlers, but they share their
+Highlight registrations (one per name) — registering a second under the same
+name would silently unregister the first, and that painter's text highlighting
+would stop. Matches are scoped to the region the handler manages (the proof
+table, or the calculation), which is what the view toggle shows one of at a
+time.
 
 ## Whitespace from the parse tree
 

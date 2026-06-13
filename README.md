@@ -10,7 +10,9 @@ renderings — the script parses every Metamath expression and adds **hover
 highlighting**: pointing at any token highlights the smallest sub-expression
 (parse-tree node) that contains it. Hovering a variable highlights just that
 variable, an operator highlights its sub-expression, and the turnstile
-highlights the whole statement.
+highlights the whole statement. Every other occurrence of that same
+sub-expression (regardless of spacing) is highlighted too, in a lighter shade,
+so you can see where it recurs.
 
 It parses by reconstructing each expression's grammar from the page's "Syntax
 hints" links, so an expression is only highlighted once it has been fully
