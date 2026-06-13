@@ -11,11 +11,15 @@
     "ci": "npm run clean && npm run build && concurrently --success all \"prettier --check .\" \"vitest run\" \"tsc --noEmit\""
   },
   "devDependencies": {
-    "concurrently": "^9.1.2",
-    "happy-dom": "^20.10.2",
-    "prettier": "^3.4.2",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "@types/node": "^25.9.3",
+    "concurrently": "^10.0.3",
+    "happy-dom": "^20.10.3",
+    "prettier": "^3.8.4",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8"
+  },
+  "overrides": {
+    "esbuild": "^0.28.1"
   }
 }

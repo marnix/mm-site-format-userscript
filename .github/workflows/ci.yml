@@ -8,17 +8,15 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: npm
       - run: npm ci
       - run: npm run ci
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: userscript
           path: dist/mm-site-format.user.js
