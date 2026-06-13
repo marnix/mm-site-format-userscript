@@ -151,16 +151,18 @@ describe("renderCalculation", () => {
     const rows = [...box.querySelector("tbody")!.children] as HTMLElement[];
     const right = (tr: HTMLElement) => tr.children[1] as HTMLElement; // content
     const left = (tr: HTMLElement) => tr.children[0] as HTMLElement; // label
+    const faded = (cell: HTMLElement) =>
+      cell.classList.contains("mm-site-format-calc-faded");
 
     expect(rows[0].textContent).toContain("TOP"); // the step's own expression…
-    expect(right(rows[0]).style.opacity).toBe(""); // …stays at full strength
+    expect(faded(right(rows[0]))).toBe(false); // …stays at full strength
     expect(rows[1].textContent).toContain("{ using r }"); // hint…
-    expect(right(rows[1]).style.opacity).not.toBe(""); // …is faded
+    expect(faded(right(rows[1]))).toBe(true); // …is faded
     expect(rows[2].textContent).toContain("RESULT"); // continuation expression…
-    expect(right(rows[2]).style.opacity).toBe(right(rows[1]).style.opacity);
+    expect(faded(right(rows[2]))).toBe(true);
     // …but its left-column Ref label stays sharp, so you can still see where
     // the conclusion came from.
     expect(rows[2].textContent).toContain("(h)");
-    expect(left(rows[2]).style.opacity).toBe("");
+    expect(faded(left(rows[2]))).toBe(false);
   });
 });

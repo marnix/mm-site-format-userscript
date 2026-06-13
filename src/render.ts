@@ -12,7 +12,6 @@ import type { Calculation, Given, Step } from "./calculation";
 
 const OPERATOR = "⇐"; // the `<==` of the calculation
 const TERMINAL = "⇔"; // the `<==>` ending a spine with no clear main line, at TRUE
-const SMALL_STEP_OPACITY = "0.2"; // deemphasis for a "small" step's hint + result
 
 /** Clones an element's content into a fresh inline element. */
 function clone(source: Element): HTMLElement {
@@ -32,39 +31,40 @@ function appendSeries(parent: HTMLElement, items: Node[]): void {
   });
 }
 
-// EWD1300 layout: expressions stay at the base; the hint is indented after the
-// operator; sub-calculations are indented further. Vertical space is symmetric
-// around each hint (HINT_VSPACE above and below); sub-calculations get more
-// (SUBCALC_VSPACE, ~1.5–2×) so they stand apart. Long expressions wrap with a
-// hanging indent.
-const HINT_VSPACE = "0.3em";
-const SUBCALC_VSPACE = "0.5em";
-// The hint is indented 1.5em; when it wraps, the continuation hangs by the
-// width of the leading "{ " (≈1.3ch) so it lines up under the list.
-const HINT_INDENT = "padding-left:calc(1.5em + 1.3ch);text-indent:-1.3ch";
-const SUBCALC_INDENT = "padding-left:2em";
-const EXPR_STYLE = "padding-left:1.6em;text-indent:-1.6em"; // hanging indent
+// Row kinds, laid out by the injected stylesheet (styles.ts): an expression
+// line, a `{ using … }` hint, or an indented nested sub-calculation. The kind
+// fixes both the right cell's class and the row's vertical spacing.
+type RowKind = "expr" | "hint" | "subcalc";
+const CONTENT_CLASS: Record<RowKind, string> = {
+  expr: "mm-site-format-calc-expr",
+  hint: "mm-site-format-calc-hint",
+  subcalc: "mm-site-format-calc-subcalc",
+};
+const ROW_CLASS: Record<RowKind, string> = {
+  expr: "",
+  hint: "mm-site-format-calc-row--hint",
+  subcalc: "mm-site-format-calc-row--subcalc",
+};
 
-/** A two-column row: the operator on the left, `content` on the right.
- *  `vspace` is the symmetric top/bottom padding; `contentStyle` styles the
- *  right cell. `faded` deemphasizes the right cell only (a "small" step) —
- *  never the left column, so the operator and a leaf's Ref label stay sharp and
- *  you can still see where the conclusion came from. */
+/** A two-column row: the operator on the left, `content` on the right, styled by
+ *  `kind`. `faded` deemphasizes the right cell only (a "small" step) — never the
+ *  left column, so the operator and a leaf's Ref label stay sharp and you can
+ *  still see where the conclusion came from. */
 function row(
   operator: string | Node,
   content: Node,
-  vspace = "0",
-  contentStyle = "",
+  kind: RowKind,
   faded = false,
 ): HTMLTableRowElement {
   const tr = document.createElement("tr");
+  tr.className = ROW_CLASS[kind];
   const op = document.createElement("td");
-  op.style.cssText = `border:none;padding:${vspace} 0.6em ${vspace} 0;vertical-align:top;white-space:nowrap;text-align:right`;
+  op.className = "mm-site-format-calc-op";
   if (typeof operator === "string") op.textContent = operator;
   else op.appendChild(operator);
   const main = document.createElement("td");
-  main.style.cssText = `border:none;padding:${vspace} 0;vertical-align:top;${contentStyle}`;
-  if (faded) main.style.opacity = SMALL_STEP_OPACITY;
+  main.className =
+    CONTENT_CLASS[kind] + (faded ? " mm-site-format-calc-faded" : "");
   main.appendChild(content);
   tr.append(op, main);
   return tr;
@@ -73,9 +73,7 @@ function row(
 // `faded` deemphasizes this step's own expression line — set by the parent when
 // the transition *into* this step was small (its hint + result, faded together).
 function appendStep(step: Step, tbody: HTMLElement, faded = false): void {
-  tbody.appendChild(
-    row("", clone(step.expressionHtml), "0", EXPR_STYLE, faded),
-  );
+  tbody.appendChild(row("", clone(step.expressionHtml), "expr", faded));
 
   // Hint: the non-spine given premises (each by its Ref), then
   // "subproof"/"subproofs" if any non-spine premise is itself a derivation
@@ -102,9 +100,7 @@ function appendStep(step: Step, tbody: HTMLElement, faded = false): void {
   // A "small" step's hint — and its continuation expression below — are faded.
   const ended = step.spine === null;
   const small = step.smallSpine ?? false;
-  tbody.appendChild(
-    row(ended ? TERMINAL : OPERATOR, hint, HINT_VSPACE, HINT_INDENT, small),
-  );
+  tbody.appendChild(row(ended ? TERMINAL : OPERATOR, hint, "hint", small));
 
   // Non-spine step sub-calculations: indented sub-derivations, in order, each
   // set apart with extra vertical space and collapsed by default.
@@ -112,14 +108,12 @@ function appendStep(step: Step, tbody: HTMLElement, faded = false): void {
     if (sub.kind === "step" && i !== step.spine) {
       const table = renderCalcTable(sub);
       makeCollapsible(table);
-      tbody.appendChild(row("", table, SUBCALC_VSPACE, SUBCALC_INDENT));
+      tbody.appendChild(row("", table, "subcalc"));
     }
   });
 
   if (ended) {
-    tbody.appendChild(
-      row("", document.createTextNode("TRUE"), "0", EXPR_STYLE),
-    );
+    tbody.appendChild(row("", document.createTextNode("TRUE"), "expr"));
     return;
   }
 
@@ -140,9 +134,7 @@ function appendStep(step: Step, tbody: HTMLElement, faded = false): void {
 function appendGiven(given: Given, tbody: HTMLElement, faded = false): void {
   const ref = document.createElement("span");
   ref.append("(", clone(given.hypothesisRefHtml), ")");
-  tbody.appendChild(
-    row(ref, clone(given.expressionHtml), "0", EXPR_STYLE, faded),
-  );
+  tbody.appendChild(row(ref, clone(given.expressionHtml), "expr", faded));
 }
 
 // While a calculation is being built, each collapsible sub-calculation registers
@@ -174,11 +166,9 @@ function makeCollapsible(table: HTMLTableElement): void {
   const [conclusion, ...rest] = rows;
   const marker = document.createElement("span");
   marker.className = "mm-site-format-fold";
-  marker.style.cssText = "cursor:pointer;user-select:none;opacity:0.6";
   // In the left (operator) column, so it stays put regardless of the
-  // expression's width; ▶/▼ are larger glyphs than the small ▸/▾. The column is
-  // right-aligned (to keep operators by the expressions), but the marker stays
-  // left-aligned at the column's edge.
+  // expression's width. The column is right-aligned (to keep operators by the
+  // expressions), but the marker stays left-aligned at the column's edge.
   const markerCell = (conclusion.firstElementChild ??
     conclusion) as HTMLElement;
   markerCell.style.textAlign = "left";
@@ -205,7 +195,6 @@ function makeCollapsible(table: HTMLTableElement): void {
 
 function renderCalcTable(calc: Calculation): HTMLTableElement {
   const table = document.createElement("table");
-  table.style.cssText = "border:none;border-collapse:collapse;margin:0";
   const tbody = document.createElement("tbody");
   table.appendChild(tbody);
   if (calc.kind === "given") appendGiven(calc, tbody);
@@ -216,12 +205,10 @@ function renderCalcTable(calc: Calculation): HTMLTableElement {
 /** Renders a calculation as a DOM element (expressions joined by `⇐` hints). */
 export function renderCalculation(calc: Calculation): HTMLElement {
   const box = document.createElement("div");
+  // Styled by styles.ts (.mm-site-format-calc); `border-box` there lets the
+  // explicit width index.ts sets (the fully-expanded width) include the padding
+  // and border rather than overflowing the page.
   box.className = "mm-site-format-calc";
-  // No font change; just lay it out left-aligned at normal weight. border-box so
-  // an explicit width (set by index.ts to the fully-expanded width) includes the
-  // padding and border, rather than overflowing the page by that much.
-  box.style.cssText =
-    "box-sizing:border-box;border:1px solid #ccc;padding:6px 10px;margin:8px 0;text-align:left;font-weight:normal";
   pendingSetters = [];
   box.appendChild(renderCalcTable(calc));
   collapseSetters.set(box, pendingSetters);

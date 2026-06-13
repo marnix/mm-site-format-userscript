@@ -13,6 +13,7 @@ import {
 import type { Proof } from "./proof";
 import { renderCalculation, setCalcCollapsed } from "./render";
 import { chooseSpine, isSmallStep } from "./spine";
+import { injectStyles } from "./styles";
 import { parseProofTable } from "./table";
 import { formatTokens } from "./token";
 import { applyViewToLinks, installViewToggle, tableSelected } from "./view";
@@ -31,6 +32,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   console.log(`${LOG} (not a metamath proof page; no processing)`);
 } else {
   console.log(`${LOG} processing proof page…`);
+  injectStyles();
 
   const banner = document.createElement("div");
   const built = __USERSCRIPT_BUILD_TIME__
