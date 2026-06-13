@@ -1,7 +1,13 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createPainter, findTokenAt, spanToHighlight } from "../src/highlight";
+import {
+  createPainter,
+  findTokenAt,
+  spanToHighlight,
+  tokenAtPoint,
+} from "../src/highlight";
 import { parseUniExpressions } from "../src/page";
+import type { TokenLocation } from "../src/token";
 import { readFixture } from "./helpers";
 
 describe("spanToHighlight (mpeuni/bitrdi assertion)", () => {
@@ -55,6 +61,39 @@ describe("spanToHighlight (mpeuni/bitrdi assertion)", () => {
     if (opLoc.type === "text") {
       expect(findTokenAt(a.locations, opLoc.node, opLoc.start)).toBe(6);
     }
+  });
+});
+
+describe("tokenAtPoint (GIF: image tokens + bare-text tokens like Disj)", () => {
+  // A GIF expression mixes image tokens (e.g. Rel) with bare-text tokens (e.g.
+  // Disj, which has no .gif). Build one of each and stub the pointer APIs that
+  // happy-dom does not implement.
+  function setup() {
+    const img = document.createElement("img"); // an image token, e.g. "Rel"
+    const text = document.createTextNode(" Disj "); // a bare-text token
+    document.body.append(img, text);
+    const locations: TokenLocation[] = [
+      { type: "element", node: img },
+      { type: "text", node: text, start: 1, end: 5 }, // "Disj"
+    ];
+    return { img, text, locations };
+  }
+
+  it("resolves an image token under the pointer", () => {
+    const { img, locations } = setup();
+    (document as unknown as { elementFromPoint: unknown }).elementFromPoint =
+      () => img;
+    expect(tokenAtPoint(locations, 10, 10)).toBe(0);
+  });
+
+  it("resolves a bare-text token (Disj) via the caret when no token element is under the pointer", () => {
+    const { text, locations } = setup();
+    (document as unknown as { elementFromPoint: unknown }).elementFromPoint =
+      () => document.body; // the container, not a token element
+    (
+      document as unknown as { caretPositionFromPoint: unknown }
+    ).caretPositionFromPoint = () => ({ offsetNode: text, offset: 2 });
+    expect(tokenAtPoint(locations, 10, 10)).toBe(1);
   });
 });
 

@@ -1,16 +1,28 @@
 # TODO
 
-## 0.8.0 goals
+## 0.9.0 goals
 
-Queued for this cycle: the Expression-column wrap indent and the GIF `Disj`
-hover bug (see below).
-
-## Bugs
-
-- **GIF hover: `Disj` not highlightable on its own** (mpegif/disjrel.html only):
-  in `|- ( Disj R -> Rel R )`, hovering the `Disj` token does not highlight
-  `Disj R`, though hovering `Rel` highlights `Rel R` fine, and `Disj` does
-  highlight as part of larger expressions. GIF-specific; not seen elsewhere.
+- **Move implementation detail out of DESIGN.md into the code**: DESIGN.md
+  should keep only _navigation_ — a starting point for a human, a map of the
+  source files and the algorithms — not the how-it-works detail. Move that
+  detail into the code, preferably by making the code self-documenting through
+  renames and small refactors, and only as comments where a rename/refactor
+  cannot carry the meaning. Do not lose information that would help a future
+  change: relocate it, don't delete it. Work section by section through
+  DESIGN.md, checking after each that the prose removed is genuinely recoverable
+  from the code it now lives near.
+- **Deemphasize "small" calculation steps** (`stepIsSmall`): visually fade (e.g.
+  lower opacity) spine steps that add little new information, so the eye skips
+  to the steps that matter. In the earlier userscript a step counted as small
+  when it had a single premise and its spine child's expression was barely
+  different from the conclusion — measured by the longest common subsequence of
+  the two expression _texts_:
+  `diffLengthDiff = log2((len(child) − lcs + 1) / (len(conclusion) − lcs + 1))`,
+  small iff one subproof and `diffLengthDiff ≤ 2`. Adapt to this codebase: we
+  already have the parse trees and the spine, so a cleaner similarity measure is
+  parse-tree overlap (cf. `spine.ts`) or a token (not character) LCS between the
+  step and its spine child. Decide the fade styling and the threshold; keep the
+  threshold a named constant.
 
 ## Performance
 
@@ -86,5 +98,3 @@ the table choice onto metamath.org links. Further out:
   next-larger enclosing expression.
 - **Rule tooltip on hover**: show the name of the matched syntax rule (e.g.
   `wi`) in a tooltip next to the highlighted region.
-- **Highlight across steps**: when hovering a sub-expression, also highlight the
-  same sub-expression in earlier proof steps that introduce it.

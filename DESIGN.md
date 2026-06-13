@@ -252,8 +252,13 @@ when a subscript is a surrogate pair (e.g. `𝑟` in `↑𝑟`).
 
 ## Hover highlighting
 
-Each parse-tree node spans a contiguous range of DOM tokens. On `mouseenter`
-over any token element:
+Each parse-tree node spans a contiguous range of DOM tokens. On `mousemove` over
+an expression's container, the token under the pointer is resolved by
+`highlight.tokenAtPoint`: an element token (a Unicode variable span or a GIF
+glyph image) by the topmost element under the pointer, and a bare-text token (an
+operator or bracket, or a GIF token rendered as text rather than an image — such
+as `Disj`) by hit-testing the caret, since text nodes are not event targets.
+Then:
 
 1. Walk up the parse tree to find the smallest node whose token range contains
    the hovered token.

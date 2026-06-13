@@ -3,7 +3,7 @@ import { createCache, type KeyValueStore } from "./cache";
 import { proofTreeToCalculation, type ProofTree } from "./calculation";
 import { findMathSpans } from "./expression";
 import { GRAMMAR_CACHE_VERSION } from "./grammar";
-import { installHoverByCaret, installHoverByElement } from "./highlight";
+import { installHover } from "./highlight";
 import { canvasSampler } from "./kind";
 import {
   parseGifExpressions,
@@ -168,17 +168,16 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
 
   if (findMathSpans(document).length > 0) {
     // Unicode page: kinds come from span classes, no image sampling needed.
-    // Many tokens are bare text, so hover is caret-based.
     parseUniExpressions(document, pageUrl, fetcher, document, cache)
       .then((results) => {
-        finish(installHoverByCaret)(results);
+        finish(installHover)(results);
         // The calculation clones expressions; give those clones the same
         // parsing, whitespace and hover by running the pass again, scoped to it.
         const calc = showCalculation(results);
         if (calc)
           parseUniExpressions(document, pageUrl, fetcher, calc, cache).then(
             (calcResults) => {
-              installHoverByCaret(calcResults);
+              installHover(calcResults);
               sizeToExpandedWidth(calc); // after spacers are inserted
             },
           );
@@ -186,8 +185,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       .catch(restoreGrid);
   } else {
     // GIF page: colour sampling needs the variable images decoded, so let the
-    // browser signal readiness via img.decode() before parsing. Every token is
-    // an element, so hover is element-based.
+    // browser signal readiness via img.decode() before parsing.
     const decoded = (imgs: HTMLImageElement[]) =>
       Promise.all(imgs.map((img) => img.decode().catch(() => {})));
     const gifImages = (root: ParentNode) =>
@@ -204,7 +202,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         ),
       )
       .then((results) => {
-        finish(installHoverByElement)(results);
+        finish(installHover)(results);
         const calc = showCalculation(results);
         if (calc)
           decoded(gifImages(calc))
@@ -219,7 +217,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
               ),
             )
             .then((calcResults) => {
-              installHoverByElement(calcResults);
+              installHover(calcResults);
               sizeToExpandedWidth(calc); // after spacers are inserted
             });
       })

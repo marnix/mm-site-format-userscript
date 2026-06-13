@@ -236,28 +236,9 @@ export function createHighlighter(): Highlighter | null {
 }
 
 /**
- * GIF pages: every token is an element (img / variable span), so attach
- * mouseenter/mouseleave to each and highlight the smallest containing
- * sub-expression. Browser only; a no-op where the Highlight API is unavailable.
+ * Caret position under the pointer, or null. The standard
+ * `caretPositionFromPoint` with a fallback to the older `caretRangeFromPoint`.
  */
-export function installHoverByElement(expressions: ParsedExpression[]): void {
-  const highlighter = createHighlighter();
-  if (!highlighter) return;
-  for (const expr of expressions) {
-    const proof = expr.proof;
-    if (!proof) continue;
-    expr.locations.forEach((loc, i) => {
-      if (loc.type !== "element") return;
-      loc.node.addEventListener("mouseenter", () => {
-        const span = spanToHighlight(proof, expr.locations.length, i);
-        if (span) highlighter.highlight(expressions, expr, span);
-        else highlighter.clear();
-      });
-      loc.node.addEventListener("mouseleave", () => highlighter.clear());
-    });
-  }
-}
-
 function caretAt(x: number, y: number): { node: Node; offset: number } | null {
   const d = document as unknown as {
     caretPositionFromPoint?: (
@@ -278,11 +259,38 @@ function caretAt(x: number, y: number): { node: Node; offset: number } | null {
 }
 
 /**
- * Unicode pages: many tokens are bare text (operators, parentheses) with no
- * element to listen on, so hit-test the caret position under the pointer on
- * mousemove over each expression's container. Browser only.
+ * Index of the token rendered under the pointer, or null. An element token
+ * (a variable span, or a GIF glyph image) is found by the topmost element under
+ * the pointer; a bare-text token (an operator or bracket, or a GIF token with
+ * no image such as `Disj`) is found by hit-testing the caret, since text nodes
+ * are not event targets. Browser only.
  */
-export function installHoverByCaret(expressions: ParsedExpression[]): void {
+export function tokenAtPoint(
+  locations: TokenLocation[],
+  x: number,
+  y: number,
+): number | null {
+  const el = document.elementFromPoint(x, y);
+  if (el) {
+    for (let i = 0; i < locations.length; i++) {
+      const loc = locations[i];
+      if (loc.type === "element" && (loc.node === el || loc.node.contains(el)))
+        return i;
+    }
+  }
+  const caret = caretAt(x, y);
+  return caret ? findTokenAt(locations, caret.node, caret.offset) : null;
+}
+
+/**
+ * Installs hover highlighting: on mousemove over each expression's container,
+ * highlight the smallest sub-expression containing the token under the pointer
+ * (and its other occurrences). Handles both element tokens (GIF glyph images,
+ * Unicode variable spans) and bare-text tokens (operators, brackets, and GIF
+ * tokens with no image like `Disj`). Browser only; a no-op where the Highlight
+ * API is unavailable.
+ */
+export function installHover(expressions: ParsedExpression[]): void {
   const highlighter = createHighlighter();
   if (!highlighter) return;
   for (const expr of expressions) {
@@ -290,10 +298,7 @@ export function installHoverByCaret(expressions: ParsedExpression[]): void {
     const container = expr.locations[0]?.node.parentElement;
     if (!proof || !container) continue;
     container.addEventListener("mousemove", (event) => {
-      const caret = caretAt(event.clientX, event.clientY);
-      const i = caret
-        ? findTokenAt(expr.locations, caret.node, caret.offset)
-        : null;
+      const i = tokenAtPoint(expr.locations, event.clientX, event.clientY);
       const span =
         i === null ? null : spanToHighlight(proof, expr.locations.length, i);
       if (span) highlighter.highlight(expressions, expr, span);
