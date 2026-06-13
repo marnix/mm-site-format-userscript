@@ -108,6 +108,17 @@ On page load the script assembles the grammar from:
 Each syntax-definition page yields one grammar rule. Fetching is eager; each
 fetch is a plain `fetch()` parsed with `DOMParser`. A failed fetch is skipped.
 
+The _result_ of processing each linked page — its extracted grammar rule and its
+syntax-hint URL list — is cached (`cache.ts`), keyed by URL. The browser already
+caches the fetched bytes; this caches the `DOMParser` + extraction on top. The
+cache has an in-memory layer (so the calculation's second parse pass reuses the
+first pass's work instead of re-assembling the grammar) and an optional
+key-value store (`sessionStorage`) so navigating between pages that share
+dependencies skips the work entirely. Entries are namespaced by
+`GRAMMAR_CACHE_VERSION`, bumped whenever the extracted format changes so stale
+entries from an older build are ignored. Cached values are JSON-serialisable;
+the default cache when none is supplied is in-memory only.
+
 ## Parse tree
 
 An expression is represented as a tree:

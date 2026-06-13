@@ -1,6 +1,8 @@
 import "./config";
+import { createCache, type KeyValueStore } from "./cache";
 import { proofTreeToCalculation, type ProofTree } from "./calculation";
 import { findMathSpans } from "./expression";
+import { GRAMMAR_CACHE_VERSION } from "./grammar";
 import { installHoverByCaret, installHoverByElement } from "./highlight";
 import { canvasSampler } from "./kind";
 import {
@@ -142,6 +144,17 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     return body;
   };
 
+  // Caches the *result* of processing each linked page (grammar rules, syntax-
+  // hint URLs), shared by both parse passes (in memory) and across page loads
+  // (sessionStorage, when available). The browser already caches the fetches.
+  let store: KeyValueStore | null = null;
+  try {
+    store = window.sessionStorage;
+  } catch {
+    store = null; // storage blocked (e.g. privacy settings)
+  }
+  const cache = createCache(store, GRAMMAR_CACHE_VERSION);
+
   const finish =
     (install: (results: ParsedExpression[]) => void) =>
     (results: ParsedExpression[]) => {
@@ -156,14 +169,14 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   if (findMathSpans(document).length > 0) {
     // Unicode page: kinds come from span classes, no image sampling needed.
     // Many tokens are bare text, so hover is caret-based.
-    parseUniExpressions(document, pageUrl, fetcher)
+    parseUniExpressions(document, pageUrl, fetcher, document, cache)
       .then((results) => {
         finish(installHoverByCaret)(results);
         // The calculation clones expressions; give those clones the same
         // parsing, whitespace and hover by running the pass again, scoped to it.
         const calc = showCalculation(results);
         if (calc)
-          parseUniExpressions(document, pageUrl, fetcher, calc).then(
+          parseUniExpressions(document, pageUrl, fetcher, calc, cache).then(
             (calcResults) => {
               installHoverByCaret(calcResults);
               sizeToExpandedWidth(calc); // after spacers are inserted
@@ -181,7 +194,14 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       [...root.querySelectorAll("img")] as HTMLImageElement[];
     decoded(gifImages(document))
       .then(() =>
-        parseGifExpressions(document, pageUrl, fetcher, canvasSampler),
+        parseGifExpressions(
+          document,
+          pageUrl,
+          fetcher,
+          canvasSampler,
+          document,
+          cache,
+        ),
       )
       .then((results) => {
         finish(installHoverByElement)(results);
@@ -195,6 +215,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
                 fetcher,
                 canvasSampler,
                 calc,
+                cache,
               ),
             )
             .then((calcResults) => {

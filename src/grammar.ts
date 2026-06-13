@@ -1,9 +1,14 @@
 // Assembles the grammar (set of inference rules) for a page: a built-in $TOP
 // rule plus one rule per syntax-hint linked page. See DESIGN.md.
 
+import { createCache, type Cache } from "./cache";
 import { extractRefUrls, extractSyntaxHintUrls, type Fetcher } from "./loader";
 import type { InferenceRule } from "./proof";
 import { gifAssertionRule, uniAssertionRule } from "./rule";
+
+/** Bump when the cached extraction format (grammar rules / URL lists) changes,
+ *  so stale entries from an older build are ignored. */
+export const GRAMMAR_CACHE_VERSION = "1";
 
 /** Built-in top rule for GIF pages: "wff chi" ==> "$TOP |- chi". */
 export const GIF_TOP_RULE: InferenceRule = {
@@ -63,6 +68,8 @@ async function assembleGrammar(
   fetcher: Fetcher,
   topRule: InferenceRule,
   extract: RuleExtractor,
+  kind: string, // "uni" / "gif": rules differ by mode, so they key separately
+  cache: Cache,
 ): Promise<InferenceRule[]> {
   const parser = new DOMParser();
   const fetchDoc = async (url: string) =>
@@ -72,44 +79,65 @@ async function assembleGrammar(
   syntaxUrls.add(new URL("cv.html", pageUrl).href);
 
   // Add the syntax hints of each Ref-linked theorem page (resolving their hrefs
-  // against that page's own URL).
-  const refPages = await Promise.all(
-    extractRefUrls(doc, pageUrl).map(async (url) => {
-      try {
-        return { url, doc: await fetchDoc(url) };
-      } catch {
-        return null;
-      }
-    }),
+  // against that page's own URL). Cache the extracted URL list per Ref page.
+  const refHints = await Promise.all(
+    extractRefUrls(doc, pageUrl).map((url) =>
+      cache
+        .get(`hints:${url}`, async () =>
+          extractSyntaxHintUrls(await fetchDoc(url), url),
+        )
+        .catch(() => [] as string[]),
+    ),
   );
-  for (const page of refPages) {
-    if (!page) continue;
-    for (const url of extractSyntaxHintUrls(page.doc, page.url))
-      syntaxUrls.add(url);
-  }
+  for (const urls of refHints) for (const url of urls) syntaxUrls.add(url);
 
+  // One rule per syntax-definition page, cached per kind+URL.
   const rules = await Promise.all(
-    [...syntaxUrls].map(async (url) => {
-      try {
-        return extract(await fetchDoc(url));
-      } catch {
-        return null;
-      }
-    }),
+    [...syntaxUrls].map((url) =>
+      cache
+        .get<InferenceRule | null>(`rule:${kind}:${url}`, async () =>
+          extract(await fetchDoc(url)),
+        )
+        .catch(() => null),
+    ),
   );
   return [topRule, ...rules.filter((r): r is InferenceRule => r !== null)];
 }
+
+// The default is a memo-only cache (no persistent store): it coalesces repeated
+// work within one assembly and is exercised by every caller/test, while a fresh
+// instance per call keeps callers independent. Pass a store-backed cache (see
+// `createCache`) to also reuse results across page loads.
+const memoOnly = () => createCache(null, GRAMMAR_CACHE_VERSION);
 
 export const assembleGifGrammar = (
   doc: Document,
   pageUrl: string,
   fetcher: Fetcher,
+  cache: Cache = memoOnly(),
 ): Promise<InferenceRule[]> =>
-  assembleGrammar(doc, pageUrl, fetcher, GIF_TOP_RULE, gifAssertionRule);
+  assembleGrammar(
+    doc,
+    pageUrl,
+    fetcher,
+    GIF_TOP_RULE,
+    gifAssertionRule,
+    "gif",
+    cache,
+  );
 
 export const assembleUniGrammar = (
   doc: Document,
   pageUrl: string,
   fetcher: Fetcher,
+  cache: Cache = memoOnly(),
 ): Promise<InferenceRule[]> =>
-  assembleGrammar(doc, pageUrl, fetcher, UNI_TOP_RULE, uniAssertionRule);
+  assembleGrammar(
+    doc,
+    pageUrl,
+    fetcher,
+    UNI_TOP_RULE,
+    uniAssertionRule,
+    "uni",
+    cache,
+  );

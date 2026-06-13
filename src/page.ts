@@ -3,10 +3,12 @@
 // expression into a proof (= parse tree). Pure logic, independent of the
 // browser — index.ts supplies the real fetch + canvas sampler.
 
+import { createCache, type Cache } from "./cache";
 import {
   assembleGifGrammar,
   assembleUniGrammar,
   collectConstants,
+  GRAMMAR_CACHE_VERSION,
 } from "./grammar";
 import { findGifRuns, findMathSpans } from "./expression";
 import { parseKindColors, parseKindNames, type ImageSampler } from "./kind";
@@ -87,12 +89,15 @@ export async function parseGifExpressions(
   fetcher: Fetcher,
   sample: ImageSampler,
   root: Node = doc,
+  cache: Cache = createCache(null, GRAMMAR_CACHE_VERSION),
 ): Promise<ParsedExpression[]> {
   const colors = parseKindColors(doc);
-  const cache = new Map<string, string | null>();
+  const kindCache = new Map<string, string | null>();
   const runs = findGifRuns(root);
-  const located = runs.map((run) => locateGifRun(run, colors, sample, cache));
-  const rules = await assembleGifGrammar(doc, pageUrl, fetcher);
+  const located = runs.map((run) =>
+    locateGifRun(run, colors, sample, kindCache),
+  );
+  const rules = await assembleGifGrammar(doc, pageUrl, fetcher, cache);
   const parsed = parseLocated(located, rules);
 
   return parsed.map((expr, i) => {
@@ -102,7 +107,7 @@ export async function parseGifExpressions(
       const k = nodes.indexOf(oldNode);
       if (k >= 0) nodes.splice(k + 1, 0, freshNode);
     });
-    return withLocations(expr, locateGifRun(nodes, colors, sample, cache));
+    return withLocations(expr, locateGifRun(nodes, colors, sample, kindCache));
   });
 }
 
@@ -114,9 +119,10 @@ export async function parseUniExpressions(
   pageUrl: string,
   fetcher: Fetcher,
   root: ParentNode = doc,
+  cache: Cache = createCache(null, GRAMMAR_CACHE_VERSION),
 ): Promise<ParsedExpression[]> {
   const kinds = parseKindNames(doc);
-  const rules = await assembleUniGrammar(doc, pageUrl, fetcher);
+  const rules = await assembleUniGrammar(doc, pageUrl, fetcher, cache);
   // Split dense runs of concatenated constants against the grammar's tokens.
   const constants = collectConstants(rules);
   const spans = findMathSpans(root);

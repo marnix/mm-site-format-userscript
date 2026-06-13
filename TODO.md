@@ -2,12 +2,8 @@
 
 ## 0.8.0 goals
 
-- **Cache linked pages** (see Performance below): the highest-value next step —
-  faster loads, and it removes the calculation's second-pass grammar
-  re-assembly.
-
-Smaller items also queued for this cycle: the Expression-column wrap indent and
-the GIF `Disj` hover bug (see below).
+Queued for this cycle: the Expression-column wrap indent and the GIF `Disj`
+hover bug (see below).
 
 ## Bugs
 
@@ -18,12 +14,18 @@ the GIF `Disj` hover bug (see below).
 
 ## Performance
 
-- **Cache linked pages**: currently linked pages are fetched on every page load.
-  Cache parsed grammar rules in `sessionStorage` (or `localStorage` for
-  longer-lived caching) keyed by URL, to avoid redundant fetches when navigating
-  between pages that share dependencies. (Would also drop the cost of the
-  calculation's second parse pass, which re-assembles the grammar from the
-  now-memoised fetches rather than reusing the first pass's rules.)
+- **Longer-lived cache**: processing results are cached in `sessionStorage` (see
+  `cache.ts`), so they survive navigation within a tab session but not a fresh
+  tab. Consider `localStorage` for cross-session reuse — weigh against staleness
+  when set.mm is regenerated (the `GRAMMAR_CACHE_VERSION` bump only covers our
+  own format changes, not upstream content changes).
+- **Invalidate the cache when a page's contents change** (low priority): nothing
+  currently detects that a linked page changed upstream (e.g. after a set.mm
+  regeneration) — a stale cached rule would simply be reused. Investigate keying
+  entries on something content-derived (an `ETag` / `Last-Modified` from the
+  fetch, or a hash of the relevant extracted markup) so a changed page misses
+  rather than serving stale extraction. Lower urgency for `sessionStorage`
+  (per-tab, short-lived) than it would be for a `localStorage` move.
 
 ## Correctness / completeness
 
