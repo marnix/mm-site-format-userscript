@@ -2,6 +2,13 @@
 // that locates the HTML for every expression on the page, and an `extract*`
 // that turns one such piece of HTML into a space-separated MM token string.
 // Both modes are run on every page; on a given page only one finds anything.
+//
+// HTML interpretation principle (applies to every DOM query in this codebase —
+// here, loader.ts, table.ts, kind.ts, view.ts): prefer *semantic* selectors —
+// CSS classes and meaningful attribute values (`span.math`,
+// `table[summary="Proof of theorem"]`) — over structural/positional ones (tag
+// nesting, :nth-child). Semantic selectors survive cosmetic layout changes and
+// make each query self-documenting.
 
 /** mpeuni mode: every expression is wrapped in a <span class=math>. */
 export function findMathSpans(root: ParentNode): Element[] {

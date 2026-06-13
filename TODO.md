@@ -85,7 +85,7 @@ the table choice onto metamath.org links. Further out:
   along the spine, relate _sub-expressions_ by their syntax operator (`<->` =
   `wb`, `->` = `wi`, …) within a surrounding context, so an inference reads as a
   chain of sub-expression rewrites. Considerably more involved — contexts,
-  per-step operators, transitivity/windowing rules; deferred. See DESIGN.md.
+  per-step operators, transitivity/windowing rules; deferred.
 
 ## Features
 

@@ -1,6 +1,6 @@
 // Hover highlighting via the CSS Custom Highlight API: no DOM mutation (so it
 // can't disturb other userscripts), and Ranges can cover text-node substrings
-// (e.g. one of a run-together "))" pair). See DESIGN.md "Hover highlighting".
+// (e.g. one of a run-together "))" pair).
 
 import { HIGHLIGHT_COLOR, HIGHLIGHT_MATCH_COLOR } from "./config";
 import type { ParsedExpression } from "./page";

@@ -3,8 +3,9 @@
 // options are prepended to the page's existing top-right "… version" line (or a
 // fixed box if that line is absent). The calculation is the default; a
 // `view=table` query parameter selects the table, so a plain URL stays
-// calculational. The choice is remembered in the URL via history.replaceState,
-// without reloading.
+// calculational. Toggling updates the URL via history.pushState (without
+// reloading), so Back/Forward move between views (a popstate handler re-applies
+// the view from the URL).
 
 const PARAM = "view";
 const TABLE = "table";

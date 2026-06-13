@@ -1,4 +1,4 @@
-// Calculational proof rendering (phase 2) — see DESIGN.md. For now this is kept
+// Calculational proof rendering. For now this is kept
 // independent of the parse kernel (InferenceRule/Proof): a proof tree and a
 // calculation are purely structural and carry the page's own HTML (the Ref
 // column and the Expression column), so rendering can copy it into the new place

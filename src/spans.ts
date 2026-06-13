@@ -84,7 +84,7 @@ function spacingOf(proof: Proof, memo: Map<Proof, number>): number {
  * sequence (`units[0]` is 0). A node contributes its spacing to the gaps
  * strictly between its first and last sub-expression — i.e. around its operators
  * — and nothing before the first or after the last, so brackets stay tight and
- * the space around an operator is symmetric. See DESIGN.md.
+ * the space around an operator is symmetric.
  */
 export function gapUnits(proof: Proof): number[] {
   const memo = new Map<Proof, number>();

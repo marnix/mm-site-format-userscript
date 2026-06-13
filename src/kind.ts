@@ -107,6 +107,11 @@ export type ImageSampler = (img: Element) => Uint8ClampedArray;
  * Determines the variable kind of a GIF-page <img> from its ink colour, or
  * null if the colour is not a variable colour (i.e. it is a constant token
  * such as an operator or parenthesis, drawn in black/gray).
+ *
+ * The lookup is exact colour equality — no nearest-colour tolerance. Confirmed
+ * empirically: each variable GIF's dominant ink pixel matches a legend colour
+ * exactly (`_varphi.gif`→(0,0,255), `_x.gif`→(255,0,0), `_ca.gif`→(204,51,204)),
+ * because both the glyphs and the legend are generated from the same palette.
  */
 export function variableKindOfImg(
   img: Element,

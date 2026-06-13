@@ -1,8 +1,7 @@
 // Builds the proof tree from the "Proof of Theorem" table. Each data row's Ref
 // cell becomes a node's refHtml and its Expression cell (with the leading
 // indentation stripped) its expressionHtml; the Hyp column lists the step
-// numbers of that node's subproofs, in order (empty for hypotheses). See
-// DESIGN.md.
+// numbers of that node's subproofs, in order (empty for hypotheses).
 
 import type { ProofTree } from "./calculation";
 

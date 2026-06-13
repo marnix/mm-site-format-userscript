@@ -3,7 +3,16 @@
 // whose parse tree is "most like" the conclusion's; the others justify the local
 // rewrites. Similarity is a top-down structural overlap of the two parse trees
 // (the page's ground proofs), which is faithful to shared structure (unlike an
-// HTML LCS) and linear. See DESIGN.md "Choosing the spine".
+// HTML longest-common-subsequence: it is not fooled by tags, glyph encodings, or
+// the whitespace spacers) and linear.
+//
+// An earlier hand-crafted version scored sub-proofs by a size-aware log-ratio of
+// an HTML LCS. That measure does NOT port to node counts — minimising it picks
+// the wrong sub-proof (it would spine `optocl` to its equality hypothesis rather
+// than optocl.3); plain maximum overlap is both correct here and simpler.
+// Deferred refinement: take the structure from the Ref theorem's *general* rule
+// rather than the ground instances, so "optocl always spines to optocl.3"
+// becomes intrinsic (substitution-independent).
 
 import type { Proof } from "./proof";
 

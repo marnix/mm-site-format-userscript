@@ -1,5 +1,5 @@
 // Assembles the grammar (set of inference rules) for a page: a built-in $TOP
-// rule plus one rule per syntax-hint linked page. See DESIGN.md.
+// rule plus one rule per syntax-hint linked page.
 
 import { createCache, type Cache } from "./cache";
 import { extractRefUrls, extractSyntaxHintUrls, type Fetcher } from "./loader";
@@ -9,6 +9,11 @@ import { gifAssertionRule, uniAssertionRule } from "./rule";
 /** Bump when the cached extraction format (grammar rules / URL lists) changes,
  *  so stale entries from an older build are ignored. */
 export const GRAMMAR_CACHE_VERSION = "1";
+
+// Parsing an assertion (which begins with "|-") means proving it at the
+// synthetic target type `$TOP`: the one built-in rule "wff chi" ==> "$TOP |- chi"
+// turns "prove this statement" into "parse a wff after the turnstile". `$TOP`
+// (like any `$…`) is never a valid MM token, so it cannot clash with a real one.
 
 /** Built-in top rule for GIF pages: "wff chi" ==> "$TOP |- chi". */
 export const GIF_TOP_RULE: InferenceRule = {
@@ -57,7 +62,12 @@ export function collectConstants(rules: InferenceRule[]): Set<string> {
  * Pulling in the Ref pages' syntax hints is a workaround for incomplete syntax
  * hints: every constructor appearing in a proof step is introduced by some cited
  * assertion, whose own syntax hints list it — so the union over the page and its
- * Ref pages covers the whole proof table. `cv` (the setvar→class coercion) is
+ * Ref pages covers the whole proof table. A residual gap remains for displayed
+ * expressions that are *not* proof steps — e.g. a definitional cross-reference
+ * like `( Disj R <-> … )` on disjrel, whose `<->` is hinted by neither the page
+ * nor any Ref page; such an expression just fails to parse and is left alone.
+ * Closing it fully would need transitive syntax loading (see TODO).
+ * `cv` (the setvar→class coercion) is
  * always read because it is needed wherever a setvar appears in a class
  * position, yet is never listed in syntax hints. A failed fetch is skipped
  * rather than fatal.

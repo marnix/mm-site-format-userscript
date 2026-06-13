@@ -1,12 +1,15 @@
 // The proof kernel. A parse tree IS a proof, exactly as the metamath program
-// builds one with `improve all`. See DESIGN.md "Parsing as proof search".
+// builds one with `improve all`.
 
 /** An MM expression: a sequence of tokens. */
 export type Expression = string[];
 
 /**
  * An inference rule: a set of assumptions and one conclusion. The assumptions
- * are unordered — sub-proofs are matched to them by expression equality.
+ * are unordered — sub-proofs are matched to them by expression equality. As a
+ * grammar rule, the conclusion's first token is the rule's *result type* and the
+ * rest is the *pattern* matched against an expression (see parse.ts); a variable
+ * is recognised via the page's kind registry, not by anything stored here.
  */
 export interface InferenceRule {
   assumptions: Expression[];
