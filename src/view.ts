@@ -133,10 +133,8 @@ export function installViewToggle(
     line.prepend(link, "  ");
   } else {
     const box = document.createElement("div");
-    box.className = TOGGLE_CLASS;
-    box.style.cssText =
-      "position:fixed;top:0;right:0;background:#f4f4f4;border:1px solid #ccc;" +
-      "border-top:none;border-right:none;padding:4px 8px;font-size:13px;z-index:9999";
+    // TOGGLE_CLASS so applyViewToLinks skips it; the -view-box class styles it.
+    box.className = `${TOGGLE_CLASS} mm-site-format-view-box`;
     box.append(link);
     document.body.appendChild(box);
   }

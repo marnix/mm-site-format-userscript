@@ -39,8 +39,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     ? ` — built ${__USERSCRIPT_BUILD_TIME__}`
     : "";
   banner.textContent = `MM Site Format ${__USERSCRIPT_VERSION__} active${built}`;
-  banner.style.cssText =
-    "position:fixed;bottom:0;right:0;background:#333;color:#fff;padding:4px 8px;font-size:12px;opacity:0.8;z-index:9999";
+  banner.className = "mm-site-format-banner";
   document.body.appendChild(banner);
 
   // Capture the proof tree now (its Expression-cell clones predate the
