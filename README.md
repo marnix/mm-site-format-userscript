@@ -21,7 +21,9 @@ parsed; anything it cannot parse is left untouched.
 It also adds **parse-tree-guided whitespace**: extra space around the larger
 operators in an expression (more for outer/bigger sub-expressions, tight around
 the innermost ones and around brackets), so the structure is readable even
-without hovering.
+without hovering. And in the proof table, a long Expression that wraps now
+hang-indents its continuation lines under the expression body rather than under
+the step-depth leader.
 
 It also renders the proof as a **calculation** — in the style of Dijkstra's
 [EWD1300](https://www.cs.utexas.edu/~EWD/transcriptions/EWD13xx/EWD1300.html) —

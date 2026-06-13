@@ -3,6 +3,7 @@ import { createCache, type KeyValueStore } from "./cache";
 import { proofTreeToCalculation, type ProofTree } from "./calculation";
 import { findMathSpans } from "./expression";
 import { GRAMMAR_CACHE_VERSION } from "./grammar";
+import { indentProofExpressions } from "./indent";
 import { installHover } from "./highlight";
 import { canvasSampler } from "./kind";
 import {
@@ -49,6 +50,10 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     'table[summary="Proof of theorem"]',
   );
   const proofTree = parseProofTable(document);
+
+  // Hang-indent the proof table's wrapped Expression lines. Do it now, while the
+  // table is still laid out and visible (before the early grid hide below).
+  if (proofTable) indentProofExpressions(proofTable);
 
   // When the calculation will replace the grid, hide the grid body at once —
   // keeping its space so the page below does not jump — and reveal the

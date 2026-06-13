@@ -59,6 +59,8 @@ Interaction and rendering:
 - **`spans.ts`** — parse-tree node spans (what to highlight) and `gapUnits` (the
   whitespace measure).
 - **`space.ts`** — inserts the whitespace spacers.
+- **`indent.ts`** — hang-indents the proof table's wrapped Expression-column
+  lines so continuations align under the expression body, not the leader.
 - **`highlight.ts`** — hover + other-occurrence highlighting via the CSS Custom
   Highlight API; `tokenAtPoint` resolves the token under the pointer.
 - **`table.ts`** → **`calculation.ts`** → **`render.ts`** — read the proof tree
@@ -66,6 +68,8 @@ Interaction and rendering:
   layout.
 - **`spine.ts`** — picks each step's "spine" (main line) by parse-tree overlap.
 - **`view.ts`** — the Calculation/Table switch and link syncing.
+- **`styles.ts`** — the one injected stylesheet of named classes for the
+  page-common styling (the calculation layout, the banner, the view box).
 - **`index.ts`** — the entry point wiring it all together (two parse passes,
   calc-box sizing, the early grid hide).
 - **`config.ts`** — tunable constants (highlight colours).

@@ -69,22 +69,16 @@
 
 ## Features
 
-- **Indent wrapped Expression-column lines**: in the proof table's Expression
-  column, a long expression that wraps should hang-indent its continuation lines
-  — ideally by the width of the leading "leader" (the `. . . n` step-depth
-  marker) plus the first token and the following space — so wrapped lines line
-  up under the expression rather than under the leader.
+- **Break long expressions at natural (operator) points**: when an expression
+  wraps, break around its main operator (and recursively at outer operators)
+  rather than mid-expression. CSS has no break-_priority_ ("break here first,
+  then here") — line breaking is greedy first-fit over the _allowed_ break
+  opportunities. But we can control _where_ breaks are allowed: wrap each
+  parse-tree node's tokens in `white-space:nowrap` so breaks fall only at the
+  operator gaps, and bias which gaps break by the existing per-gap "spacing" =
+  subtree height (`spans.gapUnits`), so outer operators break first. Slots into
+  the spacer system (`space.ts`). Caveats: still greedy (not a global
+  pretty-printer), and a `nowrap` node wider than the column overflows rather
+  than breaking, so leaves need a fallback opportunity or accept overflow.
 - **Nested hover levels**: clicking a highlighted sub-expression cycles to the
   next-larger enclosing expression.
-- **Rule tooltip on hover**: show the name of the matched syntax rule (e.g.
-  `wi`) in a tooltip next to the highlighted region.
-
-## Refactoring
-
-- **Inject a stylesheet instead of inline styles**: styling is currently spread
-  across inline `style.cssText` / `style.*` assignments (`render.ts`,
-  `space.ts`, `view.ts`, `highlight.ts`, the `index.ts` banner). Move the
-  styling that is common across the page into one injected `<style>` with
-  sensible class names, so the generated HTML reads cleanly and style tweaks are
-  localized to a single place in the source. Keep genuinely dynamic values (e.g.
-  a measured width, a per-spacer padding) inline.
