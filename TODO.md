@@ -1,29 +1,5 @@
 # TODO
 
-## 0.9.0 goals
-
-- **Move implementation detail out of DESIGN.md into the code**: DESIGN.md
-  should keep only _navigation_ — a starting point for a human, a map of the
-  source files and the algorithms — not the how-it-works detail. Move that
-  detail into the code, preferably by making the code self-documenting through
-  renames and small refactors, and only as comments where a rename/refactor
-  cannot carry the meaning. Do not lose information that would help a future
-  change: relocate it, don't delete it. Work section by section through
-  DESIGN.md, checking after each that the prose removed is genuinely recoverable
-  from the code it now lives near.
-- **Deemphasize "small" calculation steps** (`stepIsSmall`): visually fade (e.g.
-  lower opacity) spine steps that add little new information, so the eye skips
-  to the steps that matter. In the earlier userscript a step counted as small
-  when it had a single premise and its spine child's expression was barely
-  different from the conclusion — measured by the longest common subsequence of
-  the two expression _texts_:
-  `diffLengthDiff = log2((len(child) − lcs + 1) / (len(conclusion) − lcs + 1))`,
-  small iff one subproof and `diffLengthDiff ≤ 2`. Adapt to this codebase: we
-  already have the parse trees and the spine, so a cleaner similarity measure is
-  parse-tree overlap (cf. `spine.ts`) or a token (not character) LCS between the
-  step and its spine child. Decide the fade styling and the threshold; keep the
-  threshold a named constant.
-
 ## Performance
 
 - **Longer-lived cache**: processing results are cached in `sessionStorage` (see
@@ -41,13 +17,26 @@
 
 ## Correctness / completeness
 
-- **Transitive syntax loading**: currently only the syntax hints of the main
-  page and one level of Ref links are loaded. A fully general parse requires
-  following transitive dependencies (syntax hints of syntax hints, etc.) until a
-  fixed point. Add depth-limited or full transitive loading.
+- **Transitive syntax loading** (workaround for the incomplete-syntax-hints
+  upstream issue below): currently only the syntax hints of the main page and
+  one level of Ref links are loaded. A fully general parse requires following
+  transitive dependencies (syntax hints of syntax hints, etc.) until a fixed
+  point. Add depth-limited or full transitive loading. This would also close the
+  residual gap where a displayed expression that is not a proof step (e.g. a
+  definitional cross-reference) fails to parse.
 
 ## Upstream issues to report
 
+- **Incomplete "Syntax hints"**: a theorem page's "Syntax hints" row can omit a
+  constructor that the page actually displays — both in proof-step expressions
+  and in non-step expressions (e.g. the `<->` of a definitional cross-reference
+  like disjrel's `( Disj R <-> … )`). The hints are meant to list the syntax
+  used, so this looks like a generation bug. Worked around here by also reading
+  the Ref pages' hints, and — when done — by transitive syntax loading (see
+  Correctness above). Check whether it is already reported on
+  <https://groups.google.com/g/metamath> /
+  <https://github.com/metamath/metamath-exe>; a fix likely belongs in the
+  site-generation repos.
 - **ILE / iset.mm rendering inconsistencies**: ilegif pages (e.g.
   `speano5.html`) render the "Colors of variables" legend with the old
   `<FONT COLOR="#hex">` markup instead of the newer
@@ -61,15 +50,6 @@
   <https://github.com/metamath/metamath-website-seed>.
 
 ## Calculational proof rendering
-
-Shipped: the proof tree is read from the proof table (`table.ts`) and rendered
-as a `<==` calculation above it (`calculation.ts`, `render.ts`): Ref/Expression
-HTML copied from the table, the spine chosen by parse-tree overlap (`spine.ts`)
-and ending at a `⇔ TRUE` terminal when symmetric, each leaf's Ref shown in the
-left column, the step hint naming the non-spine premises, and the clones
-re-parsed for whitespace and hover. A Calculation / Table view switch
-(`view.ts`) shows one and hides the other, calculation by default, and carries
-the table choice onto metamath.org links. Further out:
 
 - **Drop the calc-box width fudge** (low priority): the calculation box is sized
   to its measured fully-expanded `max-content` width × 1.1, because the measured
@@ -98,3 +78,13 @@ the table choice onto metamath.org links. Further out:
   next-larger enclosing expression.
 - **Rule tooltip on hover**: show the name of the matched syntax rule (e.g.
   `wi`) in a tooltip next to the highlighted region.
+
+## Refactoring
+
+- **Inject a stylesheet instead of inline styles**: styling is currently spread
+  across inline `style.cssText` / `style.*` assignments (`render.ts`,
+  `space.ts`, `view.ts`, `highlight.ts`, the `index.ts` banner). Move the
+  styling that is common across the page into one injected `<style>` with
+  sensible class names, so the generated HTML reads cleanly and style tweaks are
+  localized to a single place in the source. Keep genuinely dynamic values (e.g.
+  a measured width, a per-spacer padding) inline.

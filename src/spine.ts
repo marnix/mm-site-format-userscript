@@ -41,6 +41,44 @@ function treeSize(proof: Proof): number {
   return n;
 }
 
+/** Length of the longest common subsequence of two token sequences. */
+function lcsLength(a: string[], b: string[]): number {
+  const prev = new Array(b.length + 1).fill(0);
+  for (let i = 1; i <= a.length; i++) {
+    let diag = 0; // prev[j-1] before it is overwritten
+    for (let j = 1; j <= b.length; j++) {
+      const here = prev[j];
+      prev[j] =
+        a[i - 1] === b[j - 1] ? diag + 1 : Math.max(prev[j], prev[j - 1]);
+      diag = here;
+    }
+  }
+  return prev[b.length];
+}
+
+/** A step "adds little" when this size-aware difference of its expression and
+ *  its continuation's is at most this. Tune by eye. */
+const SMALL_STEP_MAX_DIFF = 2;
+
+/**
+ * Whether a step's transition to its continuation (its spine child) adds little
+ * — e.g. a definitional unfolding like `eleq2i`, where the premise `Rels = …`
+ * reappears almost verbatim inside the conclusion `( R e. Rels <-> R e. … )`.
+ * Measured on the *expression token sequences* (not the parse trees: a
+ * substitution step's premise and conclusion have quite different trees, yet
+ * share most of their tokens), by the earlier userscript's size-aware
+ * longest-common-subsequence ratio
+ * `log2((|continuation| − lcs + 1) / (|step| − lcs + 1)) ≤ SMALL_STEP_MAX_DIFF`.
+ * The caller gates on the step being single-premise (see `index.ts`).
+ */
+export function isSmallStep(step: string[], continuation: string[]): boolean {
+  const lcs = lcsLength(step, continuation);
+  const ratio = Math.log2(
+    (continuation.length - lcs + 1) / (step.length - lcs + 1),
+  );
+  return ratio <= SMALL_STEP_MAX_DIFF;
+}
+
 /**
  * The index of the spine sub-proof: the one whose parse tree overlaps the
  * conclusion's the most. Among equal-overlap candidates, prefer a non-trivial

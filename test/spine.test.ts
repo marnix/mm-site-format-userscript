@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { InferenceRule, Proof } from "../src/proof";
-import { chooseSpine, structuralOverlap } from "../src/spine";
+import { chooseSpine, isSmallStep, structuralOverlap } from "../src/spine";
 
 const rule = (conclusion: string[]): InferenceRule => ({
   assumptions: [],
@@ -137,5 +137,28 @@ describe("chooseSpine", () => {
         { parse: p18, trivial: false },
       ]),
     ).toBe(0);
+  });
+});
+
+describe("isSmallStep", () => {
+  const toks = (s: string) => s.split(" ");
+
+  it("is small when the continuation barely differs", () => {
+    // ( ph -> ps ) ⇐ ( ph -> th ): same tokens but one.
+    expect(isSmallStep(toks("( ph -> ps )"), toks("( ph -> th )"))).toBe(true);
+  });
+
+  it("is small for a definitional unfolding (eleq2i): the premise's tokens reappear in the conclusion", () => {
+    // ( R e. Rels <-> R e. P ( V X. V ) ) ⇐ Rels = P ( V X. V )
+    const conclusion = toks("( R e. Rels <-> R e. P ( V X. V ) )");
+    const premise = toks("Rels = P ( V X. V )");
+    expect(isSmallStep(conclusion, premise)).toBe(true);
+  });
+
+  it("is not small when the premise is much larger than the conclusion", () => {
+    // a step that collapses a big expression to a small one adds information.
+    const conclusion = toks("( ph -> ps )");
+    const premise = toks("( ( ph -> ps ) -> ( ch -> ( th -> ta ) ) )");
+    expect(isSmallStep(conclusion, premise)).toBe(false);
   });
 });

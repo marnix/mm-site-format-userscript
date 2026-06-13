@@ -12,7 +12,7 @@ import {
 } from "./page";
 import type { Proof } from "./proof";
 import { renderCalculation, setCalcCollapsed } from "./render";
-import { chooseSpine } from "./spine";
+import { chooseSpine, isSmallStep } from "./spine";
 import { parseProofTable } from "./table";
 import { formatTokens } from "./token";
 import { applyViewToLinks, installViewToggle, tableSelected } from "./view";
@@ -60,28 +60,34 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     for (const grid of grids) grid.style.visibility = "";
   };
 
-  // A spine chooser backed by the page's parsed expressions: each step's spine
-  // is the sub-proof whose parse tree most overlaps the step's (matched to a
-  // ParsedExpression by which original Expression cell contains it).
-  const spineChooser = (results: ParsedExpression[]) => {
-    const cache = new Map<ProofTree, Proof | null>();
-    const parseOf = (node: ProofTree): Proof | null => {
-      const cached = cache.get(node);
-      if (cached !== undefined) return cached;
-      let found: Proof | null = null;
+  // Spine + small-step choosers backed by the page's parsed expressions: the
+  // spine is the sub-proof whose parse tree most overlaps the step's, and a step
+  // is "small" when it has a single premise whose token sequence barely differs
+  // from the step's. Each ProofTree node is matched to a ParsedExpression by
+  // which original Expression cell contains it.
+  const choosers = (results: ParsedExpression[]) => {
+    const cache = new Map<ProofTree, ParsedExpression | null>();
+    const exprOf = (node: ProofTree): ParsedExpression | null => {
+      if (cache.has(node)) return cache.get(node)!;
+      let found: ParsedExpression | null = null;
       const cell = node.expressionCell;
       if (cell)
         for (const r of results) {
           const at = r.locations[0]?.node;
           if (r.proof && at && cell.contains(at)) {
-            found = r.proof;
+            found = r;
             break;
           }
         }
       cache.set(node, found);
       return found;
     };
-    return (node: ProofTree): number | null => {
+    const parseOf = (node: ProofTree): Proof | null =>
+      exprOf(node)?.proof ?? null;
+    const tokensOf = (node: ProofTree): string[] | null =>
+      exprOf(node)?.tokens.map((t) => t.text) ?? null;
+
+    const spineFor = (node: ProofTree): number | null => {
       const conclusion = parseOf(node);
       const subs = node.subproofs.map((s) => ({
         parse: parseOf(s),
@@ -95,6 +101,15 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         subs as { parse: Proof; trivial: boolean }[],
       );
     };
+    // Single-premise only (matching the earlier userscript's stepIsSmall): a
+    // multi-premise step combines information, so it is never "small".
+    const smallFor = (node: ProofTree): boolean => {
+      if (node.subproofs.length !== 1) return false;
+      const step = tokensOf(node);
+      const premise = tokensOf(node.subproofs[0]);
+      return !!step && !!premise && isSmallStep(step, premise);
+    };
+    return { spineFor, smallFor };
   };
 
   // Experiment: size the calculation box to its fully-expanded width (capped at
@@ -121,7 +136,8 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
 
   const showCalculation = (results: ParsedExpression[]): HTMLElement | null => {
     if (!proofTree || !proofTable) return null;
-    const calc = proofTreeToCalculation(proofTree, spineChooser(results));
+    const { spineFor, smallFor } = choosers(results);
+    const calc = proofTreeToCalculation(proofTree, spineFor, smallFor);
     const rendered = renderCalculation(calc);
     // Into the caption, below the "Proof of Theorem" heading — so the heading
     // stays in place whichever view is shown.

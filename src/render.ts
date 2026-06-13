@@ -12,6 +12,7 @@ import type { Calculation, Given, Step } from "./calculation";
 
 const OPERATOR = "⇐"; // the `<==` of the calculation
 const TERMINAL = "⇔"; // the `<==>` ending a spine with no clear main line, at TRUE
+const SMALL_STEP_OPACITY = "0.2"; // deemphasis for a "small" step's hint + result
 
 /** Clones an element's content into a fresh inline element. */
 function clone(source: Element): HTMLElement {
@@ -46,12 +47,15 @@ const EXPR_STYLE = "padding-left:1.6em;text-indent:-1.6em"; // hanging indent
 
 /** A two-column row: the operator on the left, `content` on the right.
  *  `vspace` is the symmetric top/bottom padding; `contentStyle` styles the
- *  right cell. */
+ *  right cell. `faded` deemphasizes the right cell only (a "small" step) —
+ *  never the left column, so the operator and a leaf's Ref label stay sharp and
+ *  you can still see where the conclusion came from. */
 function row(
   operator: string | Node,
   content: Node,
   vspace = "0",
   contentStyle = "",
+  faded = false,
 ): HTMLTableRowElement {
   const tr = document.createElement("tr");
   const op = document.createElement("td");
@@ -60,13 +64,18 @@ function row(
   else op.appendChild(operator);
   const main = document.createElement("td");
   main.style.cssText = `border:none;padding:${vspace} 0;vertical-align:top;${contentStyle}`;
+  if (faded) main.style.opacity = SMALL_STEP_OPACITY;
   main.appendChild(content);
   tr.append(op, main);
   return tr;
 }
 
-function appendStep(step: Step, tbody: HTMLElement): void {
-  tbody.appendChild(row("", clone(step.expressionHtml), "0", EXPR_STYLE));
+// `faded` deemphasizes this step's own expression line — set by the parent when
+// the transition *into* this step was small (its hint + result, faded together).
+function appendStep(step: Step, tbody: HTMLElement, faded = false): void {
+  tbody.appendChild(
+    row("", clone(step.expressionHtml), "0", EXPR_STYLE, faded),
+  );
 
   // Hint: the non-spine given premises (each by its Ref), then
   // "subproof"/"subproofs" if any non-spine premise is itself a derivation
@@ -90,9 +99,11 @@ function appendStep(step: Step, tbody: HTMLElement): void {
   hint.append(" }");
   // With no clear main line (spine === null) the step holds outright: `⇔` down
   // to TRUE, justified by all its sub-proofs; otherwise the spine continues.
+  // A "small" step's hint — and its continuation expression below — are faded.
   const ended = step.spine === null;
+  const small = step.smallSpine ?? false;
   tbody.appendChild(
-    row(ended ? TERMINAL : OPERATOR, hint, HINT_VSPACE, HINT_INDENT),
+    row(ended ? TERMINAL : OPERATOR, hint, HINT_VSPACE, HINT_INDENT, small),
   );
 
   // Non-spine step sub-calculations: indented sub-derivations, in order, each
@@ -113,10 +124,12 @@ function appendStep(step: Step, tbody: HTMLElement): void {
   }
 
   // The spine continues the main line: a step extends it; a given ends it (its
-  // expression is the last line, with its Ref in the left column).
+  // expression is the last line, with its Ref in the left column). A small step
+  // fades that continuation expression too, so hint + result read as one faint
+  // unit.
   const spine = step.subcalculations[step.spine as number];
-  if (spine?.kind === "given") appendGiven(spine, tbody);
-  else if (spine?.kind === "step") appendStep(spine, tbody);
+  if (spine?.kind === "given") appendGiven(spine, tbody, small);
+  else if (spine?.kind === "step") appendStep(spine, tbody, small);
 }
 
 /**
@@ -124,10 +137,12 @@ function appendStep(step: Step, tbody: HTMLElement): void {
  * spine: its expression is the calculation's last line, with its Ref in the
  * left column, parenthesised, in front of it.
  */
-function appendGiven(given: Given, tbody: HTMLElement): void {
+function appendGiven(given: Given, tbody: HTMLElement, faded = false): void {
   const ref = document.createElement("span");
   ref.append("(", clone(given.hypothesisRefHtml), ")");
-  tbody.appendChild(row(ref, clone(given.expressionHtml), "0", EXPR_STYLE));
+  tbody.appendChild(
+    row(ref, clone(given.expressionHtml), "0", EXPR_STYLE, faded),
+  );
 }
 
 // While a calculation is being built, each collapsible sub-calculation registers

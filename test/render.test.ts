@@ -130,4 +130,37 @@ describe("renderCalculation", () => {
     expect(rows[1][1]).toBe("{ using subproofs and bitrd }");
     expect(rows[rows.length - 1]).toEqual(["", "TRUE"]); // …down to TRUE
   });
+
+  it("fades a small step's hint and its continuation expression, not the step's own expression", () => {
+    // A single-premise, near-identity step (smallSpine) over a given.
+    const calc: Calculation = {
+      kind: "step",
+      inferenceRuleRefHtml: el('<a href="r.html">r</a>'),
+      expressionHtml: el("TOP"),
+      subcalculations: [
+        {
+          kind: "given",
+          hypothesisRefHtml: el("h"),
+          expressionHtml: el("RESULT"),
+        },
+      ],
+      spine: 0,
+      smallSpine: true,
+    };
+    const box = renderCalculation(calc);
+    const rows = [...box.querySelector("tbody")!.children] as HTMLElement[];
+    const right = (tr: HTMLElement) => tr.children[1] as HTMLElement; // content
+    const left = (tr: HTMLElement) => tr.children[0] as HTMLElement; // label
+
+    expect(rows[0].textContent).toContain("TOP"); // the step's own expression…
+    expect(right(rows[0]).style.opacity).toBe(""); // …stays at full strength
+    expect(rows[1].textContent).toContain("{ using r }"); // hint…
+    expect(right(rows[1]).style.opacity).not.toBe(""); // …is faded
+    expect(rows[2].textContent).toContain("RESULT"); // continuation expression…
+    expect(right(rows[2]).style.opacity).toBe(right(rows[1]).style.opacity);
+    // …but its left-column Ref label stays sharp, so you can still see where
+    // the conclusion came from.
+    expect(rows[2].textContent).toContain("(h)");
+    expect(left(rows[2]).style.opacity).toBe("");
+  });
 });
