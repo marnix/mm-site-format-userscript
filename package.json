@@ -8,7 +8,7 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
-    "ci": "npm run clean && npm run build && concurrently --success all \"prettier --check .\" \"vitest run\" \"tsc --noEmit\""
+    "ci": "npm run clean && concurrently --success all \"npm run build\" \"prettier --check .\" \"vitest run\" \"tsc --noEmit\""
   },
   "devDependencies": {
     "@types/node": "^25.9.3",
