@@ -59,13 +59,6 @@
   second parse pass inserts them, but check whether their `ex`-based padding is
   actually reflected in the measured `max-content` (or whether the spacing
   effectively lands after the measurement).
-- **Calc box should track window width**: the box width is measured once and
-  fixed (`index.ts` `sizeToExpandedWidth`), so resizing the window does not
-  re-fit it. Explore measuring the fully-expanded (no-wrap) width against an
-  unconstrained / "infinitely wide" canvas once, then letting CSS size the box
-  (e.g. `max-width`/`width:min(…, 100%)`) so it auto-reflows with the window
-  without the userscript re-measuring or re-laying-out on resize. Related to the
-  width-fudge item above.
 - **Fold small steps instead of graying them**: rather than deemphasizing a
   "small" step (current `stepIsSmall` opacity), drop its row entirely and fold
   its Ref into the surviving hint. E.g. `elrels2` would collapse to a single

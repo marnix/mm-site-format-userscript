@@ -118,24 +118,38 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     return { spineFor, smallFor };
   };
 
-  // Experiment: size the calculation box to its fully-expanded width (capped at
-  // the page), then collapse it — so expanding a sub-calculation never reflows
-  // the box. Run this *after* the calc's clones have been spaced (the second
-  // parse pass), or the measured width misses the spacers. All synchronous, so
-  // neither the expanded state nor the temporary display is ever painted.
+  // Fix the calculation box to its fully-expanded width, so expanding a
+  // sub-calculation never reflows the box — but as a responsive `max-width`, so
+  // the box still shrinks (and its lines wrap) when the window is narrower than
+  // that, and grows back on widening, all in CSS with no re-measure on resize.
+  // The natural width is measured with `width:max-content` (which does not wrap,
+  // i.e. an effectively infinite canvas). Run this *after* the calc's clones
+  // have been spaced (the second parse pass), or the measured width misses the
+  // spacers. All synchronous, so neither the expanded state nor the temporary
+  // display is ever painted.
   const sizeToExpandedWidth = (box: HTMLElement) => {
     const display = box.style.display; // none in table view; restore it after
     setCalcCollapsed(box, false); // expand everything
     box.style.display = "inline-block";
+    box.style.maxWidth = "none"; // measure unclamped
     box.style.width = "max-content"; // the no-wrap width of the widest line
     const rect = box.getBoundingClientRect();
-    // Cap at the space from the box's left to the body's right edge, so the box
-    // is as wide as it needs (no wrapping) without forcing a horizontal scrollbar.
-    const cap = document.body.getBoundingClientRect().right - rect.left - 2;
     // The measured max-content is slightly too small (some lines still wrap), so
-    // add 10% — capped at the page. TODO: find the real cause, drop the fudge.
-    const want = rect.width * 1.1;
-    box.style.width = `${Math.round(Math.min(want, Math.max(0, cap)))}px`;
+    // add 10%. TODO: find the real cause, drop the fudge.
+    box.style.width = `${Math.round(rect.width * 1.1)}px`;
+    // Clamp to the page's content width in CSS, so the box shrinks (and wraps)
+    // when the window is narrower than its natural width and grows back on
+    // widening, with no re-measure on resize. The box is centered (it sits in a
+    // `<center>`), so the centering offset is NOT a reduction of available width
+    // — only the body margins + scrollbar are, and those are ~stable, so we bake
+    // them as a constant subtracted from the responsive `100vw`.
+    const margin = Math.max(
+      0,
+      Math.round(
+        window.innerWidth - document.body.getBoundingClientRect().width,
+      ),
+    );
+    box.style.maxWidth = `calc(100vw - ${margin}px)`;
     setCalcCollapsed(box, true); // back to collapsed (the default)
     box.style.display = display;
   };
