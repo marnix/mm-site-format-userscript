@@ -14,6 +14,10 @@ export type Expression = string[];
 export interface InferenceRule {
   assumptions: Expression[];
   conclusion: Expression;
+  /** For a grammar rule, the syntax-definition label it came from (e.g. `wcel`),
+   *  so a parse tree records which constructors it used. Absent on the built-in
+   *  `$TOP` rule and on variable-typing leaves. */
+  label?: string;
 }
 
 /** A substitution: variable token → expression to replace it with. */

@@ -2,9 +2,10 @@ import "./config";
 import { createCache, type KeyValueStore } from "./cache";
 import { proofTreeToCalculation, type ProofTree } from "./calculation";
 import { findMathSpans } from "./expression";
-import { GRAMMAR_CACHE_VERSION } from "./grammar";
+import { GRAMMAR_CACHE_VERSION, missingSyntaxHints } from "./grammar";
 import { indentProofExpressions } from "./indent";
 import { installHover } from "./highlight";
+import { extractSyntaxHintUrls } from "./loader";
 import { canvasSampler } from "./kind";
 import {
   parseGifExpressions,
@@ -190,6 +191,13 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   }
   const cache = createCache(store, GRAMMAR_CACHE_VERSION);
 
+  // The page's own "Syntax hints" labels (e.g. wcel from wcel.html).
+  const declaredHints = new Set(
+    extractSyntaxHintUrls(document, pageUrl).map((u) =>
+      (u.split("/").pop() ?? "").replace(/\.html$/, ""),
+    ),
+  );
+
   const finish =
     (install: (results: ParsedExpression[]) => void) =>
     (results: ParsedExpression[]) => {
@@ -197,6 +205,16 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         if (!proof)
           console.log(`${LOG} could not parse:`, formatTokens(tokens));
       }
+      // Warn if the page displays syntax it did not list in its Syntax hints —
+      // a metamath site-generation bug we work around (see grammar.ts / TODO).
+      const proofs = results
+        .map((r) => r.proof)
+        .filter((p): p is Proof => p !== null);
+      const missing = missingSyntaxHints(proofs, declaredHints);
+      if (missing.length)
+        console.warn(
+          `${LOG} incomplete Syntax hints — shown but not listed: ${missing.join(", ")}`,
+        );
       install(results);
       console.log(`${LOG} finished`);
     };

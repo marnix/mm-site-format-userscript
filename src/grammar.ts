@@ -3,7 +3,7 @@
 
 import { createCache, type Cache } from "./cache";
 import { extractRefUrls, extractSyntaxHintUrls, type Fetcher } from "./loader";
-import type { InferenceRule } from "./proof";
+import type { InferenceRule, Proof } from "./proof";
 import { gifAssertionRule, uniAssertionRule } from "./rule";
 
 /** Bump when the cached extraction format (grammar rules / URL lists) changes,
@@ -101,17 +101,49 @@ async function assembleGrammar(
   );
   for (const urls of refHints) for (const url of urls) syntaxUrls.add(url);
 
-  // One rule per syntax-definition page, cached per kind+URL.
+  // One rule per syntax-definition page, cached per kind+URL. Each rule is
+  // labelled with its page (e.g. `wcel`), so a parse tree records which
+  // constructors it used (see `missingSyntaxHints`).
   const rules = await Promise.all(
     [...syntaxUrls].map((url) =>
       cache
-        .get<InferenceRule | null>(`rule:${kind}:${url}`, async () =>
-          extract(await fetchDoc(url)),
-        )
+        .get<InferenceRule | null>(`rule:${kind}:${url}`, async () => {
+          const rule = extract(await fetchDoc(url));
+          if (rule) rule.label = labelOf(url);
+          return rule;
+        })
         .catch(() => null),
     ),
   );
   return [topRule, ...rules.filter((r): r is InferenceRule => r !== null)];
+}
+
+/** The syntax-definition label of a page URL, e.g. `…/wcel.html` → `wcel`. */
+const labelOf = (url: string): string =>
+  (url.split("/").pop() ?? "").replace(/\.html$/, "");
+
+/** Collects the labels of every grammar rule a proof tree uses. */
+function usedLabels(proof: Proof, into: Set<string>): void {
+  if (proof.rule.label) into.add(proof.rule.label);
+  for (const sub of proof.subproofs) usedLabels(sub, into);
+}
+
+/**
+ * The syntax-definition labels used by `proofs` (the page's parsed expressions)
+ * that are not in `declared` (the page's own "Syntax hints"), sorted — i.e. the
+ * constructors the page displays but failed to list. `cv` is excluded: it is
+ * categorically omitted upstream and always loaded regardless. Pure (no DOM).
+ *
+ * Used to warn about incomplete syntax hints (a metamath site-generation bug;
+ * see TODO) — e.g. `wcel`/`wceq` for setvar membership/equality like `x ∈ y`.
+ */
+export function missingSyntaxHints(
+  proofs: Proof[],
+  declared: Set<string>,
+): string[] {
+  const used = new Set<string>();
+  for (const proof of proofs) usedLabels(proof, used);
+  return [...used].filter((l) => l !== "cv" && !declared.has(l)).sort();
 }
 
 // The default is a memo-only cache (no persistent store): it coalesces repeated
