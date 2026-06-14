@@ -59,6 +59,18 @@
   second parse pass inserts them, but check whether their `ex`-based padding is
   actually reflected in the measured `max-content` (or whether the spacing
   effectively lands after the measurement).
+- **Calc box should track window width**: the box width is measured once and
+  fixed (`index.ts` `sizeToExpandedWidth`), so resizing the window does not
+  re-fit it. Explore measuring the fully-expanded (no-wrap) width against an
+  unconstrained / "infinitely wide" canvas once, then letting CSS size the box
+  (e.g. `max-width`/`width:min(…, 100%)`) so it auto-reflows with the window
+  without the userscript re-measuring or re-laying-out on resize. Related to the
+  width-fudge item above.
+- **Fold small steps instead of graying them**: rather than deemphasizing a
+  "small" step (current `stepIsSmall` opacity), drop its row entirely and fold
+  its Ref into the surviving hint. E.g. `elrels2` would collapse to a single
+  step whose hint gains `; using df-rels 38877`. TBD: whether to also append the
+  small step's own Ref — e.g. ` (and eleq2i 2844)`. Supersedes the gray-out.
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.
 - **Sub-expression calculations**: instead of relating whole `|- …` statements
@@ -82,3 +94,7 @@
   than breaking, so leaves need a fallback opportunity or accept overflow.
 - **Nested hover levels**: clicking a highlighted sub-expression cycles to the
   next-larger enclosing expression.
+- **Make the hover highlight a clean rectangle** (low priority): the highlight's
+  top/bottom edge currently moves up and down across a region, following
+  subscripts/superscripts and differing image heights. See whether it can always
+  be rendered as a single rectangle spanning the line's full height.
