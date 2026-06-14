@@ -17,26 +17,46 @@
 
 ## Correctness / completeness
 
-- **Transitive syntax loading** (workaround for the incomplete-syntax-hints
-  upstream issue below): currently only the syntax hints of the main page and
-  one level of Ref links are loaded. A fully general parse requires following
-  transitive dependencies (syntax hints of syntax hints, etc.) until a fixed
-  point. Add depth-limited or full transitive loading. This would also close the
-  residual gap where a displayed expression that is not a proof step (e.g. a
-  definitional cross-reference) fails to parse.
+- **Transitive syntax loading** (further workaround for the incomplete-syntax-
+  hints upstream issue below): currently only the syntax hints of the main page
+  and one level of Ref links are loaded. A fully general parse requires
+  following transitive dependencies (syntax hints of syntax hints, etc.) until a
+  fixed point. Add depth-limited or full transitive loading. This would close
+  the residual gap where a displayed expression that is not a proof step (e.g. a
+  definitional cross-reference) fails to parse. Note: the systematic primitive
+  omissions (`cv`/`wcel`/`wceq`) are already handled by always-loading them
+  (`database-assumptions.ts`); transitive loading cannot help with a constructor
+  listed on _no_ reachable page (a categorical omission), so it is only for the
+  _sporadic_ remaining cases.
 
 ## Upstream issues to report
 
 - **Incomplete "Syntax hints"**: a theorem page's "Syntax hints" row can omit a
-  constructor that the page actually displays — both in proof-step expressions
-  and in non-step expressions (e.g. the `<->` of a definitional cross-reference
-  like disjrel's `( Disj R <-> … )`). The hints are meant to list the syntax
-  used, so this looks like a generation bug. Worked around here by also reading
-  the Ref pages' hints, and — when done — by transitive syntax loading (see
-  Correctness above). Check whether it is already reported on
-  <https://groups.google.com/g/metamath> /
+  constructor the page actually displays. This looks like a site-generation bug
+  (the hints are meant to list the syntax used). Patterns observed (raw material
+  for a bug report), found via our parser-based check (`missingSyntaxHints`,
+  which `console.warn`s on any affected page):
+  - `cv` (the setvar→class coercion) is omitted on **every** page — categorical.
+  - `wcel` (∈) and `wceq` (=) are omitted exactly when their operands are
+    **setvars** (`x ∈ y`, `x = y`), but listed when they are **classes**
+    (`A ∈ B`, `A = B`). Minimal controlled repro: `elirr` (`⊢ ¬ A ∈ A`, class)
+    lists `wcel`; `elirrv` (`⊢ ¬ 𝑥 ∈ 𝑥`, setvar) does not. Likewise `elequ1`,
+    `cleljust`.
+  - The listed hints seem **proof-derived, not assertion-derived**: `elirrv`
+    lists `wi`, `wb`, `wa`, `wal`, `wex` (connectives from its proof, absent
+    from its assertion) yet drops the `wcel` that its assertion shows.
+  - A separate gap: syntax shown only in a **non-step** expression (e.g. the
+    `<->` of disjrel's definitional cross-reference `( Disj R <-> … )`) is
+    hinted by neither the page nor any Ref page.
+
+  Worked around here by always loading the omitted primitives `cv`/`wcel`/`wceq`
+  (see `database-assumptions.ts`) and by reading the Ref pages' hints; the
+  non-step gap would need transitive loading (see Correctness — though note that
+  cannot recover a constructor listed on _no_ reachable page). Check whether it
+  is already reported on <https://groups.google.com/g/metamath> /
   <https://github.com/metamath/metamath-exe>; a fix likely belongs in the
   site-generation repos.
+
 - **ILE / iset.mm rendering inconsistencies**: ilegif pages (e.g.
   `speano5.html`) render the "Colors of variables" legend with the old
   `<FONT COLOR="#hex">` markup instead of the newer
