@@ -134,9 +134,8 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     box.style.maxWidth = "none"; // measure unclamped
     box.style.width = "max-content"; // the no-wrap width of the widest line
     const rect = box.getBoundingClientRect();
-    // The measured max-content is slightly too small (some lines still wrap), so
-    // add 10%. TODO: find the real cause, drop the fudge.
-    box.style.width = `${Math.round(rect.width * 1.1)}px`;
+    // Round up to the next pixel (max-content is often fractional) — no fudge.
+    box.style.width = `${Math.ceil(rect.width)}px`;
     // Clamp to the page's content width in CSS, so the box shrinks (and wraps)
     // when the window is narrower than its natural width and grows back on
     // widening, with no re-measure on resize. The box is centered (it sits in a

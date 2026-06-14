@@ -51,14 +51,6 @@
 
 ## Calculational proof rendering
 
-- **Drop the calc-box width fudge** (low priority): the calculation box is sized
-  to its measured fully-expanded `max-content` width × 1.1, because the measured
-  width comes out slightly too small and a few lines still wrap. Find the real
-  cause and remove the arbitrary 10%. Lead: the whitespace spacers may not be
-  fully counted at measurement time — the measurement is meant to run after the
-  second parse pass inserts them, but check whether their `ex`-based padding is
-  actually reflected in the measured `max-content` (or whether the spacing
-  effectively lands after the measurement).
 - **Fold small steps instead of graying them**: rather than deemphasizing a
   "small" step (current `stepIsSmall` opacity), drop its row entirely and fold
   its Ref into the surviving hint. E.g. `elrels2` would collapse to a single
