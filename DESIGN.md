@@ -47,8 +47,13 @@ The parsing kernel and grammar:
 - **`kind.ts`** — a variable's kind (wff/setvar/class): from the span class
   (Unicode) or sampled image colour (GIF), via the legend.
 - **`rule.ts`** — one grammar rule from a syntax-definition page.
+- **`database-assumptions.ts`** — the set.mm-database assumptions we bake in
+  (collected just below `config`): the `$TOP`/turnstile top rules and the
+  always-loaded primitive syntax pages (`cv`, `wcel`, `wceq`) the site's hints
+  omit.
 - **`grammar.ts`** — assembles the grammar: the built-in `$TOP` rule + a rule
-  per syntax-hint page + Ref-page hints + `cv`. Holds `GRAMMAR_CACHE_VERSION`.
+  per syntax-hint page + Ref-page hints + the primitives. Holds
+  `GRAMMAR_CACHE_VERSION` and `missingSyntaxHints` (the incomplete-hints check).
 - **`expression.ts`** / **`loader.ts`** — find expressions / linked-page URLs.
 - **`cache.ts`** — caches the _result_ of processing a linked page (rules, hint
   URLs) per URL: in-memory + an optional `sessionStorage` layer.

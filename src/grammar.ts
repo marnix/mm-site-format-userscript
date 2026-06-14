@@ -1,7 +1,12 @@
-// Assembles the grammar (set of inference rules) for a page: a built-in $TOP
-// rule plus one rule per syntax-hint linked page.
+// Assembles the grammar (set of inference rules) for a page: the built-in $TOP
+// rule (see database-assumptions.ts) plus one rule per syntax-hint linked page.
 
 import { createCache, type Cache } from "./cache";
+import {
+  GIF_TOP_RULE,
+  PRIMITIVE_SYNTAX_PAGES,
+  UNI_TOP_RULE,
+} from "./database-assumptions";
 import { extractRefUrls, extractSyntaxHintUrls, type Fetcher } from "./loader";
 import type { InferenceRule, Proof } from "./proof";
 import { gifAssertionRule, uniAssertionRule } from "./rule";
@@ -9,23 +14,6 @@ import { gifAssertionRule, uniAssertionRule } from "./rule";
 /** Bump when the cached extraction format (grammar rules / URL lists) changes,
  *  so stale entries from an older build are ignored. */
 export const GRAMMAR_CACHE_VERSION = "1";
-
-// Parsing an assertion (which begins with "|-") means proving it at the
-// synthetic target type `$TOP`: the one built-in rule "wff chi" ==> "$TOP |- chi"
-// turns "prove this statement" into "parse a wff after the turnstile". `$TOP`
-// (like any `$…`) is never a valid MM token, so it cannot clash with a real one.
-
-/** Built-in top rule for GIF pages: "wff chi" ==> "$TOP |- chi". */
-export const GIF_TOP_RULE: InferenceRule = {
-  assumptions: [["wff", "chi"]],
-  conclusion: ["$TOP", "|-", "chi"],
-};
-
-/** Built-in top rule for Unicode pages: "wff chi" ==> "$TOP ⊢ chi". */
-export const UNI_TOP_RULE: InferenceRule = {
-  assumptions: [["wff", "chi"]],
-  conclusion: ["$TOP", "⊢", "chi"],
-};
 
 type RuleExtractor = (doc: Document) => InferenceRule | null;
 
@@ -57,7 +45,8 @@ export function collectConstants(rules: InferenceRule[]): Set<string> {
 /**
  * Assembles a grammar: `topRule` followed by one rule per syntax-definition
  * page. The syntax-definition pages come from the current page's syntax hints,
- * from each Ref-linked theorem page's syntax hints, and from `cv.html`.
+ * from each Ref-linked theorem page's syntax hints, and from the always-loaded
+ * primitives (`PRIMITIVE_SYNTAX_PAGES`: `cv`, `wcel`, `wceq`).
  *
  * Pulling in the Ref pages' syntax hints is a workaround for incomplete syntax
  * hints: every constructor appearing in a proof step is introduced by some cited
@@ -66,11 +55,9 @@ export function collectConstants(rules: InferenceRule[]): Set<string> {
  * expressions that are *not* proof steps — e.g. a definitional cross-reference
  * like `( Disj R <-> … )` on disjrel, whose `<->` is hinted by neither the page
  * nor any Ref page; such an expression just fails to parse and is left alone.
- * Closing it fully would need transitive syntax loading (see TODO).
- * `cv` (the setvar→class coercion) is
- * always read because it is needed wherever a setvar appears in a class
- * position, yet is never listed in syntax hints. A failed fetch is skipped
- * rather than fatal.
+ * Closing it fully would need transitive syntax loading (see TODO). The
+ * primitives are read unconditionally because the site systematically omits them
+ * (see database-assumptions.ts). A failed fetch is skipped rather than fatal.
  */
 async function assembleGrammar(
   doc: Document,
@@ -86,7 +73,8 @@ async function assembleGrammar(
     parser.parseFromString(await fetcher(url), "text/html");
 
   const syntaxUrls = new Set(extractSyntaxHintUrls(doc, pageUrl));
-  syntaxUrls.add(new URL("cv.html", pageUrl).href);
+  for (const page of PRIMITIVE_SYNTAX_PAGES)
+    syntaxUrls.add(new URL(`${page}.html`, pageUrl).href);
 
   // Add the syntax hints of each Ref-linked theorem page (resolving their hrefs
   // against that page's own URL). Cache the extracted URL list per Ref page.
@@ -131,11 +119,13 @@ function usedLabels(proof: Proof, into: Set<string>): void {
 /**
  * The syntax-definition labels used by `proofs` (the page's parsed expressions)
  * that are not in `declared` (the page's own "Syntax hints"), sorted — i.e. the
- * constructors the page displays but failed to list. `cv` is excluded: it is
- * categorically omitted upstream and always loaded regardless. Pure (no DOM).
+ * constructors the page displays but failed to list. Pure (no DOM).
  *
  * Used to warn about incomplete syntax hints (a metamath site-generation bug;
- * see TODO) — e.g. `wcel`/`wceq` for setvar membership/equality like `x ∈ y`.
+ * see TODO). `cv` is excluded because it is omitted on *every* page, so it would
+ * be pure noise; `wcel`/`wceq` (omitted only for setvar operands, e.g. `x ∈ y`
+ * on elirrv) are deliberately still reported — they are the meaningful signal,
+ * even though we now also always-load them (that is the fix, this is detection).
  */
 export function missingSyntaxHints(
   proofs: Proof[],

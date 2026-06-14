@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest";
 import { createCache } from "../src/cache";
-import { assembleGifGrammar, GIF_TOP_RULE } from "../src/grammar";
+import { assembleGifGrammar } from "../src/grammar";
+import { GIF_TOP_RULE } from "../src/database-assumptions";
 import { parseExpression, type KindOf } from "../src/parse";
 import { evaluate } from "../src/proof";
 import { readFixture } from "./helpers";
@@ -27,7 +28,14 @@ describe("assembleGifGrammar", () => {
     expect(conclusions).toContain("wff ( ph -> ps )"); // wi
     expect(conclusions).toContain("wff ( ph <-> ps )"); // wb
     expect(conclusions).toContain("class x"); // cv, always read
-    expect(rules).toHaveLength(4); // $TOP + wi + wb + cv
+    // $TOP + the page's hints (wi, wb) + cv. wcel/wceq are also always
+    // requested but have no fixture here, so they are skipped.
+    expect(
+      rules
+        .map((r) => r.label)
+        .filter(Boolean)
+        .sort(),
+    ).toEqual(["cv", "wb", "wi"]);
   });
 
   it("also loads syntax-hint pages reached via the Ref column", async () => {
@@ -61,6 +69,26 @@ describe("assembleGifGrammar", () => {
     expect(seen).toContain("deepop.html"); // reachable only via thm's syntax hints
   });
 
+  it("always loads the primitive syntax pages (cv, wcel, wceq), even unhinted", async () => {
+    const main = new DOMParser().parseFromString(
+      `<table summary="Proof of theorem">
+         <tr><th>Step</th><th>Hyp</th><th>Ref</th><th>Expression</th></tr>
+       </table>`, // no syntax hints, no Ref links
+      "text/html",
+    );
+    const seen: string[] = [];
+    const fetcher = async (url: string) => {
+      seen.push(url.split("/").pop()!);
+      return "<html></html>";
+    };
+
+    await assembleGifGrammar(main, PAGE_URL, fetcher);
+
+    expect(seen).toContain("cv.html");
+    expect(seen).toContain("wcel.html");
+    expect(seen).toContain("wceq.html");
+  });
+
   it("a second assembly sharing a cache (store) skips every fetch", async () => {
     const map = new Map<string, string>();
     const store = {
@@ -69,9 +97,16 @@ describe("assembleGifGrammar", () => {
         map.set(k, v);
       },
     };
-    const counting = vi.fn(async (url: string) =>
-      readFixture("mpegif", url.split("/").pop()!),
-    );
+    const counting = vi.fn(async (url: string) => {
+      const name = url.split("/").pop()!;
+      // wcel/wceq are always requested but have no fixture here; stub them so
+      // the fetch succeeds and caches (in reality those pages exist).
+      try {
+        return readFixture("mpegif", name);
+      } catch {
+        return "<html></html>";
+      }
+    });
 
     const first = await assembleGifGrammar(
       doc,

@@ -13,6 +13,7 @@ import {
 import { findGifRuns, findMathSpans } from "./expression";
 import { parseKindColors, parseKindNames, type ImageSampler } from "./kind";
 import type { Fetcher } from "./loader";
+import { TOP_TYPE } from "./database-assumptions";
 import { parseExpression, type KindOf } from "./parse";
 import type { InferenceRule, Proof } from "./proof";
 import { insertSpacers } from "./space";
@@ -61,7 +62,7 @@ function parseLocated(
     const expr = tokens.map((t) => t.text);
     const proof =
       expr[0] === turnstile
-        ? parseExpression(expr, "$TOP", rules, kindOf)
+        ? parseExpression(expr, TOP_TYPE, rules, kindOf)
         : parseExpression(expr.slice(1), expr[0] ?? "", rules, kindOf);
     return { tokens, locations, proof };
   });

@@ -1,4 +1,5 @@
 import "./config";
+import "./database-assumptions"; // hoist the MM database assumptions below config
 import { createCache, type KeyValueStore } from "./cache";
 import { proofTreeToCalculation, type ProofTree } from "./calculation";
 import { findMathSpans } from "./expression";
