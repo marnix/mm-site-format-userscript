@@ -283,17 +283,19 @@ export function tokenAtPoint(
 }
 
 /**
- * Installs hover highlighting: on mousemove over each expression's container,
- * highlight the smallest sub-expression containing the token under the pointer
- * (and its other occurrences). Handles both element tokens (GIF glyph images,
- * Unicode variable spans) and bare-text tokens (operators, brackets, and GIF
- * tokens with no image like `Disj`). Browser only; a no-op where the Highlight
- * API is unavailable.
+ * Installs hover highlighting on `localExpressions`: on mousemove over each
+ * container, highlight the smallest sub-expression containing the hovered token
+ * and its other occurrences across `allExpressions`. Pass a shared `Highlighter`
+ * so both the proof table and the calculation view use the same painter and
+ * cross-view matches are found. Browser only; a no-op when highlighter is null.
  */
-export function installHover(expressions: ParsedExpression[]): void {
-  const highlighter = createHighlighter();
+export function installHover(
+  localExpressions: ParsedExpression[],
+  allExpressions: ParsedExpression[],
+  highlighter: Highlighter | null,
+): void {
   if (!highlighter) return;
-  for (const expr of expressions) {
+  for (const expr of localExpressions) {
     const proof = expr.proof;
     const container = expr.locations[0]?.node.parentElement;
     if (!proof || !container) continue;
@@ -301,7 +303,7 @@ export function installHover(expressions: ParsedExpression[]): void {
       const i = tokenAtPoint(expr.locations, event.clientX, event.clientY);
       const span =
         i === null ? null : spanToHighlight(proof, expr.locations.length, i);
-      if (span) highlighter.highlight(expressions, expr, span);
+      if (span) highlighter.highlight(allExpressions, expr, span);
       else highlighter.clear();
     });
     container.addEventListener("mouseleave", () => highlighter.clear());

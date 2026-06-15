@@ -5,7 +5,7 @@ import { proofTreeToCalculation, type ProofTree } from "./calculation";
 import { findMathSpans } from "./expression";
 import { GRAMMAR_CACHE_VERSION, missingSyntaxHints } from "./grammar";
 import { indentProofExpressions } from "./indent";
-import { installHover } from "./highlight";
+import { createHighlighter, installHover } from "./highlight";
 import { extractSyntaxHintUrls } from "./loader";
 import { canvasSampler } from "./kind";
 import {
@@ -220,18 +220,25 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       console.log(`${LOG} finished`);
     };
 
+  // A single Highlighter and a single growing expression list shared by both the
+  // proof table and the calculation view — so hovering in either view finds
+  // matching occurrences in the other.
   if (findMathSpans(document).length > 0) {
     // Unicode page: kinds come from span classes, no image sampling needed.
+    const allExprs: ParsedExpression[] = [];
+    const highlighter = createHighlighter();
     parseUniExpressions(document, pageUrl, fetcher, document, cache)
       .then((results) => {
-        finish(installHover)(results);
+        allExprs.push(...results);
+        finish((r) => installHover(r, allExprs, highlighter))(results);
         // The calculation clones expressions; give those clones the same
         // parsing, whitespace and hover by running the pass again, scoped to it.
         const calc = showCalculation(results);
         if (calc)
           parseUniExpressions(document, pageUrl, fetcher, calc, cache).then(
             (calcResults) => {
-              installHover(calcResults);
+              allExprs.push(...calcResults);
+              installHover(calcResults, allExprs, highlighter);
               sizeToExpandedWidth(calc); // after spacers are inserted
             },
           );
@@ -240,6 +247,8 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   } else {
     // GIF page: colour sampling needs the variable images decoded, so let the
     // browser signal readiness via img.decode() before parsing.
+    const allExprs: ParsedExpression[] = [];
+    const highlighter = createHighlighter();
     const decoded = (imgs: HTMLImageElement[]) =>
       Promise.all(imgs.map((img) => img.decode().catch(() => {})));
     const gifImages = (root: ParentNode) =>
@@ -256,7 +265,8 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         ),
       )
       .then((results) => {
-        finish(installHover)(results);
+        allExprs.push(...results);
+        finish((r) => installHover(r, allExprs, highlighter))(results);
         const calc = showCalculation(results);
         if (calc)
           decoded(gifImages(calc))
@@ -271,7 +281,8 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
               ),
             )
             .then((calcResults) => {
-              installHover(calcResults);
+              allExprs.push(...calcResults);
+              installHover(calcResults, allExprs, highlighter);
               sizeToExpandedWidth(calc); // after spacers are inserted
             });
       })

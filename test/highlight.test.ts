@@ -3,10 +3,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createPainter,
   findTokenAt,
+  installHover,
   spanToHighlight,
   tokenAtPoint,
+  type Highlighter,
 } from "../src/highlight";
-import { parseUniExpressions } from "../src/page";
+import { parseUniExpressions, type ParsedExpression } from "../src/page";
+import type { Proof } from "../src/proof";
 import type { TokenLocation } from "../src/token";
 import { readFixture } from "./helpers";
 
@@ -94,6 +97,57 @@ describe("tokenAtPoint (GIF: image tokens + bare-text tokens like Disj)", () => 
       document as unknown as { caretPositionFromPoint: unknown }
     ).caretPositionFromPoint = () => ({ offsetNode: text, offset: 2 });
     expect(tokenAtPoint(locations, 10, 10)).toBe(1);
+  });
+});
+
+describe("installHover cross-view matching", () => {
+  // installHover must pass allExpressions (not just localExpressions) to the
+  // highlighter, so hovering in the calc view finds matches in the table and
+  // vice versa.
+  it("calls highlighter.highlight with allExpressions, not just localExpressions", () => {
+    const span = document.createElement("span");
+    span.textContent = "x";
+    document.body.appendChild(span);
+
+    // A minimal proof for a single-token expression (subst empty → "x" is a
+    // literal, so nodeSpans returns [[0,1]]).
+    const proof: Proof = {
+      rule: { assumptions: [], conclusion: ["wff", "x"] },
+      subst: new Map(),
+      subproofs: [],
+    };
+    const loc: TokenLocation = { type: "element", node: span };
+    const localExpr: ParsedExpression = {
+      tokens: [{ text: "x", kind: null }],
+      locations: [loc],
+      proof,
+    };
+    const remoteExpr: ParsedExpression = {
+      tokens: [{ text: "y", kind: null }],
+      locations: [],
+      proof: null,
+    };
+    const allExprs = [localExpr, remoteExpr];
+
+    let capturedAll: ParsedExpression[] | null = null;
+    const mockHighlighter: Highlighter = {
+      highlight(all) {
+        capturedAll = all;
+      },
+      clear() {},
+    };
+
+    (document as unknown as { elementFromPoint: unknown }).elementFromPoint =
+      () => span;
+
+    installHover([localExpr], allExprs, mockHighlighter);
+
+    // The container is span.parentElement = document.body; dispatch there.
+    document.body.dispatchEvent(
+      new MouseEvent("mousemove", { bubbles: true, clientX: 0, clientY: 0 }),
+    );
+
+    expect(capturedAll).toBe(allExprs);
   });
 });
 
