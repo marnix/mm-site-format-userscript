@@ -4,6 +4,7 @@ import {
   attachRuleTooltipsToPage,
   buildRuleContent,
 } from "../src/rule-tooltip";
+import { readFixture } from "./helpers";
 
 function makeDoc(assertionMath: string, hypothesisMath: string[]): Document {
   const doc = document.implementation.createHTMLDocument();
@@ -84,6 +85,16 @@ describe("buildRuleContent", () => {
       doc.querySelector('table[summary="Assertion"] span.math'),
     ).not.toBeNull();
   });
+
+  it("returns non-null and includes img elements for a GIF-format page", () => {
+    const doc = new DOMParser().parseFromString(
+      readFixture("mpegif", "bitrd.html"),
+      "text/html",
+    );
+    const node = buildRuleContent(doc) as HTMLElement;
+    expect(node).not.toBeNull();
+    expect(node.querySelectorAll("img").length).toBeGreaterThan(0);
+  });
 });
 
 describe("attachRuleTooltipsToPage", () => {
@@ -137,6 +148,28 @@ describe("attachRuleTooltipsToPage", () => {
     expect(tooltip?.textContent).toContain("RULE_CONTENT");
     expect(tooltip?.textContent).toContain("Foo theorem");
     tooltip?.remove();
+    div.remove();
+  });
+
+  it("attaches to links where a newline precedes the &nbsp; (Referenced-by pattern)", () => {
+    // In metamath.org's 'This theorem is referenced by:' section, the HTML is:
+    //   <a href="bitr2d.html">bitr2d</a>\n&nbsp;<span class="r">282</span>
+    // The \n means the text node between <a> and <span class="r"> is "\n ",
+    // not just " ", so a strict === " " check misses these links.
+    const div = document.createElement("div");
+    div.innerHTML =
+      '<a href="foo.html">foo</a>\n&nbsp;<span class="r">3</span>';
+    document.body.appendChild(div);
+
+    let called = false;
+    attachRuleTooltipsToPage(div, () => {
+      called = true;
+      return Promise.resolve(null);
+    });
+
+    const a = div.querySelector("a") as HTMLAnchorElement;
+    a.dispatchEvent(new MouseEvent("mouseenter"));
+    expect(called).toBe(true);
     div.remove();
   });
 
