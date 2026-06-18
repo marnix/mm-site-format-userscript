@@ -34,6 +34,8 @@ const CSS = `
 .mm-site-format-fold { cursor:pointer; user-select:none; opacity:0.6 }
 .mm-site-format-banner { position:fixed; bottom:0; right:0; background:#333; color:#fff; padding:4px 8px; font-size:12px; opacity:0.8; z-index:9999 }
 .mm-site-format-view-box { position:fixed; top:0; right:0; background:#f4f4f4; border:1px solid #ccc; border-top:none; border-right:none; padding:4px 8px; font-size:13px; z-index:9999 }
+.mm-site-format-ref-tooltip { position:fixed; z-index:10000; background:InfoBackground; color:InfoText; border:1px solid InfoText; padding:4px 6px; font:small/1.4 sans-serif; pointer-events:none; max-width:80vw }
+.mm-site-format-ref-tooltip-desc { margin-top:4px; padding-top:4px; border-top:1px solid InfoText; white-space:pre-wrap }
 `;
 
 const STYLE_ID = "mm-site-format-styles";

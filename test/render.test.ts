@@ -131,6 +131,108 @@ describe("renderCalculation", () => {
     expect(rows[rows.length - 1]).toEqual(["", "TRUE"]); // …down to TRUE
   });
 
+  it("shows a tooltip with the leaf hypothesis expression when hovering over a leaf ref", () => {
+    const box = renderCalculation(sample());
+    // Last row: (bitrdi.1) | HYP1
+    const rows = [...box.querySelector("tbody")!.children] as HTMLElement[];
+    const lastRow = rows[rows.length - 1];
+    // The left cell contains the ref span as its only child element.
+    const refSpan = lastRow.children[0].firstElementChild as HTMLElement;
+    refSpan.dispatchEvent(new MouseEvent("mouseenter"));
+    const tooltip = document.querySelector(
+      ".mm-site-format-ref-tooltip",
+    ) as HTMLElement | null;
+    expect(tooltip).not.toBeNull();
+    expect(tooltip!.style.display).not.toBe("none");
+    expect(tooltip!.textContent).toContain("HYP1");
+    tooltip!.remove(); // cleanup singleton
+  });
+
+  it("shows a tooltip with the non-spine given expression when hovering over its hint ref", () => {
+    // A step with two given premises — spine is the first, the second is non-spine
+    // and appears in the { using … } hint text.
+    const calc: Calculation = {
+      kind: "step",
+      inferenceRuleRefHtml: el('<a href="ax-mp.html">ax-mp</a>'),
+      expressionHtml: el("CONCL"),
+      subcalculations: [
+        {
+          kind: "given",
+          hypothesisRefHtml: el("min"),
+          expressionHtml: el("MINOR"),
+        },
+        {
+          kind: "given",
+          hypothesisRefHtml: el("maj"),
+          expressionHtml: el("MAJOR"),
+        },
+      ],
+      spine: 0, // min is spine; maj appears in the hint
+    };
+    const box = renderCalculation(calc);
+    // Row 1: the hint `{ using maj and ax-mp }`.  Find the maj span inside it.
+    const hintRow = [...box.querySelector("tbody")!.children][1] as HTMLElement;
+    const hintCell = hintRow.children[1] as HTMLElement;
+    // First child element in the hint cell's content span is the maj ref.
+    const majRef = hintCell.querySelector("span > span") as HTMLElement;
+    majRef.dispatchEvent(new MouseEvent("mouseenter"));
+    const tooltip = document.querySelector(
+      ".mm-site-format-ref-tooltip",
+    ) as HTMLElement | null;
+    expect(tooltip).not.toBeNull();
+    expect(tooltip!.style.display).not.toBe("none");
+    expect(tooltip!.textContent).toContain("MAJOR");
+    tooltip!.remove(); // cleanup singleton
+  });
+
+  it("shows the ref title text in the tooltip and strips the title attr so the native tooltip does not also fire", () => {
+    const calc: Calculation = {
+      kind: "given",
+      hypothesisRefHtml: el('<a href="ax-1.html" title="Axiom Simp">ax-1</a>'),
+      expressionHtml: el("AX1EXPR"),
+    };
+    const box = renderCalculation(calc);
+    // title attr must be stripped at render time (before any hover)
+    const link = box.querySelector("a") as HTMLAnchorElement;
+    expect(link.hasAttribute("title")).toBe(false);
+    // Hovering shows the expression AND the original title text
+    const rows = [...box.querySelector("tbody")!.children] as HTMLElement[];
+    const refSpan = rows[0].children[0].firstElementChild as HTMLElement;
+    refSpan.dispatchEvent(new MouseEvent("mouseenter"));
+    const tooltip = document.querySelector(
+      ".mm-site-format-ref-tooltip",
+    ) as HTMLElement | null;
+    expect(tooltip).not.toBeNull();
+    expect(tooltip!.textContent).toContain("AX1EXPR");
+    expect(tooltip!.textContent).toContain("Axiom Simp");
+    tooltip!.remove();
+  });
+
+  it("shows async rule page content when fetchRuleTooltip is provided", async () => {
+    const ruleContent = document.createElement("span");
+    ruleContent.textContent = "RULE_CONTENT";
+
+    const box = renderCalculation(sample(), {
+      fetchRuleTooltip: () => Promise.resolve(ruleContent as Node | null),
+    });
+
+    // The hint row's right cell contains the bitrd rule ref
+    const rows = [...box.querySelector("tbody")!.children] as HTMLElement[];
+    const hintCell = rows[1].children[1] as HTMLElement;
+    const ruleRef = hintCell.querySelector("a[href='bitrd.html']")!
+      .parentElement as HTMLElement;
+
+    ruleRef.dispatchEvent(new MouseEvent("mouseenter"));
+    await Promise.resolve(); // drain the microtask queue
+
+    const tooltip = document.querySelector(
+      ".mm-site-format-ref-tooltip",
+    ) as HTMLElement;
+    expect(tooltip).not.toBeNull();
+    expect(tooltip.textContent).toContain("RULE_CONTENT");
+    tooltip.remove();
+  });
+
   it("fades a small step's hint and its continuation expression, not the step's own expression", () => {
     // A single-premise, near-identity step (smallSpine) over a given.
     const calc: Calculation = {

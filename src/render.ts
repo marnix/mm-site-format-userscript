@@ -9,6 +9,11 @@
 // is cloned, so the table is left intact.
 
 import type { Calculation, Given, Step } from "./calculation";
+import { attachTooltip } from "./tooltip";
+
+export interface RenderOptions {
+  fetchRuleTooltip?: (href: string) => Promise<Node | null>;
+}
 
 const OPERATOR = "⇐"; // the `<==` of the calculation
 const TERMINAL = "⇔"; // the `<==>` ending a spine with no clear main line, at TRUE
@@ -72,8 +77,14 @@ function row(
 
 // `faded` deemphasizes this step's own expression line — set by the parent when
 // the transition *into* this step was small (its hint + result, faded together).
-function appendStep(step: Step, tbody: HTMLElement, faded = false): void {
-  tbody.appendChild(row("", clone(step.expressionHtml), "expr", faded));
+function appendStep(
+  step: Step,
+  tbody: HTMLElement,
+  faded = false,
+  options?: RenderOptions,
+): void {
+  const expr = clone(step.expressionHtml);
+  tbody.appendChild(row("", expr, "expr", faded));
 
   // Hint: the non-spine given premises (each by its Ref), then
   // "subproof"/"subproofs" if any non-spine premise is itself a derivation
@@ -83,14 +94,30 @@ function appendStep(step: Step, tbody: HTMLElement, faded = false): void {
   let nested = 0;
   step.subcalculations.forEach((sub, i) => {
     if (i === step.spine) return;
-    if (sub.kind === "given") items.push(clone(sub.hypothesisRefHtml));
-    else nested++;
+    if (sub.kind === "given") {
+      const refEl = clone(sub.hypothesisRefHtml);
+      // sub.expressionHtml is not in the calc DOM, so no spacers — acceptable.
+      attachTooltip(refEl, () => clone(sub.expressionHtml));
+      items.push(refEl);
+    } else nested++;
   });
   if (nested > 0)
     items.push(
       document.createTextNode(nested === 1 ? "subproof" : "subproofs"),
     );
-  items.push(clone(step.inferenceRuleRefHtml));
+  // The inference rule ref: tooltip shows the rule's conclusion + hypotheses
+  // fetched from the linked page, or falls back to this step's expression.
+  const ruleRef = clone(step.inferenceRuleRefHtml);
+  const ruleHref =
+    step.inferenceRuleRefHtml.querySelector("a")?.getAttribute("href") ?? null;
+  const fetchRule = options?.fetchRuleTooltip;
+  attachTooltip(
+    ruleRef,
+    ruleHref && fetchRule
+      ? () => fetchRule(ruleHref)
+      : () => expr.cloneNode(true) as Node,
+  );
+  items.push(ruleRef);
   const hint = document.createElement("span");
   hint.append("{ using ");
   appendSeries(hint, items);
@@ -106,7 +133,7 @@ function appendStep(step: Step, tbody: HTMLElement, faded = false): void {
   // set apart with extra vertical space and collapsed by default.
   step.subcalculations.forEach((sub, i) => {
     if (sub.kind === "step" && i !== step.spine) {
-      const table = renderCalcTable(sub);
+      const table = renderCalcTable(sub, options);
       makeCollapsible(table);
       tbody.appendChild(row("", table, "subcalc"));
     }
@@ -123,7 +150,7 @@ function appendStep(step: Step, tbody: HTMLElement, faded = false): void {
   // unit.
   const spine = step.subcalculations[step.spine as number];
   if (spine?.kind === "given") appendGiven(spine, tbody, small);
-  else if (spine?.kind === "step") appendStep(spine, tbody, small);
+  else if (spine?.kind === "step") appendStep(spine, tbody, small, options);
 }
 
 /**
@@ -134,7 +161,10 @@ function appendStep(step: Step, tbody: HTMLElement, faded = false): void {
 function appendGiven(given: Given, tbody: HTMLElement, faded = false): void {
   const ref = document.createElement("span");
   ref.append("(", clone(given.hypothesisRefHtml), ")");
-  tbody.appendChild(row(ref, clone(given.expressionHtml), "expr", faded));
+  const expr = clone(given.expressionHtml);
+  // expr is in the calc DOM and will have spacers by hover time.
+  attachTooltip(ref, () => expr.cloneNode(true) as Node);
+  tbody.appendChild(row(ref, expr, "expr", faded));
 }
 
 // While a calculation is being built, each collapsible sub-calculation registers
@@ -193,24 +223,30 @@ function makeCollapsible(table: HTMLTableElement): void {
   });
 }
 
-function renderCalcTable(calc: Calculation): HTMLTableElement {
+function renderCalcTable(
+  calc: Calculation,
+  options?: RenderOptions,
+): HTMLTableElement {
   const table = document.createElement("table");
   const tbody = document.createElement("tbody");
   table.appendChild(tbody);
   if (calc.kind === "given") appendGiven(calc, tbody);
-  else appendStep(calc, tbody);
+  else appendStep(calc, tbody, false, options);
   return table;
 }
 
 /** Renders a calculation as a DOM element (expressions joined by `⇐` hints). */
-export function renderCalculation(calc: Calculation): HTMLElement {
+export function renderCalculation(
+  calc: Calculation,
+  options?: RenderOptions,
+): HTMLElement {
   const box = document.createElement("div");
   // Styled by styles.ts (.mm-site-format-calc); `border-box` there lets the
   // explicit width index.ts sets (the fully-expanded width) include the padding
   // and border rather than overflowing the page.
   box.className = "mm-site-format-calc";
   pendingSetters = [];
-  box.appendChild(renderCalcTable(calc));
+  box.appendChild(renderCalcTable(calc, options));
   collapseSetters.set(box, pendingSetters);
   pendingSetters = null;
   return box;

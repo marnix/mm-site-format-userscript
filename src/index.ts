@@ -15,6 +15,10 @@ import {
 } from "./page";
 import type { Proof } from "./proof";
 import { renderCalculation, setCalcCollapsed } from "./render";
+import {
+  attachRuleTooltipsToPage,
+  makeRuleTooltipFetcher,
+} from "./rule-tooltip";
 import { chooseSpine, isSmallStep } from "./spine";
 import { injectStyles } from "./styles";
 import { parseProofTable } from "./table";
@@ -159,7 +163,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     if (!proofTree || !proofTable) return null;
     const { spineFor, smallFor } = choosers(results);
     const calc = proofTreeToCalculation(proofTree, spineFor, smallFor);
-    const rendered = renderCalculation(calc);
+    const rendered = renderCalculation(calc, { fetchRuleTooltip });
     // Into the caption, below the "Proof of Theorem" heading — so the heading
     // stays in place whichever view is shown.
     const caption = proofTable.querySelector("caption");
@@ -180,6 +184,8 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     }
     return body;
   };
+  const fetchRuleTooltip = makeRuleTooltipFetcher(pageUrl, fetcher);
+  attachRuleTooltipsToPage(document, fetchRuleTooltip);
 
   // Caches the *result* of processing each linked page (grammar rules, syntax-
   // hint URLs), shared by both parse passes (in memory) and across page loads
