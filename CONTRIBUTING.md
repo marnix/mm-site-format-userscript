@@ -64,3 +64,11 @@ To auto-format before running CI:
 ```bash
 npm run format && npm run ci
 ```
+
+## Source conventions
+
+All `.ts` source files and the generated `dist/mm-site-format.user.js` must be
+**pure 7-bit ASCII** (printable bytes 32–126 plus tab/LF). Write any Unicode
+character as a `\uXXXX` (or `\u{XXXXX}`) escape in string and regex literals,
+and as an ASCII description in comments. The CI step enforces this with
+`scripts/check-ascii.mjs`.

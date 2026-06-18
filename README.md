@@ -25,6 +25,12 @@ without hovering. And in the proof table, a long Expression that wraps now
 hang-indents its continuation lines under the expression body rather than under
 the step-depth leader.
 
+Hovering any inference-rule reference link — the short step-count links in the
+proof table's Ref column and in the "Referenced by:" section — shows a **rule
+tooltip**: the linked theorem's conclusion, followed by its hypotheses separated
+by `⇐` and `&`, so you can read the rule without navigating away. Works on both
+Unicode and GIF pages.
+
 It also renders the proof as a **calculation** — in the style of Dijkstra's
 [EWD1300](https://www.cs.utexas.edu/~EWD/transcriptions/EWD13xx/EWD1300.html) —
 shown above the "Proof of Theorem" table: each step's statement, followed by a
