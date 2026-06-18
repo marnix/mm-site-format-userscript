@@ -25,7 +25,7 @@ const rules = [top, wi, wb];
 const wff = new Set(["ph", "ps", "ch", "th", "chi"]);
 const kindOf: KindOf = (t) => (wff.has(t) ? "wff" : undefined);
 
-// |- ( ph -> ( ps <-> th ) )  — token indices:
+// |- ( ph -> ( ps <-> th ) )  -- token indices:
 // 0:|-  1:(  2:ph  3:->  4:(  5:ps  6:<->  7:th  8:)  9:)
 const tokens = ["|-", "(", "ph", "->", "(", "ps", "<->", "th", ")", ")"];
 const proof = parseExpression(tokens, "$TOP", rules, kindOf)!;
@@ -68,7 +68,7 @@ describe("smallestSpanContaining", () => {
 
 describe("gapUnits", () => {
   it("puts space around the outer operator, none around the inner one", () => {
-    // spacing: leaves -1; ( ps <-> th ) = 0; ( ph -> … ) = 1.
+    // spacing: leaves -1; ( ps <-> th ) = 0; ( ph -> ... ) = 1.
     // 1 unit before "->" and before the "(" after it (symmetric around "->");
     // 0 around "<->"; nothing at brackets or the turnstile.
     expect(gapUnits(proof)).toEqual([

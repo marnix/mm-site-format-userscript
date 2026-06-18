@@ -69,7 +69,7 @@ describe("evaluate (bitrdi parse tree)", () => {
     ]); // prettier-ignore
   });
 
-  it("is a closed proof — no open assumptions left", () => {
+  it("is a closed proof -- no open assumptions left", () => {
     // Each variable typing is discharged by a zero-assumption leaf rule.
     expect(evaluate(bitrdiProof).assumptions).toEqual([]);
   });
@@ -120,10 +120,10 @@ describe("substitute", () => {
 // The logical proof tree of the bitrdi page (the "Proof of Theorem" table),
 // rooted at the main |- assertion: bitrd applied to bitrdi.1 and (a1i applied
 // to bitrdi.2). This is the target a calculation will evaluate to (phase 2).
-// Each step is a ground instance read off the table — its rule's assumptions
+// Each step is a ground instance read off the table -- its rule's assumptions
 // are the cited steps' expressions and its conclusion is the step's expression
-// — and the hypotheses are ground leaves, so the proof is closed.
-describe("evaluate (bitrdi logical proof — the table's proof tree)", () => {
+// -- and the hypotheses are ground leaves, so the proof is closed.
+describe("evaluate (bitrdi logical proof -- the table's proof tree)", () => {
   const hyp1 = ["|-", "(", "ph", "->", "(", "ps", "<->", "ch", ")", ")"]; // bitrdi.1
   const hyp2 = ["|-", "(", "ch", "<->", "th", ")"]; // bitrdi.2
   const step3 = ["|-", "(", "ph", "->", "(", "ch", "<->", "th", ")", ")"]; // a1i

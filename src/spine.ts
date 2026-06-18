@@ -1,4 +1,4 @@
-// Chooses a step's spine sub-proof — the main line a calculation carries down.
+// Chooses a step's spine sub-proof -- the main line a calculation carries down.
 // A calculation transforms one expression, so the spine sub-proof is the one
 // whose parse tree is "most like" the conclusion's; the others justify the local
 // rewrites. Similarity is a top-down structural overlap of the two parse trees
@@ -7,7 +7,7 @@
 // the whitespace spacers) and linear.
 //
 // An earlier hand-crafted version scored sub-proofs by a size-aware log-ratio of
-// an HTML LCS. That measure does NOT port to node counts — minimising it picks
+// an HTML LCS. That measure does NOT port to node counts -- minimising it picks
 // the wrong sub-proof (it would spine `optocl` to its equality hypothesis rather
 // than optocl.3); plain maximum overlap is both correct here and simpler.
 // Deferred refinement: take the structure from the Ref theorem's *general* rule
@@ -17,8 +17,8 @@
 import type { Proof } from "./proof";
 
 /**
- * Matched nodes when aligning two parse trees from their roots: same rule → 1
- * plus the matches of paired children; leaf↔leaf → 1; any mismatch (different
+ * Matched nodes when aligning two parse trees from their roots: same rule -> 1
+ * plus the matches of paired children; leaf<->leaf -> 1; any mismatch (different
  * rule, or leaf vs node) stops that branch at 0.
  */
 export function structuralOverlap(a: Proof, b: Proof): number {
@@ -62,13 +62,13 @@ const SMALL_STEP_MAX_DIFF = 2;
 
 /**
  * Whether a step's transition to its continuation (its spine child) adds little
- * — e.g. a definitional unfolding like `eleq2i`, where the premise `Rels = …`
- * reappears almost verbatim inside the conclusion `( R e. Rels <-> R e. … )`.
+ * -- e.g. a definitional unfolding like `eleq2i`, where the premise `Rels = ...`
+ * reappears almost verbatim inside the conclusion `( R e. Rels <-> R e. ... )`.
  * Measured on the *expression token sequences* (not the parse trees: a
  * substitution step's premise and conclusion have quite different trees, yet
  * share most of their tokens), by the earlier userscript's size-aware
  * longest-common-subsequence ratio
- * `log2((|continuation| − lcs + 1) / (|step| − lcs + 1)) ≤ SMALL_STEP_MAX_DIFF`.
+ * `log2((|continuation| - lcs + 1) / (|step| - lcs + 1)) <= SMALL_STEP_MAX_DIFF`.
  * The caller gates on the step being single-premise (see `index.ts`).
  */
 export function isSmallStep(step: string[], continuation: string[]): boolean {
@@ -82,11 +82,11 @@ export function isSmallStep(step: string[], continuation: string[]): boolean {
 /**
  * The index of the spine sub-proof: the one whose parse tree overlaps the
  * conclusion's the most. Among equal-overlap candidates, prefer a non-trivial
- * (derived) sub-proof over a trivial one (a leaf — a hypothesis / 0-assumption
+ * (derived) sub-proof over a trivial one (a leaf -- a hypothesis / 0-assumption
  * step), so the main line flows through reasoning. When several non-trivial
  * sub-proofs still tie, prefer the smallest: the running expression is one side
- * of the step's rewrite, while a rewrite premise (e.g. `( ψ ↔ χ )`) carries both
- * sides and is larger. Returns null only when even the smallest is not unique —
+ * of the step's rewrite, while a rewrite premise (e.g. `( psi <-> chi )`) carries both
+ * sides and is larger. Returns null only when even the smallest is not unique --
  * a genuinely symmetric step (e.g. `bitrd`), which has no clear main line.
  */
 export function chooseSpine(

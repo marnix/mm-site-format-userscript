@@ -39,46 +39,54 @@ describe("buildRuleContent", () => {
   });
 
   it("shows just the conclusion when there are no hypotheses", () => {
-    const doc = makeDoc("⊢ ps", []);
+    const doc = makeDoc("\u22a2 ps", []);
     const node = buildRuleContent(doc) as HTMLElement;
     expect(node).not.toBeNull();
-    expect(node.textContent).toContain("⊢ ps");
-    expect(node.textContent).not.toContain("⇐");
+    expect(node.textContent).toContain("\u22a2 ps");
+    expect(node.textContent).not.toContain("\u21d0");
   });
 
-  it("shows conclusion ⇐ hypothesis for a single hypothesis", () => {
-    const doc = makeDoc("⊢ ps", ["⊢ ( ph → ps )"]);
+  it("shows conclusion <== hypothesis for a single hypothesis", () => {
+    const doc = makeDoc("\u22a2 ps", ["\u22a2 ( ph \u2192 ps )"]);
     const node = buildRuleContent(doc) as HTMLElement;
     const text = node.textContent!;
-    expect(text).toContain("⊢ ps");
-    expect(text).toContain("⇐");
-    expect(text).toContain("⊢ ( ph → ps )");
-    expect(text.indexOf("⊢ ps")).toBeLessThan(text.indexOf("⊢ ( ph → ps )"));
+    expect(text).toContain("\u22a2 ps");
+    expect(text).toContain("\u21d0");
+    expect(text).toContain("\u22a2 ( ph \u2192 ps )");
+    expect(text.indexOf("\u22a2 ps")).toBeLessThan(
+      text.indexOf("\u22a2 ( ph \u2192 ps )"),
+    );
   });
 
-  it("uses NBSP after ⇐ and & so the space does not collapse in HTML", () => {
-    const doc = makeDoc("⊢ ps", ["⊢ ( ph → ps )", "⊢ ∃ x ph"]);
+  it("uses NBSP after <== and & so the space does not collapse in HTML", () => {
+    const doc = makeDoc("\u22a2 ps", [
+      "\u22a2 ( ph \u2192 ps )",
+      "\u22a2 \u2203 x ph",
+    ]);
     const node = buildRuleContent(doc) as HTMLElement;
-    expect(node.textContent).toMatch(new RegExp("⇐ "));
-    expect(node.textContent).toMatch(new RegExp("& "));
+    expect(node.textContent).toMatch(new RegExp("\u21d0\u00a0"));
+    expect(node.textContent).toMatch(new RegExp("&\u00a0"));
   });
 
-  it("shows conclusion ⇐ h1 & h2 for two hypotheses", () => {
-    const doc = makeDoc("⊢ ps", ["⊢ ( ph → ps )", "⊢ ∃ x ph"]);
+  it("shows conclusion <== h1 & h2 for two hypotheses", () => {
+    const doc = makeDoc("\u22a2 ps", [
+      "\u22a2 ( ph \u2192 ps )",
+      "\u22a2 \u2203 x ph",
+    ]);
     const node = buildRuleContent(doc) as HTMLElement;
     const text = node.textContent!;
-    expect(text).toContain("⊢ ps");
-    expect(text).toContain("⇐");
+    expect(text).toContain("\u22a2 ps");
+    expect(text).toContain("\u21d0");
     expect(text).toContain("&");
-    expect(text).toContain("⊢ ( ph → ps )");
-    expect(text).toContain("⊢ ∃ x ph");
-    expect(text.indexOf("⊢ ( ph → ps )")).toBeLessThan(
-      text.indexOf("⊢ ∃ x ph"),
+    expect(text).toContain("\u22a2 ( ph \u2192 ps )");
+    expect(text).toContain("\u22a2 \u2203 x ph");
+    expect(text.indexOf("\u22a2 ( ph \u2192 ps )")).toBeLessThan(
+      text.indexOf("\u22a2 \u2203 x ph"),
     );
   });
 
   it("clones the span.math nodes so originals are unchanged", () => {
-    const doc = makeDoc("⊢ ps", ["⊢ ( ph → ps )"]);
+    const doc = makeDoc("\u22a2 ps", ["\u22a2 ( ph \u2192 ps )"]);
     buildRuleContent(doc);
     // The original span is still in the original doc, not moved
     expect(
@@ -154,8 +162,8 @@ describe("attachRuleTooltipsToPage", () => {
   it("attaches to links where a newline precedes the &nbsp; (Referenced-by pattern)", () => {
     // In metamath.org's 'This theorem is referenced by:' section, the HTML is:
     //   <a href="bitr2d.html">bitr2d</a>\n&nbsp;<span class="r">282</span>
-    // The \n means the text node between <a> and <span class="r"> is "\n ",
-    // not just " ", so a strict === " " check misses these links.
+    // The \n means the text node between <a> and <span class="r"> is "\n\u00a0",
+    // not just "\u00a0", so a strict === "\u00a0" check misses these links.
     const div = document.createElement("div");
     div.innerHTML =
       '<a href="foo.html">foo</a>\n&nbsp;<span class="r">3</span>';

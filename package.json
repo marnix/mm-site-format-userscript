@@ -8,8 +8,10 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "check-ascii": "node scripts/check-ascii.mjs src test",
     "preci": "npm run clean",
-    "ci": "concurrently --success all \"npm run build\" \"prettier --check .\" \"vitest run\" \"tsc --noEmit\""
+    "ci": "concurrently --success all \"npm run build\" \"npm run check-ascii\" \"prettier --check .\" \"vitest run\" \"tsc --noEmit\"",
+    "postci": "node scripts/check-ascii.mjs dist"
   },
   "devDependencies": {
     "@types/node": "^25.9.3",

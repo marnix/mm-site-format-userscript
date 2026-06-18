@@ -38,12 +38,12 @@ applyViewToLinks(tableSelected(window.location.search));
 if (!document.querySelector('table[summary="Proof of theorem"]')) {
   console.log(`${LOG} (not a metamath proof page; no processing)`);
 } else {
-  console.log(`${LOG} processing proof page…`);
+  console.log(`${LOG} processing proof page...`);
   injectStyles();
 
   const banner = document.createElement("div");
   const built = __USERSCRIPT_BUILD_TIME__
-    ? ` — built ${__USERSCRIPT_BUILD_TIME__}`
+    ? ` -- built ${__USERSCRIPT_BUILD_TIME__}`
     : "";
   banner.textContent = `MM Site Format ${__USERSCRIPT_VERSION__} active${built}`;
   banner.className = "mm-site-format-banner";
@@ -61,8 +61,8 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   // table is still laid out and visible (before the early grid hide below).
   if (proofTable) indentProofExpressions(proofTable);
 
-  // When the calculation will replace the grid, hide the grid body at once —
-  // keeping its space so the page below does not jump — and reveal the
+  // When the calculation will replace the grid, hide the grid body at once --
+  // keeping its space so the page below does not jump -- and reveal the
   // calculation once it is ready. The caption (heading) stays visible. Restore
   // the grid if the calculation never appears.
   const grids = proofTable ? ([...proofTable.tBodies] as HTMLElement[]) : [];
@@ -106,7 +106,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         trivial: s.subproofs.length === 0,
       }));
       // Without parse trees, fall back to the first sub-proof; otherwise a null
-      // from chooseSpine means "no clear main line" — end the spine.
+      // from chooseSpine means "no clear main line" -- end the spine.
       if (!conclusion || subs.some((s) => !s.parse)) return 0;
       return chooseSpine(
         conclusion,
@@ -125,7 +125,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   };
 
   // Fix the calculation box to its fully-expanded width, so expanding a
-  // sub-calculation never reflows the box — but as a responsive `max-width`, so
+  // sub-calculation never reflows the box -- but as a responsive `max-width`, so
   // the box still shrinks (and its lines wrap) when the window is narrower than
   // that, and grows back on widening, all in CSS with no re-measure on resize.
   // The natural width is measured with `width:max-content` (which does not wrap,
@@ -140,13 +140,13 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     box.style.maxWidth = "none"; // measure unclamped
     box.style.width = "max-content"; // the no-wrap width of the widest line
     const rect = box.getBoundingClientRect();
-    // Round up to the next pixel (max-content is often fractional) — no fudge.
+    // Round up to the next pixel (max-content is often fractional) -- no fudge.
     box.style.width = `${Math.ceil(rect.width)}px`;
     // Clamp to the page's content width in CSS, so the box shrinks (and wraps)
     // when the window is narrower than its natural width and grows back on
     // widening, with no re-measure on resize. The box is centered (it sits in a
     // `<center>`), so the centering offset is NOT a reduction of available width
-    // — only the body margins + scrollbar are, and those are ~stable, so we bake
+    // -- only the body margins + scrollbar are, and those are ~stable, so we bake
     // them as a constant subtracted from the responsive `100vw`.
     const margin = Math.max(
       0,
@@ -164,7 +164,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     const { spineFor, smallFor } = choosers(results);
     const calc = proofTreeToCalculation(proofTree, spineFor, smallFor);
     const rendered = renderCalculation(calc, { fetchRuleTooltip });
-    // Into the caption, below the "Proof of Theorem" heading — so the heading
+    // Into the caption, below the "Proof of Theorem" heading -- so the heading
     // stays in place whichever view is shown.
     const caption = proofTable.querySelector("caption");
     if (caption) caption.appendChild(rendered);
@@ -212,7 +212,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         if (!proof)
           console.log(`${LOG} could not parse:`, formatTokens(tokens));
       }
-      // Warn if the page displays syntax it did not list in its Syntax hints —
+      // Warn if the page displays syntax it did not list in its Syntax hints --
       // a metamath site-generation bug we work around (see grammar.ts / TODO).
       const proofs = results
         .map((r) => r.proof)
@@ -220,14 +220,14 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       const missing = missingSyntaxHints(proofs, declaredHints);
       if (missing.length)
         console.warn(
-          `${LOG} incomplete Syntax hints — shown but not listed: ${missing.join(", ")}`,
+          `${LOG} incomplete Syntax hints -- shown but not listed: ${missing.join(", ")}`,
         );
       install(results);
       console.log(`${LOG} finished`);
     };
 
   // A single Highlighter and a single growing expression list shared by both the
-  // proof table and the calculation view — so hovering in either view finds
+  // proof table and the calculation view -- so hovering in either view finds
   // matching occurrences in the other.
   if (findMathSpans(document).length > 0) {
     // Unicode page: kinds come from span classes, no image sampling needed.

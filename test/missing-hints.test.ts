@@ -16,10 +16,10 @@ const node = (r: InferenceRule, ...subproofs: Proof[]): Proof => ({
 });
 
 describe("missingSyntaxHints", () => {
-  // ¬ ( x ∈ x ): wn over wcel over cv-coerced setvars — the elirrv shape.
+  // \u00ac ( x \u2208 x ): wn over wcel over cv-coerced setvars -- the elirrv shape.
   const cvx = () => node(rule("cv", ["class", "x"]));
-  const wcel = node(rule("wcel", ["wff", "A", "∈", "B"]), cvx(), cvx());
-  const wn = node(rule("wn", ["wff", "¬", "ph"]), wcel);
+  const wcel = node(rule("wcel", ["wff", "A", "\u2208", "B"]), cvx(), cvx());
+  const wn = node(rule("wn", ["wff", "\u00ac", "ph"]), wcel);
 
   it("reports constructors used in the proofs but not declared", () => {
     expect(missingSyntaxHints([wn], new Set(["wn"]))).toEqual(["wcel"]);
@@ -35,7 +35,7 @@ describe("missingSyntaxHints", () => {
   });
 
   it("ignores unlabeled rules (the $TOP rule, variable-typing leaves)", () => {
-    const top = node(rule(undefined, ["$TOP", "⊢", "chi"]), wn);
+    const top = node(rule(undefined, ["$TOP", "\u22a2", "chi"]), wn);
     expect(missingSyntaxHints([top], new Set(["wn", "wcel"]))).toEqual([]);
   });
 });

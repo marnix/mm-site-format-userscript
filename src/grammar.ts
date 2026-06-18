@@ -50,10 +50,10 @@ export function collectConstants(rules: InferenceRule[]): Set<string> {
  *
  * Pulling in the Ref pages' syntax hints is a workaround for incomplete syntax
  * hints: every constructor appearing in a proof step is introduced by some cited
- * assertion, whose own syntax hints list it — so the union over the page and its
+ * assertion, whose own syntax hints list it -- so the union over the page and its
  * Ref pages covers the whole proof table. A residual gap remains for displayed
- * expressions that are *not* proof steps — e.g. a definitional cross-reference
- * like `( Disj R <-> … )` on disjrel, whose `<->` is hinted by neither the page
+ * expressions that are *not* proof steps -- e.g. a definitional cross-reference
+ * like `( Disj R <-> ... )` on disjrel, whose `<->` is hinted by neither the page
  * nor any Ref page; such an expression just fails to parse and is left alone.
  * Closing it fully would need transitive syntax loading (see TODO). The
  * primitives are read unconditionally because the site systematically omits them
@@ -106,7 +106,7 @@ async function assembleGrammar(
   return [topRule, ...rules.filter((r): r is InferenceRule => r !== null)];
 }
 
-/** The syntax-definition label of a page URL, e.g. `…/wcel.html` → `wcel`. */
+/** The syntax-definition label of a page URL, e.g. `.../wcel.html` -> `wcel`. */
 const labelOf = (url: string): string =>
   (url.split("/").pop() ?? "").replace(/\.html$/, "");
 
@@ -118,13 +118,13 @@ function usedLabels(proof: Proof, into: Set<string>): void {
 
 /**
  * The syntax-definition labels used by `proofs` (the page's parsed expressions)
- * that are not in `declared` (the page's own "Syntax hints"), sorted — i.e. the
+ * that are not in `declared` (the page's own "Syntax hints"), sorted -- i.e. the
  * constructors the page displays but failed to list. Pure (no DOM).
  *
  * Used to warn about incomplete syntax hints (a metamath site-generation bug;
  * see TODO). `cv` is excluded because it is omitted on *every* page, so it would
- * be pure noise; `wcel`/`wceq` (omitted only for setvar operands, e.g. `x ∈ y`
- * on elirrv) are deliberately still reported — they are the meaningful signal,
+ * be pure noise; `wcel`/`wceq` (omitted only for setvar operands, e.g. `x in y`
+ * on elirrv) are deliberately still reported -- they are the meaningful signal,
  * even though we now also always-load them (that is the fix, this is detection).
  */
 export function missingSyntaxHints(

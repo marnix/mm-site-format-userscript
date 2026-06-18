@@ -34,7 +34,7 @@ export interface LocatedToken {
 /**
  * Splits text into individual MM constant tokens with their char offsets.
  * Besides whitespace, parentheses are separated, because the Unicode rendering
- * runs adjacent constants together by omitting whitespace (e.g. ") )" → "))").
+ * runs adjacent constants together by omitting whitespace (e.g. ") )" -> "))").
  */
 function* splitConstants(
   text: string,
@@ -49,7 +49,7 @@ function* splitConstants(
 /**
  * Splits a run of concatenated constants by longest-match against the known
  * constant vocabulary (the tokens the grammar defines). The Unicode rendering
- * runs adjacent constants together with no delimiter (e.g. `([⟨`), so plain
+ * runs adjacent constants together with no delimiter (e.g. `([\u27e8`), so plain
  * whitespace/paren splitting cannot recover the token boundaries; matching
  * against the vocabulary can. Whitespace separates tokens; an unrecognised
  * character is emitted on its own (the expression will then fail to parse).
@@ -91,7 +91,7 @@ function isSubscript(el: Element): boolean {
 type RunChar = { ch: string; node: Text; offset: number; sub?: Element };
 
 /** The location spanning a token's run characters [start, end): a plain text
- *  substring, or — if any character was folded from a subscript — a span from
+ *  substring, or -- if any character was folded from a subscript -- a span from
  *  the base character through the (last) subscript element. */
 function runLocation(
   run: RunChar[],
@@ -154,8 +154,8 @@ export function locateMathSpan(
         // Fold the subscript into the preceding token (e.g. `~` + `R` = `~R`),
         // reusing the base character's position so the token stays located there.
         // Push per UTF-16 code unit (not per code point), so run indices stay
-        // aligned with the joined run text's offsets — a surrogate-pair subscript
-        // (e.g. `𝑟` in `↑𝑟`) would otherwise desync them and the munch's offsets
+        // aligned with the joined run text's offsets -- a surrogate-pair subscript
+        // (e.g. `\u{1d45f}` in `\u2191\u{1d45f}`) would otherwise desync them and the munch's offsets
         // would run off the end of `run`.
         const base = run[run.length - 1];
         const subText = el.textContent ?? "";

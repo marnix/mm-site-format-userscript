@@ -27,10 +27,10 @@ const CXP = ["class", "(", "A", "X.", "B", ")"];
 const COP = ["class", "<.", "A", ",", "B", ">."];
 
 describe("structuralOverlap", () => {
-  it("counts matching nodes top-down, leaf↔leaf included", () => {
+  it("counts matching nodes top-down, leaf<->leaf included", () => {
     const a = node(WI, leaf("wff", "ph"), leaf("wff", "ps"));
     const b = node(WI, leaf("wff", "ph"), leaf("wff", "th"));
-    expect(structuralOverlap(a, b)).toBe(3); // wi + ph + (ps↔th, both leaves)
+    expect(structuralOverlap(a, b)).toBe(3); // wi + ph + (ps<->th, both leaves)
   });
 
   it("is 0 when the roots apply different rules", () => {
@@ -47,7 +47,7 @@ describe("structuralOverlap", () => {
 
 describe("chooseSpine", () => {
   it("optocl: spines to the hypothesis sharing the assertion's shape (.3)", () => {
-    // assertion ( A ∈ D → ψ )
+    // assertion ( A in D -> psi )
     const assertion = node(
       WI,
       node(WCEL, leaf("class", "A"), leaf("class", "D")),
@@ -57,7 +57,7 @@ describe("chooseSpine", () => {
       WCEQ,
       leaf("class", "D"),
       node(CXP, leaf("class", "B"), leaf("class", "C")),
-    ); // D = ( B × C )
+    ); // D = ( B x C )
     const h2 = node(
       WI,
       node(
@@ -66,7 +66,7 @@ describe("chooseSpine", () => {
         leaf("class", "A"),
       ),
       node(WB, leaf("wff", "ph"), leaf("wff", "ps")),
-    ); // ( ⟨x,y⟩ = A → ( φ ↔ ψ ) ) — compound consequent
+    ); // ( <x,y> = A -> ( phi <-> psi ) ) -- compound consequent
     const h3 = node(
       WI,
       node(
@@ -75,7 +75,7 @@ describe("chooseSpine", () => {
         node(WCEL, leaf("set", "y"), leaf("class", "C")),
       ),
       leaf("wff", "ph"),
-    ); // ( ( x∈B ∧ y∈C ) → φ ) — variable consequent, like the assertion
+    ); // ( ( x in B /\ y in C ) -> phi ) -- variable consequent, like the assertion
 
     expect(
       chooseSpine(assertion, [
@@ -86,7 +86,7 @@ describe("chooseSpine", () => {
     ).toBe(2); // optocl.3
   });
 
-  it("bitrd: equal overlap → prefers the non-trivial (derived) sub-proof", () => {
+  it("bitrd: equal overlap -> prefers the non-trivial (derived) sub-proof", () => {
     const concl = node(
       WI,
       leaf("wff", "ph"),
@@ -110,7 +110,7 @@ describe("chooseSpine", () => {
     ).toBe(1);
   });
 
-  it("two equal-size non-trivial sub-proofs tied at the max → none (bitrd-like)", () => {
+  it("two equal-size non-trivial sub-proofs tied at the max -> none (bitrd-like)", () => {
     const concl = node(WI, leaf("wff", "ph"), leaf("wff", "ps"));
     const a = node(WI, leaf("wff", "ph"), leaf("wff", "ch"));
     const b = node(WI, leaf("wff", "ch"), leaf("wff", "ps"));
@@ -122,15 +122,15 @@ describe("chooseSpine", () => {
     ).toBeNull();
   });
 
-  it("mpbid: overlap ties, so the smaller premise (ψ, not the rewrite ψ↔χ) wins", () => {
-    // conclusion ( φ → χ ); premises ( φ → ψ ) and ( φ → ( ψ ↔ χ ) )
+  it("mpbid: overlap ties, so the smaller premise (psi, not the rewrite psi<->chi) wins", () => {
+    // conclusion ( phi -> chi ); premises ( phi -> psi ) and ( phi -> ( psi <-> chi ) )
     const chi = node(WA, leaf("wff", "a"), leaf("wff", "b"));
     const psi = node(WCEL, leaf("class", "x"), leaf("class", "y"));
     const concl = node(WI, leaf("wff", "ph"), chi);
-    const p17 = node(WI, leaf("wff", "ph"), psi); // ( φ → ψ )
-    const p18 = node(WI, leaf("wff", "ph"), node(WB, psi, chi)); // ( φ → ( ψ ↔ χ ) )
-    // Both overlap the conclusion by 2 (wi + φ; the consequent diverges), but
-    // p17 is smaller, so it is the spine — not an end-of-spine.
+    const p17 = node(WI, leaf("wff", "ph"), psi); // ( phi -> psi )
+    const p18 = node(WI, leaf("wff", "ph"), node(WB, psi, chi)); // ( phi -> ( psi <-> chi ) )
+    // Both overlap the conclusion by 2 (wi + phi; the consequent diverges), but
+    // p17 is smaller, so it is the spine -- not an end-of-spine.
     expect(
       chooseSpine(concl, [
         { parse: p17, trivial: false },
@@ -144,12 +144,12 @@ describe("isSmallStep", () => {
   const toks = (s: string) => s.split(" ");
 
   it("is small when the continuation barely differs", () => {
-    // ( ph -> ps ) ⇐ ( ph -> th ): same tokens but one.
+    // ( ph -> ps ) <== ( ph -> th ): same tokens but one.
     expect(isSmallStep(toks("( ph -> ps )"), toks("( ph -> th )"))).toBe(true);
   });
 
   it("is small for a definitional unfolding (eleq2i): the premise's tokens reappear in the conclusion", () => {
-    // ( R e. Rels <-> R e. P ( V X. V ) ) ⇐ Rels = P ( V X. V )
+    // ( R e. Rels <-> R e. P ( V X. V ) ) <== Rels = P ( V X. V )
     const conclusion = toks("( R e. Rels <-> R e. P ( V X. V ) )");
     const premise = toks("Rels = P ( V X. V )");
     expect(isSmallStep(conclusion, premise)).toBe(true);

@@ -6,7 +6,7 @@ export type Expression = string[];
 
 /**
  * An inference rule: a set of assumptions and one conclusion. The assumptions
- * are unordered — sub-proofs are matched to them by expression equality. As a
+ * are unordered -- sub-proofs are matched to them by expression equality. As a
  * grammar rule, the conclusion's first token is the rule's *result type* and the
  * rest is the *pattern* matched against an expression (see parse.ts); a variable
  * is recognised via the page's kind registry, not by anything stored here.
@@ -20,13 +20,13 @@ export interface InferenceRule {
   label?: string;
 }
 
-/** A substitution: variable token → expression to replace it with. */
+/** A substitution: variable token -> expression to replace it with. */
 export type Substitution = Map<string, Expression>;
 
 /**
  * A proof, which doubles as a parse tree: substitution + application combined.
  * Take base `rule`, apply `subst` to get R2 = substitute(subst, rule), then
- * discharge R2's assumptions with `subproofs`. A leaf is the degenerate case —
+ * discharge R2's assumptions with `subproofs`. A leaf is the degenerate case --
  * a zero-assumption rule (a variable's kind-typing, `() ==> wff ph`) with no
  * sub-proofs.
  */
@@ -70,7 +70,7 @@ export function substitute(
  * sub-proofs' assumptions ==> `R2`'s conclusion. A leaf (no sub-proofs, a
  * zero-assumption rule) just yields that rule.
  *
- * This is a verification tool for tests — it double-checks a generated parse
+ * This is a verification tool for tests -- it double-checks a generated parse
  * tree. The runtime uses the Proof tree directly and does not call it.
  */
 export function evaluate(proof: Proof): InferenceRule {

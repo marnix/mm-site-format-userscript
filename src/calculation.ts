@@ -20,7 +20,7 @@ export interface ProofTree {
 }
 
 /**
- * Initially only `<==` calculations, without any context — every expression is
+ * Initially only `<==` calculations, without any context -- every expression is
  * a full, top-level MM statement. A calculation is either a given (always a
  * hypothesis) or a `<==` step. Both carry the Ref-column HTML and the
  * Expression-column HTML, rather than an inference rule.
@@ -39,11 +39,11 @@ export interface Step {
   expressionHtml: Element;
   subcalculations: Calculation[]; // one per assumption of the inference rule
   // index of the spine subcalculation (the next expression), or null to end the
-  // spine (no clear main line) at a `⇔ TRUE` terminal; render-only
+  // spine (no clear main line) at a `<==> TRUE` terminal; render-only
   spine: number | null;
   // true when this step's transition to its spine child "adds little" (a
   // single-premise, near-identity step): its hint and the continuation
-  // expression are deemphasized. Absent (≈ false) otherwise. Render-only.
+  // expression are deemphasized. Absent (approx. false) otherwise. Render-only.
   smallSpine?: boolean;
 }
 

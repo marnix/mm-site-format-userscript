@@ -28,6 +28,6 @@ describe("installViewToggle history", () => {
 
     history.back();
     expect(location.search).toBe(""); // Back returns to the calculation URL
-    expect(toggle.textContent).toBe("Table version"); // …and the view follows
+    expect(toggle.textContent).toBe("Table version"); // ...and the view follows
   });
 });

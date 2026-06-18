@@ -2,7 +2,7 @@
 // colour of its image. We read that colour the way a browser would: draw the
 // <img> to a canvas and read the pixels (getImageData). The pixel-reading step
 // is an injectable `ImageSampler` so it can be swapped for a test fake that
-// decodes the .gif directly. The colour→kind map comes from the page's
+// decodes the .gif directly. The colour->kind map comes from the page's
 // "Colors of variables" legend.
 
 export type Rgb = [number, number, number];
@@ -36,7 +36,7 @@ export function parseCssColor(value: string): Rgb | null {
   return [at(0), at(2), at(4)];
 }
 
-/** The colour declared on a legend element, via `style="color:…"` or `color=…`. */
+/** The colour declared on a legend element, via `style="color:..."` or `color=...`. */
 function colourOf(el: Element): Rgb | null {
   const style = el.getAttribute("style") ?? "";
   const m = style.match(/color\s*:\s*([^;]+)/i);
@@ -46,7 +46,7 @@ function colourOf(el: Element): Rgb | null {
 }
 
 /**
- * Reads the "Colors of variables" legend into a colour→kind map. Each kind is a
+ * Reads the "Colors of variables" legend into a colour->kind map. Each kind is a
  * coloured sample whose text is the kind name. Two renderings occur: the newer
  * `<SPAN CLASS=wff STYLE="color:blue">wff</SPAN>` (MPE) and the older
  * `<FONT COLOR="#0000FF">wff</FONT>` (ILE). The older one labels the setvar kind
@@ -75,7 +75,7 @@ export function parseKindNames(doc: Document): Set<string> {
 /**
  * Finds the dominant ink colour in a run of RGBA pixels (as returned by
  * `CanvasRenderingContext2D.getImageData().data`): the most common pixel that
- * is opaque and not (near-)white — i.e. ignoring transparent/white background.
+ * is opaque and not (near-)white -- i.e. ignoring transparent/white background.
  */
 export function dominantInk(data: Uint8ClampedArray): Rgb | null {
   const counts = new Map<string, number>();
@@ -108,9 +108,9 @@ export type ImageSampler = (img: Element) => Uint8ClampedArray;
  * null if the colour is not a variable colour (i.e. it is a constant token
  * such as an operator or parenthesis, drawn in black/gray).
  *
- * The lookup is exact colour equality — no nearest-colour tolerance. Confirmed
+ * The lookup is exact colour equality -- no nearest-colour tolerance. Confirmed
  * empirically: each variable GIF's dominant ink pixel matches a legend colour
- * exactly (`_varphi.gif`→(0,0,255), `_x.gif`→(255,0,0), `_ca.gif`→(204,51,204)),
+ * exactly (`_varphi.gif`->(0,0,255), `_x.gif`->(255,0,0), `_ca.gif`->(204,51,204)),
  * because both the glyphs and the legend are generated from the same palette.
  */
 export function variableKindOfImg(

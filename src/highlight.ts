@@ -29,7 +29,7 @@ export function rangeForSpan(
 /**
  * The location-index span to highlight when the token at `index` is hovered:
  * the smallest sub-expression node containing it, or null if none. Proof spans
- * are in the parsed token space; they are shifted into location-index space — a
+ * are in the parsed token space; they are shifted into location-index space -- a
  * "|-" statement parses the whole token list (base 0), a typecode statement
  * drops its leading typecode (base 1). Pure (no DOM).
  */
@@ -55,7 +55,7 @@ export interface Occurrence {
  * equals `tokens`. The token sequence determines the parse tree (the grammar is
  * unambiguous), so equal tokens means the same sub-expression; rendered spacing
  * is irrelevant because spacers are not tokens. Includes the hovered occurrence
- * itself — callers filter it out. Pure (no DOM).
+ * itself -- callers filter it out. Pure (no DOM).
  */
 export function matchingOccurrences(
   expressions: ParsedExpression[],

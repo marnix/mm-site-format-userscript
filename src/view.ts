@@ -1,6 +1,6 @@
 // A switch between the calculation and the proof table, showing one and hiding
 // the other while the "Proof of Theorem" caption (heading) stays in place. The
-// options are prepended to the page's existing top-right "… version" line (or a
+// options are prepended to the page's existing top-right "... version" line (or a
 // fixed box if that line is absent). The calculation is the default; a
 // `view=table` query parameter selects the table, so a plain URL stays
 // calculational. Toggling updates the URL via history.pushState (without
@@ -15,7 +15,7 @@ export function tableSelected(search: string): boolean {
   return new URLSearchParams(search).get(PARAM) === TABLE;
 }
 
-/** The search string ("?…" or "") with the view parameter set or cleared. */
+/** The search string ("?..." or "") with the view parameter set or cleared. */
 export function searchWithView(search: string, table: boolean): string {
   const params = new URLSearchParams(search);
   if (table) params.set(PARAM, TABLE);
@@ -68,7 +68,7 @@ export function applyViewToLinks(table: boolean): void {
   }
 }
 
-/** The page's existing "… version" links line, found by one of its anchors. */
+/** The page's existing "... version" links line, found by one of its anchors. */
 function versionLine(): Element | null {
   for (const a of document.querySelectorAll("a"))
     if (/\bversion\b/i.test(a.textContent ?? "") && a.parentElement)
@@ -130,7 +130,7 @@ export function installViewToggle(
 
   const line = versionLine();
   if (line) {
-    line.prepend(link, "  ");
+    line.prepend(link, "\u00a0\u00a0");
   } else {
     const box = document.createElement("div");
     // TOGGLE_CLASS so applyViewToLinks skips it; the -view-box class styles it.

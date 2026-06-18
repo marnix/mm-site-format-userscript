@@ -99,7 +99,7 @@ describe("parseExpression with the cv coercion", () => {
 
 describe("parseExpression on deep nesting", () => {
   // `t` is a variable of type T; B is tried first and always fails after parsing
-  // the inner hole (no `z` follows), forcing A to re-parse the same inner span —
+  // the inner hole (no `z` follows), forcing A to re-parse the same inner span --
   // which is 2^depth work without memoisation, but instant with it.
   const B: InferenceRule = {
     assumptions: [],

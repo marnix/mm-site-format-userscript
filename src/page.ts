@@ -1,7 +1,7 @@
 // Wires the pieces together for a page: tokenise every expression, assemble the
 // grammar from the syntax-hint pages, build the kind registry, and parse each
 // expression into a proof (= parse tree). Pure logic, independent of the
-// browser — index.ts supplies the real fetch + canvas sampler.
+// browser -- index.ts supplies the real fetch + canvas sampler.
 
 import { createCache, type Cache } from "./cache";
 import {

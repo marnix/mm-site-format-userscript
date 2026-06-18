@@ -51,7 +51,7 @@ describe("renderCalculation", () => {
     expect(rows[0]).toEqual(["", "GOAL"]); // the step's expression
     // operator | hint: a "subproof" for the non-spine sub-derivation (the a1i
     // sub-calc shown below), then the rule last.
-    expect(rows[1]).toEqual(["⇐", "{ using subproof and bitrd }"]);
+    expect(rows[1]).toEqual(["\u21d0", "{ using subproof and bitrd }"]);
     expect(rows[2][0]).toBe(""); // the indented a1i sub-calc
     expect(rows[2][1]).toContain("STEP3");
     expect(rows[3]).toEqual(["(bitrdi.1)", "HYP1"]); // leaf Ref | its expression
@@ -68,7 +68,7 @@ describe("renderCalculation", () => {
     // Conclusion (STEP3) stays; the hint and the rest are hidden.
     expect(rows[0].style.display).not.toBe("none");
     expect(rows[0].textContent).toContain("STEP3");
-    expect(rows[1].style.display).toBe("none"); // ⇐ { a1i }
+    expect(rows[1].style.display).toBe("none"); // \u21d0 { a1i }
     expect(rows[2].style.display).toBe("none"); // HYP2
 
     // A disclosure marker on the conclusion expands it on click.
@@ -83,8 +83,8 @@ describe("renderCalculation", () => {
     expect(rows[1].style.display).toBe("none");
   });
 
-  it("ends the spine at `⇔ TRUE` when there is no clear main line (spine null)", () => {
-    // Two derived premises, no spine — as for a `bitrd` with symmetric premises.
+  it("ends the spine at `<==> TRUE` when there is no clear main line (spine null)", () => {
+    // Two derived premises, no spine -- as for a `bitrd` with symmetric premises.
     const calc: Calculation = {
       kind: "step",
       inferenceRuleRefHtml: el('<a href="bitrd.html">bitrd</a>'),
@@ -126,9 +126,9 @@ describe("renderCalculation", () => {
       [...tr.children].map((td) => td.textContent),
     );
     expect(rows[0]).toEqual(["", "GOAL"]);
-    expect(rows[1][0]).toBe("⇔"); // spine ends here, not ⇐
+    expect(rows[1][0]).toBe("\u21d4"); // spine ends here, not \u21d0
     expect(rows[1][1]).toBe("{ using subproofs and bitrd }");
-    expect(rows[rows.length - 1]).toEqual(["", "TRUE"]); // …down to TRUE
+    expect(rows[rows.length - 1]).toEqual(["", "TRUE"]); // ...down to TRUE
   });
 
   it("shows a tooltip with the leaf hypothesis expression when hovering over a leaf ref", () => {
@@ -149,8 +149,8 @@ describe("renderCalculation", () => {
   });
 
   it("shows a tooltip with the non-spine given expression when hovering over its hint ref", () => {
-    // A step with two given premises — spine is the first, the second is non-spine
-    // and appears in the { using … } hint text.
+    // A step with two given premises -- spine is the first, the second is non-spine
+    // and appears in the { using ... } hint text.
     const calc: Calculation = {
       kind: "step",
       inferenceRuleRefHtml: el('<a href="ax-mp.html">ax-mp</a>'),
@@ -256,13 +256,13 @@ describe("renderCalculation", () => {
     const faded = (cell: HTMLElement) =>
       cell.classList.contains("mm-site-format-calc-faded");
 
-    expect(rows[0].textContent).toContain("TOP"); // the step's own expression…
-    expect(faded(right(rows[0]))).toBe(false); // …stays at full strength
-    expect(rows[1].textContent).toContain("{ using r }"); // hint…
-    expect(faded(right(rows[1]))).toBe(true); // …is faded
-    expect(rows[2].textContent).toContain("RESULT"); // continuation expression…
+    expect(rows[0].textContent).toContain("TOP"); // the step's own expression...
+    expect(faded(right(rows[0]))).toBe(false); // ...stays at full strength
+    expect(rows[1].textContent).toContain("{ using r }"); // hint...
+    expect(faded(right(rows[1]))).toBe(true); // ...is faded
+    expect(rows[2].textContent).toContain("RESULT"); // continuation expression...
     expect(faded(right(rows[2]))).toBe(true);
-    // …but its left-column Ref label stays sharp, so you can still see where
+    // ...but its left-column Ref label stays sharp, so you can still see where
     // the conclusion came from.
     expect(rows[2].textContent).toContain("(h)");
     expect(faded(left(rows[2]))).toBe(false);

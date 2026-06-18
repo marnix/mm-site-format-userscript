@@ -38,6 +38,6 @@ describe("parseProofTable", () => {
     // The indentation marker (span.i, e.g. ". 2") is gone; the expression stays.
     expect(tree.expressionHtml.querySelector("span.i")).toBeNull();
     expect(tree.expressionHtml.querySelector("span.math")).not.toBeNull();
-    expect(tree.expressionHtml.textContent).toContain("↔"); // the goal's ↔
+    expect(tree.expressionHtml.textContent).toContain("\u2194"); // the goal's <->
   });
 });

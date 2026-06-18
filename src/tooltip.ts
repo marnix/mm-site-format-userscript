@@ -32,7 +32,7 @@ function positionTooltip(tt: HTMLElement, e: MouseEvent): void {
  * inside `ref` had a `title` attribute) the original tooltip text below it.
  * `title` attrs are stripped eagerly so the browser's native tooltip never
  * fires. `getContent` is called lazily at hover time; it may return a Node
- * directly or a Promise<Node> — in the latter case a `…` placeholder is shown
+ * directly or a Promise<Node> -- in the latter case a `...` placeholder is shown
  * until the promise resolves, and the result is discarded if the mouse left.
  */
 export function attachTooltip(
@@ -68,7 +68,7 @@ export function attachTooltip(
     const tt = getTooltip();
     const result = getContent();
     if (result instanceof Promise) {
-      tt.replaceChildren(document.createTextNode("…"));
+      tt.replaceChildren(document.createTextNode("\u2026"));
       tt.style.display = "";
       positionTooltip(tt, e);
       result

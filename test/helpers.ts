@@ -18,7 +18,7 @@ export function readFixtureBytes(variant: string, name: string): Uint8Array {
 /**
  * Stand-in for the browser canvas: returns a GIF's colour table as RGBA pixels
  * (one pixel per palette entry, the GIF's transparent index emitted as alpha 0)
- * — what getImageData would expose for these flat two-colour glyphs.
+ * -- what getImageData would expose for these flat two-colour glyphs.
  */
 function gifToRgba(b: Uint8Array): Uint8ClampedArray {
   const packed = b[10];

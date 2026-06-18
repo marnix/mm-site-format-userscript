@@ -7,8 +7,8 @@ import { attachTooltip } from "./tooltip";
 
 // Operator separators: leading space (small indent after <br>) and NBSP*2
 // after (non-collapsing extra space before the next expression).
-const OP_IMPLIES = " ⇐  "; // " ⇐  " with NBSP
-const OP_AND = " &  "; //          " &  " with NBSP
+const OP_IMPLIES = " \u21d0\u00a0\u00a0"; // " <==  " with NBSP (\u00a0)
+const OP_AND = " &\u00a0\u00a0"; //          " &  " with NBSP (\u00a0)
 
 /**
  * Builds tooltip content from a fetched theorem page by cloning its expression
@@ -68,7 +68,7 @@ export function attachRuleTooltipsToPage(
 ): void {
   // Regex: optional whitespace, then exactly one NBSP, then optional whitespace.
   // trim() cannot be used because it removes NBSP in ES2015+ engines.
-  const nbspOnly = /^\s* \s*$/;
+  const nbspOnly = /^\s*\u00a0\s*$/;
   for (const a of root.querySelectorAll<HTMLAnchorElement>("a[href]")) {
     const href = a.getAttribute("href")!;
     if (href.startsWith("#")) continue;

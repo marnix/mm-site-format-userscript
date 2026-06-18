@@ -1,6 +1,6 @@
 // Inserts parse-tree-guided whitespace into a rendered expression: an empty
 // inline spacer before each token whose gap (from spans.gapUnits) is non-zero.
-// The original glyphs are untouched — only spacers are inserted (text nodes are
+// The original glyphs are untouched -- only spacers are inserted (text nodes are
 // split where a gap falls mid-text). The caller re-runs its tokenizer afterward
 // to refresh hover locations: spacers are empty so the tokenizer ignores them.
 

@@ -3,10 +3,10 @@
 // that turns one such piece of HTML into a space-separated MM token string.
 // Both modes are run on every page; on a given page only one finds anything.
 //
-// HTML interpretation principle (applies to every DOM query in this codebase —
-// here, loader.ts, table.ts, kind.ts, view.ts): prefer *semantic* selectors —
+// HTML interpretation principle (applies to every DOM query in this codebase --
+// here, loader.ts, table.ts, kind.ts, view.ts): prefer *semantic* selectors --
 // CSS classes and meaningful attribute values (`span.math`,
-// `table[summary="Proof of theorem"]`) — over structural/positional ones (tag
+// `table[summary="Proof of theorem"]`) -- over structural/positional ones (tag
 // nesting, :nth-child). Semantic selectors survive cosmetic layout changes and
 // make each query self-documenting.
 
@@ -35,12 +35,12 @@ export function extractMathText(span: Element): string {
 }
 
 /**
- * mpegif mode: an expression is any run of ≥2 consecutive img[alt] siblings
+ * mpegif mode: an expression is any run of >=2 consecutive img[alt] siblings
  * Some tokens are plain text rather than images (e.g. defined class-constants
  * like "Disjs", or the "class" typecode on a definition page), so a run is a
  * maximal stretch of img[alt] elements *and* non-whitespace text nodes,
  * uninterrupted by any other element. A run is an expression when it has at
- * least one image and at least two tokens (images + text words) — that keeps
+ * least one image and at least two tokens (images + text words) -- that keeps
  * the smallest real expressions ("wff ph", "class Rels") while rejecting prose
  * (no images) and isolated syntax-hint symbols (one token).
  *

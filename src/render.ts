@@ -1,11 +1,11 @@
 // Renders a calculation as a two-column layout to place above the proof table.
-// Left column: the `⇐` operator (on the hint rows), and the parenthesised Ref
+// Left column: the `<==` operator (on the hint rows), and the parenthesised Ref
 // in front of a leaf's expression. Right column: expressions, the
-// `{ using premise…, subproofs, and rule }` hints (the non-spine given
+// `{ using premise..., subproofs, and rule }` hints (the non-spine given
 // premises, a count word for any nested sub-derivations, and the rule last),
-// and — indented — the step sub-calculations. Following the spine, a step
+// and -- indented -- the step sub-calculations. Following the spine, a step
 // sub-calculation continues the main line and a given (a leaf) ends it; with no
-// clear main line the step holds outright instead — `⇔` down to TRUE. All HTML
+// clear main line the step holds outright instead -- `<==>` down to TRUE. All HTML
 // is cloned, so the table is left intact.
 
 import type { Calculation, Given, Step } from "./calculation";
@@ -15,8 +15,8 @@ export interface RenderOptions {
   fetchRuleTooltip?: (href: string) => Promise<Node | null>;
 }
 
-const OPERATOR = "⇐"; // the `<==` of the calculation
-const TERMINAL = "⇔"; // the `<==>` ending a spine with no clear main line, at TRUE
+const OPERATOR = "\u21d0"; // the `<==` of the calculation
+const TERMINAL = "\u21d4"; // the `<==>` ending a spine with no clear main line, at TRUE
 
 /** Clones an element's content into a fresh inline element. */
 function clone(source: Element): HTMLElement {
@@ -37,7 +37,7 @@ function appendSeries(parent: HTMLElement, items: Node[]): void {
 }
 
 // Row kinds, laid out by the injected stylesheet (styles.ts): an expression
-// line, a `{ using … }` hint, or an indented nested sub-calculation. The kind
+// line, a `{ using ... }` hint, or an indented nested sub-calculation. The kind
 // fixes both the right cell's class and the row's vertical spacing.
 type RowKind = "expr" | "hint" | "subcalc";
 const CONTENT_CLASS: Record<RowKind, string> = {
@@ -52,7 +52,7 @@ const ROW_CLASS: Record<RowKind, string> = {
 };
 
 /** A two-column row: the operator on the left, `content` on the right, styled by
- *  `kind`. `faded` deemphasizes the right cell only (a "small" step) — never the
+ *  `kind`. `faded` deemphasizes the right cell only (a "small" step) -- never the
  *  left column, so the operator and a leaf's Ref label stay sharp and you can
  *  still see where the conclusion came from. */
 function row(
@@ -75,7 +75,7 @@ function row(
   return tr;
 }
 
-// `faded` deemphasizes this step's own expression line — set by the parent when
+// `faded` deemphasizes this step's own expression line -- set by the parent when
 // the transition *into* this step was small (its hint + result, faded together).
 function appendStep(
   step: Step,
@@ -96,7 +96,7 @@ function appendStep(
     if (i === step.spine) return;
     if (sub.kind === "given") {
       const refEl = clone(sub.hypothesisRefHtml);
-      // sub.expressionHtml is not in the calc DOM, so no spacers — acceptable.
+      // sub.expressionHtml is not in the calc DOM, so no spacers -- acceptable.
       attachTooltip(refEl, () => clone(sub.expressionHtml));
       items.push(refEl);
     } else nested++;
@@ -122,9 +122,9 @@ function appendStep(
   hint.append("{ using ");
   appendSeries(hint, items);
   hint.append(" }");
-  // With no clear main line (spine === null) the step holds outright: `⇔` down
+  // With no clear main line (spine === null) the step holds outright: `<==>` down
   // to TRUE, justified by all its sub-proofs; otherwise the spine continues.
-  // A "small" step's hint — and its continuation expression below — are faded.
+  // A "small" step's hint -- and its continuation expression below -- are faded.
   const ended = step.spine === null;
   const small = step.smallSpine ?? false;
   tbody.appendChild(row(ended ? TERMINAL : OPERATOR, hint, "hint", small));
@@ -191,7 +191,7 @@ export function setCalcCollapsed(box: HTMLElement, collapsed: boolean): void {
 function makeCollapsible(table: HTMLTableElement): void {
   const tbody = table.querySelector("tbody");
   const rows = [...(tbody?.children ?? [])] as HTMLElement[];
-  if (rows.length < 2) return; // just a conclusion — nothing to fold away
+  if (rows.length < 2) return; // just a conclusion -- nothing to fold away
 
   const [conclusion, ...rest] = rows;
   const marker = document.createElement("span");
@@ -207,7 +207,7 @@ function makeCollapsible(table: HTMLTableElement): void {
   let collapsed = true;
   const refresh = () => {
     for (const r of rest) r.style.display = collapsed ? "none" : "";
-    marker.textContent = collapsed ? "▶" : "▼";
+    marker.textContent = collapsed ? "\u25b6" : "\u25bc";
   };
   const toggle = () => {
     collapsed = !collapsed;
@@ -235,7 +235,7 @@ function renderCalcTable(
   return table;
 }
 
-/** Renders a calculation as a DOM element (expressions joined by `⇐` hints). */
+/** Renders a calculation as a DOM element (expressions joined by `<==` hints). */
 export function renderCalculation(
   calc: Calculation,
   options?: RenderOptions,

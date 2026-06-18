@@ -2,7 +2,7 @@ export type Fetcher = (url: string) => Promise<string>;
 
 /**
  * Finds the URLs of the syntax-definition pages linked from the "Syntax hints:"
- * row — these define the grammar rules used on the page.
+ * row -- these define the grammar rules used on the page.
  */
 export function extractSyntaxHintUrls(
   doc: Document,
@@ -24,7 +24,7 @@ export function extractSyntaxHintUrls(
 
 /**
  * Finds the URLs of the theorem/axiom pages linked from the Ref column (the 3rd
- * TD of each proof-table row) — the assertions the proof's steps cite.
+ * TD of each proof-table row) -- the assertions the proof's steps cite.
  */
 export function extractRefUrls(doc: Document, pageUrl: string): string[] {
   const base = new URL(pageUrl);

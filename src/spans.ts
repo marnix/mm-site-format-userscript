@@ -1,6 +1,6 @@
 // Token spans of parse-tree nodes, used to decide what to highlight on hover.
 // A span is a half-open [start, end) range of token indices within the parsed
-// expression. Pure logic over a Proof — no DOM, no data-type changes.
+// expression. Pure logic over a Proof -- no DOM, no data-type changes.
 
 import type { Proof } from "./proof";
 
@@ -10,7 +10,7 @@ export type Span = [start: number, end: number];
  * Returns the token span of every node in the proof. Offsets are relative to
  * the proof's own token sequence. A node's width is the number of tokens it
  * consumed: each literal in its rule's pattern is one token, each hole consumes
- * its sub-proof's span (in pattern order — rules are linear).
+ * its sub-proof's span (in pattern order -- rules are linear).
  */
 export function nodeSpans(proof: Proof): Span[] {
   const spans: Span[] = [];
@@ -65,7 +65,7 @@ export function smallestSpanContaining(
 
 /**
  * The whitespace "size" of a node: -1 for a leaf, else the max of its children
- * plus 1 (i.e. the subtree height). A simple, local heuristic — bigger
+ * plus 1 (i.e. the subtree height). A simple, local heuristic -- bigger
  * sub-expressions get more space around their operator. Easy to swap out.
  */
 function spacingOf(proof: Proof, memo: Map<Proof, number>): number {
@@ -82,8 +82,8 @@ function spacingOf(proof: Proof, memo: Map<Proof, number>): number {
 /**
  * Units of extra whitespace to put *before* each token of the proof's token
  * sequence (`units[0]` is 0). A node contributes its spacing to the gaps
- * strictly between its first and last sub-expression — i.e. around its operators
- * — and nothing before the first or after the last, so brackets stay tight and
+ * strictly between its first and last sub-expression -- i.e. around its operators
+ * -- and nothing before the first or after the last, so brackets stay tight and
  * the space around an operator is symmetric.
  */
 export function gapUnits(proof: Proof): number[] {

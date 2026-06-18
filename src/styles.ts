@@ -7,19 +7,19 @@
 // they come from config and pair with the CSS Custom Highlight registration.
 
 // Class names (all prefixed `mm-site-format-`):
-// - `…-calc`            the calculation box (a <div>)
-// - `…-calc-op`         the left column: the ⇐/⇔ operator and a leaf's (Ref)
-// - `…-calc-expr`       an expression cell (hanging indent for wrapped lines)
-// - `…-calc-hint`       a `{ using … }` hint cell (indented after the operator;
+// - `...-calc`            the calculation box (a <div>)
+// - `...-calc-op`         the left column: the <==/<==> operator and a leaf's (Ref)
+// - `...-calc-expr`       an expression cell (hanging indent for wrapped lines)
+// - `...-calc-hint`       a `{ using ... }` hint cell (indented after the operator;
 //                       wraps with a hanging indent by the width of "{ ")
-// - `…-calc-subcalc`    an indented nested sub-calculation cell
-// - `…-calc-faded`      a deemphasized "small" step's hint / continuation
-// - `…-calc-row--hint`, `--subcalc`  vertical space around hints / sub-calcs
+// - `...-calc-subcalc`    an indented nested sub-calculation cell
+// - `...-calc-faded`      a deemphasized "small" step's hint / continuation
+// - `...-calc-row--hint`, `--subcalc`  vertical space around hints / sub-calcs
 //   (EWD1300 layout: symmetric space around hints, more around sub-calculations)
-// - `…-fold`            the ▶/▼ disclosure marker
-// - `…-banner`          the fixed "active" banner (bottom-right)
-// - `…-view-box`        the fixed Calculation/Table switch box, when the page
-//                       has no "… version" line to host the switch (top-right)
+// - `...-fold`            the >/v disclosure marker
+// - `...-banner`          the fixed "active" banner (bottom-right)
+// - `...-view-box`        the fixed Calculation/Table switch box, when the page
+//                       has no "... version" line to host the switch (top-right)
 const CSS = `
 .mm-site-format-calc { box-sizing:border-box; border:1px solid #ccc; padding:6px 10px; margin:8px 0; text-align:left; font-weight:normal }
 .mm-site-format-calc table { border:none; border-collapse:collapse; margin:0 }

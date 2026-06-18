@@ -60,7 +60,7 @@ describe("parseGifExpressions (mpegif/disjrel)", () => {
         .startsWith(prefix),
     );
 
-  it("parses ( Disj R -> Rel R ) — single-hypothesis rules (Rel, Disj)", async () => {
+  it("parses ( Disj R -> Rel R ) -- single-hypothesis rules (Rel, Disj)", async () => {
     const results = await parseGifExpressions(
       doc,
       "https://us.metamath.org/mpegif/disjrel.html",
@@ -123,15 +123,15 @@ describe("parseUniExpressions (mpeuni/bitrdi)", () => {
       fetcher,
     );
 
-    // 9 span.math: 7 real expressions + the "→"/"↔" syntax-hint operator spans.
+    // 9 span.math: 7 real expressions + the "->"/"<->" syntax-hint operator spans.
     expect(results.filter((r) => r.proof !== null)).toHaveLength(7);
 
     const assertion = results[2];
     expect(assertion.tokens.map((t) => t.text).join(" ")).toBe(
-      "⊢ ( 𝜑 → ( 𝜓 ↔ 𝜃 ) )",
+      "\u22a2 ( \u{1d711} \u2192 ( \u{1d713} \u2194 \u{1d703} ) )",
     );
     expect(evaluate(assertion.proof!).conclusion).toEqual([
-      "$TOP", "⊢", "(", "𝜑", "→", "(", "𝜓", "↔", "𝜃", ")", ")",
+      "$TOP", "\u22a2", "(", "\u{1d711}", "\u2192", "(", "\u{1d713}", "\u2194", "\u{1d703}", ")", ")",
     ]); // prettier-ignore
   });
 });

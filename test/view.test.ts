@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { linkWithView, searchWithView, tableSelected } from "../src/view";
 
 describe("tableSelected", () => {
-  it("is false for a plain URL — calculation is the default", () => {
+  it("is false for a plain URL -- calculation is the default", () => {
     expect(tableSelected("")).toBe(false);
     expect(tableSelected("?foo=bar")).toBe(false);
   });

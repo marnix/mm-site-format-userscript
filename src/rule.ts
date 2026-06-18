@@ -1,7 +1,7 @@
 // Extracts an inference (grammar) rule from a GIF syntax-definition page. The
 // conclusion is the Assertion expression; the assumptions are the mandatory
 // variable typings from the Hypotheses table (e.g. "wff ph"). Both are read as
-// plain ALT text — no colour sampling — so this works on a fetched, unrendered
+// plain ALT text -- no colour sampling -- so this works on a fetched, unrendered
 // linked page.
 
 import { extractGifText, findGifRuns } from "./expression";

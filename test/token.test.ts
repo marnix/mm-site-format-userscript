@@ -26,14 +26,14 @@ describe("tokenizeMathSpan (mpeuni)", () => {
 
   it("tags variables with their kind and leaves constants untyped", () => {
     expect(tokenizeMathSpan(assertion, kinds)).toEqual([
-      { kind: null, text: "⊢" },
+      { kind: null, text: "\u22a2" },
       { kind: null, text: "(" },
-      { kind: "wff", text: "𝜑" },
-      { kind: null, text: "→" },
+      { kind: "wff", text: "\u{1d711}" },
+      { kind: null, text: "\u2192" },
       { kind: null, text: "(" },
-      { kind: "wff", text: "𝜓" },
-      { kind: null, text: "↔" },
-      { kind: "wff", text: "𝜃" },
+      { kind: "wff", text: "\u{1d713}" },
+      { kind: null, text: "\u2194" },
+      { kind: "wff", text: "\u{1d703}" },
       { kind: null, text: ")" },
       { kind: null, text: ")" },
     ]);
@@ -100,8 +100,8 @@ describe("locateMathSpan (mpeuni)", () => {
   });
 
   it("locates a variable at its span element", () => {
-    const phi = located[2]; // 𝜑
-    expect(phi.token).toEqual({ kind: "wff", text: "𝜑" });
+    const phi = located[2]; // U+1D711
+    expect(phi.token).toEqual({ kind: "wff", text: "\u{1d711}" });
     expect(phi.location.type).toBe("element");
   });
 
@@ -121,21 +121,31 @@ describe("tokenizeMathSpan (dense Unicode: subscripts and concatenated constants
   const kinds = new Set(["setvar"]);
 
   it("splits run-together constants by vocabulary and folds subscripts", () => {
-    // Mimics 00sr step 3: [⟨x, y⟩] ~R 0R, where the brackets are concatenated
+    // Mimics 00sr step 3: [\u27e8x, y\u27e9] ~R 0R, where the brackets are concatenated
     // with no delimiter and ~R / 0R render with the R in a <sub> element.
     const span = document.createElement("span");
     span.innerHTML =
-      '([⟨<span class="setvar">x</span>, <span class="setvar">y</span>⟩] ~<i><sub><b>R</b></sub></i> 0<i><sub><b>R</b></sub></i>)';
-    const vocab = new Set(["(", "[", "⟨", "⟩", "]", "~R", "0R", ",", ")"]);
+      '([\u27e8<span class="setvar">x</span>, <span class="setvar">y</span>\u27e9] ~<i><sub><b>R</b></sub></i> 0<i><sub><b>R</b></sub></i>)';
+    const vocab = new Set([
+      "(",
+      "[",
+      "\u27e8",
+      "\u27e9",
+      "]",
+      "~R",
+      "0R",
+      ",",
+      ")",
+    ]);
 
     expect(tokenizeMathSpan(span, kinds, vocab)).toEqual([
       { kind: null, text: "(" },
       { kind: null, text: "[" },
-      { kind: null, text: "⟨" },
+      { kind: null, text: "\u27e8" },
       { kind: "setvar", text: "x" },
       { kind: null, text: "," },
       { kind: "setvar", text: "y" },
-      { kind: null, text: "⟩" },
+      { kind: null, text: "\u27e9" },
       { kind: null, text: "]" },
       { kind: null, text: "~R" },
       { kind: null, text: "0R" },
@@ -171,19 +181,19 @@ describe("tokenizeMathSpan (dense Unicode: subscripts and concatenated constants
     expect(findTokenAt(locations, rText, 0)).toBe(0);
   });
 
-  it("folds a surrogate-pair subscript (e.g. ↑𝑟) without running off the run", () => {
-    // relexpaddg renders relation exponentiation as `↑` with `𝑟` (U+1D45F, a
+  it("folds a surrogate-pair subscript (e.g. \u2191\u{1d45f}) without running off the run", () => {
+    // relexpaddg renders relation exponentiation as `\u2191` with `\u{1d45f}` (U+1D45F, a
     // surrogate pair) in a <sub>. Folding it must stay aligned with the run's
     // UTF-16 offsets, or the vocabulary munch indexes past the end and throws.
     const span = document.createElement("span");
     span.innerHTML =
-      '(<span class="class">𝑅</span>↑<sub>𝑟</sub><span class="class">𝑁</span>)';
-    const vocab = new Set(["(", ")", "↑𝑟"]);
+      '(<span class="class">\u{1d445}</span>\u2191<sub>\u{1d45f}</sub><span class="class">\u{1d441}</span>)';
+    const vocab = new Set(["(", ")", "\u2191\u{1d45f}"]);
     expect(tokenizeMathSpan(span, new Set(["class"]), vocab)).toEqual([
       { kind: null, text: "(" },
-      { kind: "class", text: "𝑅" },
-      { kind: null, text: "↑𝑟" },
-      { kind: "class", text: "𝑁" },
+      { kind: "class", text: "\u{1d445}" },
+      { kind: null, text: "\u2191\u{1d45f}" },
+      { kind: "class", text: "\u{1d441}" },
       { kind: null, text: ")" },
     ]);
   });

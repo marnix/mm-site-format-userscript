@@ -28,16 +28,16 @@ describe("spanToHighlight (mpeuni/bitrdi assertion)", () => {
       "https://us.metamath.org/mpeuni/bitrdi.html",
       fetcher,
     );
-    // assertion: ⊢ ( 𝜑 → ( 𝜓 ↔ 𝜃 ) )
+    // assertion: |- ( phi -> ( psi <-> th ) )
     // indices:    0 1 2  3 4 5  6 7 8 9
     const a = results[2];
     const n = a.locations.length;
     const at = (i: number) => spanToHighlight(a.proof!, n, i);
 
-    expect(at(7)).toEqual([7, 8]); // 𝜃 → itself
-    expect(at(6)).toEqual([4, 9]); // ↔ → ( 𝜓 ↔ 𝜃 )
-    expect(at(3)).toEqual([1, 10]); // → → ( 𝜑 → ( 𝜓 ↔ 𝜃 ) )
-    expect(at(0)).toEqual([0, 10]); // ⊢ → whole statement
+    expect(at(7)).toEqual([7, 8]); // th -> itself
+    expect(at(6)).toEqual([4, 9]); // <-> -> ( psi <-> th )
+    expect(at(3)).toEqual([1, 10]); // -> -> ( phi -> ( psi <-> th ) )
+    expect(at(0)).toEqual([0, 10]); // |- -> whole statement
   });
 
   it("maps a caret position to its token (variable element and bare text)", async () => {
@@ -48,7 +48,7 @@ describe("spanToHighlight (mpeuni/bitrdi assertion)", () => {
     );
     const a = results[2];
 
-    // index 7 is the 𝜃 variable (an element location); a caret inside its
+    // index 7 is the th variable (an element location); a caret inside its
     // child text node should resolve to that token.
     const phiLoc = a.locations[7];
     expect(phiLoc.type).toBe("element");
@@ -57,7 +57,7 @@ describe("spanToHighlight (mpeuni/bitrdi assertion)", () => {
       expect(findTokenAt(a.locations, inner, 0)).toBe(7);
     }
 
-    // index 6 is the ↔ operator (a bare-text location); a caret inside its
+    // index 6 is the <-> operator (a bare-text location); a caret inside its
     // substring should resolve to it.
     const opLoc = a.locations[6];
     expect(opLoc.type).toBe("text");
@@ -109,7 +109,7 @@ describe("installHover cross-view matching", () => {
     span.textContent = "x";
     document.body.appendChild(span);
 
-    // A minimal proof for a single-token expression (subst empty → "x" is a
+    // A minimal proof for a single-token expression (subst empty -> "x" is a
     // literal, so nodeSpans returns [[0,1]]).
     const proof: Proof = {
       rule: { assumptions: [], conclusion: ["wff", "x"] },

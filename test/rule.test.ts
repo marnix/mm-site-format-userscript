@@ -49,13 +49,13 @@ describe("gifAssertionRule", () => {
 });
 
 describe("uniAssertionRule", () => {
-  it("extracts wi with Unicode glyphs (→, 𝜑, 𝜓)", () => {
+  it("extracts wi with Unicode glyphs (\u2192, \u{1d711}, \u{1d713})", () => {
     expect(uniRuleOf("wi.html")).toEqual({
       assumptions: [
-        ["wff", "𝜑"],
-        ["wff", "𝜓"],
+        ["wff", "\u{1d711}"],
+        ["wff", "\u{1d713}"],
       ],
-      conclusion: ["wff", "(", "𝜑", "→", "𝜓", ")"],
+      conclusion: ["wff", "(", "\u{1d711}", "\u2192", "\u{1d713}", ")"],
     });
   });
 });

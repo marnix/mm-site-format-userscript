@@ -23,7 +23,7 @@ function img(src: string): Element {
 }
 
 describe("parseKindColors", () => {
-  it("reads the colour→kind map from the legend", () => {
+  it("reads the colour->kind map from the legend", () => {
     expect(colors.get("0,0,255")).toBe("wff");
     expect(colors.get("255,0,0")).toBe("setvar");
     expect(colors.get("204,51,204")).toBe("class");
@@ -76,7 +76,7 @@ describe("parseKindColors (ILE old <FONT COLOR> legend)", () => {
     );
     const m = parseKindColors(ile);
     expect(m.get("0,0,255")).toBe("wff"); // <FONT COLOR="#0000FF">wff
-    expect(m.get("255,0,0")).toBe("setvar"); // <FONT COLOR="#FF0000">set → setvar
+    expect(m.get("255,0,0")).toBe("setvar"); // <FONT COLOR="#FF0000">set -> setvar
     expect(m.get("204,51,204")).toBe("class"); // <FONT COLOR="#CC33CC">class
   });
 });

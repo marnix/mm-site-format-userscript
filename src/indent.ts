@@ -2,8 +2,8 @@
 // begins with a depth "leader" (`<span class=i>. . . n</span>`) and then the
 // expression, which starts with the turnstile. Left alone, a long expression
 // wraps back under the leader; instead we indent continuation lines to line up
-// under the expression body — past the leader, the turnstile, and the space
-// after it — so the structure stays readable.
+// under the expression body -- past the leader, the turnstile, and the space
+// after it -- so the structure stays readable.
 //
 // The indent is per row (the leader's width varies with proof depth) and needs
 // layout to measure, so it is applied as inline padding/text-indent rather than
@@ -28,7 +28,7 @@ export function expressionParts(
  * Gives every Expression cell of the proof table a hanging indent so wrapped
  * lines align under the expression body rather than under the leader. Measures
  * each row's indent as the distance from the leader's left to the turnstile's
- * right (≈ leader + turnstile + the following space); browser only — a no-op
+ * right (approx. leader + turnstile + the following space); browser only -- a no-op
  * where the cells are not laid out. Must run while the table is laid out (before
  * any `display:none`); the leading position is unaffected by the whitespace
  * spacers, so it can run before the parse pass.

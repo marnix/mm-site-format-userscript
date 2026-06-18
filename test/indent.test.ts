@@ -12,12 +12,12 @@ describe("expressionParts", () => {
   it("finds the leader and the turnstile in a Unicode cell", () => {
     const td = cell(
       '<a name="1"></a><span class="i">. . 3</span>' +
-        '<span class="math"><span class="hidden">⊢ </span> Rels = X</span>',
+        '<span class="math"><span class="hidden">|- </span> Rels = X</span>',
     );
     const parts = expressionParts(td);
     expect(parts).not.toBeNull();
     expect(parts!.leader).toBe(td.querySelector("span.i"));
-    // the turnstile is the math span's first child (the gray ⊢)
+    // the turnstile is the math span's first child (the gray |-)
     expect(parts!.turnstile).toBe(
       td.querySelector("span.math")!.firstElementChild,
     );
@@ -31,7 +31,7 @@ describe("expressionParts", () => {
     const parts = expressionParts(td);
     expect(parts).not.toBeNull();
     expect(parts!.leader).toBe(td.querySelector("span.i"));
-    expect(parts!.turnstile).toBe(td.querySelector("img")); // the first img = ⊢
+    expect(parts!.turnstile).toBe(td.querySelector("img")); // the first img = |-
   });
 
   it("is null when the cell has no expression (no leader/turnstile)", () => {

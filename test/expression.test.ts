@@ -21,15 +21,15 @@ describe("findMathSpans + extractMathText (mpeuni)", () => {
   it("extracts every span.math expression in document order", () => {
     const exprs = findMathSpans(doc).map(extractMathText);
     expect(exprs).toEqual([
-      "⊢ ( 𝜑 → ( 𝜓 ↔ 𝜒 ))", // hypothesis 1
-      "⊢ ( 𝜒 ↔ 𝜃 )", // hypothesis 2
-      "⊢ ( 𝜑 → ( 𝜓 ↔ 𝜃 ))", // assertion
-      "⊢ ( 𝜑 → ( 𝜓 ↔ 𝜒 ))", // proof step 1
-      "⊢ ( 𝜒 ↔ 𝜃 )", // proof step 2
-      "⊢ ( 𝜑 → ( 𝜒 ↔ 𝜃 ))", // proof step 3
-      "⊢ ( 𝜑 → ( 𝜓 ↔ 𝜃 ))", // proof step 4
-      "→", // syntax-hint operator
-      "↔", // syntax-hint operator
+      "\u22a2 ( \u{1d711} \u2192 ( \u{1d713} \u2194 \u{1d712} ))", // hypothesis 1
+      "\u22a2 ( \u{1d712} \u2194 \u{1d703} )", // hypothesis 2
+      "\u22a2 ( \u{1d711} \u2192 ( \u{1d713} \u2194 \u{1d703} ))", // assertion
+      "\u22a2 ( \u{1d711} \u2192 ( \u{1d713} \u2194 \u{1d712} ))", // proof step 1
+      "\u22a2 ( \u{1d712} \u2194 \u{1d703} )", // proof step 2
+      "\u22a2 ( \u{1d711} \u2192 ( \u{1d712} \u2194 \u{1d703} ))", // proof step 3
+      "\u22a2 ( \u{1d711} \u2192 ( \u{1d713} \u2194 \u{1d703} ))", // proof step 4
+      "\u2192", // syntax-hint operator
+      "\u2194", // syntax-hint operator
     ]);
   });
 });
@@ -52,7 +52,7 @@ describe("findGifRuns + extractGifText (mpegif)", () => {
 
   it("captures two-token expressions (e.g. 'wff ph') on a definition page", () => {
     const exprs = findGifRuns(parse("mpegif", "wi.html")).map(extractGifText);
-    // These have only two img tags, so they require the ≥2 (not ≥3) threshold.
+    // These have only two img tags, so they require the >=2 (not >=3) threshold.
     expect(exprs).toContain("wff ph");
     expect(exprs).toContain("wff ps");
   });
