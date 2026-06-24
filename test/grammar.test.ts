@@ -105,6 +105,53 @@ describe("assembleGifGrammar", () => {
     expect(seen).toContain("wo.html"); // reachable only via df-thing's breakdown table
   });
 
+  it("breakdown fallback produces usable grammar rules from the $a definition's constructors", async () => {
+    // Simulates nmulprop: main page has no syntax hints, proof cites df-nmul
+    // (a $a |- definition) whose breakdown table links to wo.  The assembled
+    // grammar must include wo's rule so expressions using \/ can be parsed.
+    //
+    // wo assertion: wff ( ph \/ ps )  with wff ph, wff ps hypotheses.
+    // findGifRuns needs >= 1 img and >= 2 tokens; each row uses one img (the
+    // type code) plus a text node (the rest) so both conditions are met.
+    const woHtml = `<table summary="Hypotheses">
+                      <tr><td><img alt=" wff"> ph</td></tr>
+                      <tr><td><img alt=" wff"> ps</td></tr>
+                    </table>
+                    <table summary="Assertion">
+                      <tr><td><img alt=" wff"> ( ph \\/ ps )</td></tr>
+                    </table>`;
+    const main = new DOMParser().parseFromString(
+      `<table summary="Proof of theorem">
+         <tr><th>Step</th><th>Hyp</th><th>Ref</th><th>Expression</th></tr>
+         <tr><td>1</td><td>&nbsp;</td><td><a href="df-nmul.html">df-nmul</a></td><td></td></tr>
+       </table>`,
+      "text/html",
+    );
+    const pages: Record<string, string> = {
+      "df-nmul.html": `<table summary="Detailed syntax breakdown of definition">
+                         <tr><th>Step</th><th>Hyp</th><th>Ref</th><th>Expression</th></tr>
+                         <tr><td>1</td><td>&nbsp;</td><td><a href="wo.html">wo</a></td><td></td></tr>
+                       </table>`,
+      "wo.html": woHtml,
+      "cv.html": "<html></html>",
+      "wcel.html": "<html></html>",
+      "wceq.html": "<html></html>",
+      "weq.html": "<html></html>",
+      "wel.html": "<html></html>",
+    };
+    const fetcher = async (url: string) => {
+      const name = url.split("/").pop()!;
+      if (name in pages) return pages[name];
+      throw new Error(`no fixture for ${name}`);
+    };
+
+    const rules = await assembleGifGrammar(main, PAGE_URL, fetcher);
+
+    const conclusions = rules.map((r) => r.conclusion.join(" "));
+    expect(conclusions).toContain("wff ( ph \\/ ps )"); // wo rule present
+    expect(rules.map((r) => r.label).filter(Boolean)).toContain("wo");
+  });
+
   it("always loads the primitive syntax pages (cv, wcel, wceq, weq, wel), even unhinted", async () => {
     const main = new DOMParser().parseFromString(
       `<table summary="Proof of theorem">
