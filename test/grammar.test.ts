@@ -69,6 +69,42 @@ describe("assembleGifGrammar", () => {
     expect(seen).toContain("deepop.html"); // reachable only via thm's syntax hints
   });
 
+  it("falls back to the breakdown table for $a definition Ref pages that have no syntax hints", async () => {
+    // A page whose proof cites df-thing ($a |- definition, no syntax hints);
+    // df-thing's breakdown table links to wo, so wo must be loaded.
+    const main = new DOMParser().parseFromString(
+      `<table summary="Proof of theorem">
+         <tr><th>Step</th><th>Hyp</th><th>Ref</th><th>Expression</th></tr>
+         <tr><td>1</td><td>&nbsp;</td><td><a href="df-thing.html">df-thing</a></td><td></td></tr>
+       </table>`,
+      "text/html",
+    );
+    const pages: Record<string, string> = {
+      "df-thing.html": `<table summary="Detailed syntax breakdown of definition">
+                          <tr><th>Step</th><th>Hyp</th><th>Ref</th><th>Expression</th></tr>
+                          <tr><td>1</td><td>&nbsp;</td><td><a href="wo.html">wo</a></td><td></td></tr>
+                        </table>`,
+      "wo.html": "<html></html>",
+      "cv.html": "<html></html>",
+      "wcel.html": "<html></html>",
+      "wceq.html": "<html></html>",
+      "weq.html": "<html></html>",
+      "wel.html": "<html></html>",
+    };
+    const seen: string[] = [];
+    const trackingFetcher = async (url: string) => {
+      const name = url.split("/").pop()!;
+      seen.push(name);
+      if (name in pages) return pages[name];
+      throw new Error(`no fixture for ${name}`);
+    };
+
+    await assembleGifGrammar(main, PAGE_URL, trackingFetcher);
+
+    expect(seen).toContain("df-thing.html");
+    expect(seen).toContain("wo.html"); // reachable only via df-thing's breakdown table
+  });
+
   it("always loads the primitive syntax pages (cv, wcel, wceq, weq, wel), even unhinted", async () => {
     const main = new DOMParser().parseFromString(
       `<table summary="Proof of theorem">

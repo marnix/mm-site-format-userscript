@@ -7,13 +7,18 @@ import {
   PRIMITIVE_SYNTAX_PAGES,
   UNI_TOP_RULE,
 } from "./database-assumptions";
-import { extractRefUrls, extractSyntaxHintUrls, type Fetcher } from "./loader";
+import {
+  extractBreakdownRefUrls,
+  extractRefUrls,
+  extractSyntaxHintUrls,
+  type Fetcher,
+} from "./loader";
 import type { InferenceRule, Proof } from "./proof";
 import { gifAssertionRule, uniAssertionRule } from "./rule";
 
 /** Bump when the cached extraction format (grammar rules / URL lists) changes,
  *  so stale entries from an older build are ignored. */
-export const GRAMMAR_CACHE_VERSION = "1";
+export const GRAMMAR_CACHE_VERSION = "2";
 
 type RuleExtractor = (doc: Document) => InferenceRule | null;
 
@@ -45,19 +50,23 @@ export function collectConstants(rules: InferenceRule[]): Set<string> {
 /**
  * Assembles a grammar: `topRule` followed by one rule per syntax-definition
  * page. The syntax-definition pages come from the current page's syntax hints,
- * from each Ref-linked theorem page's syntax hints, and from the always-loaded
- * primitives (`PRIMITIVE_SYNTAX_PAGES`: `cv`, `wcel`, `wceq`).
+ * from each Ref-linked page's syntax hints (or breakdown refs as a fallback),
+ * and from the always-loaded primitives (`PRIMITIVE_SYNTAX_PAGES`).
  *
  * Pulling in the Ref pages' syntax hints is a workaround for incomplete syntax
  * hints: every constructor appearing in a proof step is introduced by some cited
  * assertion, whose own syntax hints list it -- so the union over the page and its
- * Ref pages covers the whole proof table. A residual gap remains for displayed
- * expressions that are *not* proof steps -- e.g. a definitional cross-reference
- * like `( Disj R <-> ... )` on disjrel, whose `<->` is hinted by neither the page
- * nor any Ref page; such an expression just fails to parse and is left alone.
- * Closing it fully would need transitive syntax loading (see TODO). The
- * primitives are read unconditionally because the site systematically omits them
- * (see database-assumptions.ts). A failed fetch is skipped rather than fatal.
+ * Ref pages covers the whole proof table.  For $a |- axiom/definition Ref pages
+ * (which have no syntax hints row), the breakdown table ("Detailed syntax
+ * breakdown of definition") is used instead -- it lists every constructor in
+ * the full parse tree of the axiom body, covering gaps like `wo` that appear
+ * only inside a definition referenced in the proof.  A residual gap remains for
+ * displayed expressions that are *not* proof steps -- e.g. a definitional
+ * cross-reference like `( Disj R <-> ... )` on disjrel; such expressions just
+ * fail to parse and are left alone.  Closing that fully would need transitive
+ * syntax loading (see TODO).  The primitives are read unconditionally because
+ * the site systematically omits them (see database-assumptions.ts).  A failed
+ * fetch is skipped rather than fatal.
  */
 async function assembleGrammar(
   doc: Document,
@@ -76,14 +85,18 @@ async function assembleGrammar(
   for (const page of PRIMITIVE_SYNTAX_PAGES)
     syntaxUrls.add(new URL(`${page}.html`, pageUrl).href);
 
-  // Add the syntax hints of each Ref-linked theorem page (resolving their hrefs
-  // against that page's own URL). Cache the extracted URL list per Ref page.
+  // Add the syntax hints of each Ref-linked page (resolving hrefs against that
+  // page's own URL).  For $a |- pages with no syntax hints, fall back to their
+  // breakdown table.  Cache the extracted URL list per Ref page.
   const refHints = await Promise.all(
     extractRefUrls(doc, pageUrl).map((url) =>
       cache
-        .get(`hints:${url}`, async () =>
-          extractSyntaxHintUrls(await fetchDoc(url), url),
-        )
+        .get(`hints:${url}`, async () => {
+          const refDoc = await fetchDoc(url);
+          const hints = extractSyntaxHintUrls(refDoc, url);
+          if (hints.length > 0) return hints;
+          return extractBreakdownRefUrls(refDoc, url);
+        })
         .catch(() => [] as string[]),
     ),
   );

@@ -43,6 +43,32 @@ export function extractRefUrls(doc: Document, pageUrl: string): string[] {
 }
 
 /**
+ * Finds the URLs of syntax-definition pages linked from the "Detailed syntax
+ * breakdown of definition" table on a $a |- axiom/definition page -- the
+ * constructors used to parse the body.  Returns [] if no such table is present.
+ */
+export function extractBreakdownRefUrls(
+  doc: Document,
+  pageUrl: string,
+): string[] {
+  const base = new URL(pageUrl);
+  const urls = new Set<string>();
+  const table = doc.querySelector(
+    'table[summary="Detailed syntax breakdown of definition"]',
+  );
+  for (const tr of table?.querySelectorAll("tr") ?? []) {
+    const tds = tr.querySelectorAll("td");
+    if (tds.length >= 3) {
+      for (const a of tds[2].querySelectorAll("a[href]")) {
+        const href = a.getAttribute("href");
+        if (href && !href.startsWith("#")) urls.add(new URL(href, base).href);
+      }
+    }
+  }
+  return [...urls];
+}
+
+/**
  * Finds the URLs of all pages linked from the syntax hints row and the Ref
  * column of the proof table on a metamath proof page.
  */
