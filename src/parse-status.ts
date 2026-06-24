@@ -1,3 +1,15 @@
+import type { ParsedExpression } from "./page";
+
+/**
+ * True when the expression's first token is inside the Assertion table, the
+ * Hypotheses table, or the Expression column (4th TD) of the proof table --
+ * the cells whose parse failures matter for the calculation view.
+ * Returns false for math in description paragraphs or other non-proof contexts.
+ */
+export function isProofExpression(_expr: ParsedExpression): boolean {
+  return true; // stub -- replaced in the next commit
+}
+
 /**
  * Adds a parse-warning indicator to the script banner when expressions failed
  * to parse -- meaning the grammar was insufficient even after workarounds.

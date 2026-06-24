@@ -1,6 +1,56 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from "vitest";
-import { installParseWarning } from "../src/parse-status";
+import { installParseWarning, isProofExpression } from "../src/parse-status";
+import type { ParsedExpression } from "../src/page";
+
+/** Minimal ParsedExpression pointing at a given DOM node. */
+const exprAt = (node: Element): ParsedExpression => ({
+  locations: [{ type: "element", node }],
+  proof: null,
+  tokens: [],
+});
+
+describe("isProofExpression", () => {
+  it.fails("returns false for an expression in a description paragraph (outside proof columns)", () => {
+    // Math that appears in the theorem's description text is not a proof-column
+    // expression.  Parse failures there are irrelevant to the calculation view
+    // and must not trigger the parse-warning indicator.
+    const span = document.createElement("span");
+    document.body.appendChild(span);
+    expect(isProofExpression(exprAt(span))).toBe(false); // stub returns true → fails
+    span.remove();
+  });
+
+  it("returns true for an expression in the Assertion table", () => {
+    const table = document.createElement("table");
+    table.setAttribute("summary", "Assertion");
+    const span = table.appendChild(document.createElement("span"));
+    document.body.appendChild(table);
+    expect(isProofExpression(exprAt(span))).toBe(true);
+    table.remove();
+  });
+
+  it("returns true for an expression in the Hypotheses table", () => {
+    const table = document.createElement("table");
+    table.setAttribute("summary", "Hypotheses");
+    const span = table.appendChild(document.createElement("span"));
+    document.body.appendChild(table);
+    expect(isProofExpression(exprAt(span))).toBe(true);
+    table.remove();
+  });
+
+  it("returns true for an expression in the Expression column (4th TD) of the proof table", () => {
+    const table = document.createElement("table");
+    table.setAttribute("summary", "Proof of theorem");
+    const tr = table.appendChild(document.createElement("tr"));
+    for (let i = 0; i < 3; i++) tr.appendChild(document.createElement("td"));
+    const exprTd = tr.appendChild(document.createElement("td"));
+    const span = exprTd.appendChild(document.createElement("span"));
+    document.body.appendChild(table);
+    expect(isProofExpression(exprAt(span))).toBe(true);
+    table.remove();
+  });
+});
 
 describe("installParseWarning", () => {
   it("does nothing when count is 0", () => {
