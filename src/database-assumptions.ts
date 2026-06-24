@@ -24,9 +24,13 @@ export const UNI_TOP_RULE: InferenceRule = {
 };
 
 // Syntax-definition pages always pulled into the grammar, because the site's
-// "Syntax hints" systematically omit them: `cv` (the setvar->class coercion) is
-// listed on no page at all, and `wcel` (in) / `wceq` (=) are dropped whenever
-// their operands are setvars (e.g. `x in y`, `x = y`, as on elirrv / elequ1).
+// "Syntax hints" systematically omit them.
+//  - `cv` (setvar->class coercion): listed on no page at all.
+//  - `wcel` (in) / `wceq` (=): dropped when operands are setvars (e.g. `x in
+//    y` on elirrv / elequ1); the site uses `wel` / `weq` there instead.
+//  - `weq` (setvar =) / `wel` (setvar in): $p syntax theorems; omitted because
+//    the site's syntax-hint collector only scanned $a statements (the binary
+//    fix on branch syntax-hints-def-bodies corrects this upstream).
 // Loaded the same way as any hinted page (fetched and extracted), not hardcoded
 // -- so if set.mm ever renames them this list is the single thing to update.
-export const PRIMITIVE_SYNTAX_PAGES = ["cv", "wcel", "wceq"];
+export const PRIMITIVE_SYNTAX_PAGES = ["cv", "wcel", "wceq", "weq", "wel"];

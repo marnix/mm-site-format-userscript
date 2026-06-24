@@ -28,7 +28,7 @@ describe("assembleGifGrammar", () => {
     expect(conclusions).toContain("wff ( ph -> ps )"); // wi
     expect(conclusions).toContain("wff ( ph <-> ps )"); // wb
     expect(conclusions).toContain("class x"); // cv, always read
-    // $TOP + the page's hints (wi, wb) + cv. wcel/wceq are also always
+    // $TOP + the page's hints (wi, wb) + cv. wcel/wceq/weq/wel are also always
     // requested but have no fixture here, so they are skipped.
     expect(
       rules
@@ -69,7 +69,7 @@ describe("assembleGifGrammar", () => {
     expect(seen).toContain("deepop.html"); // reachable only via thm's syntax hints
   });
 
-  it("always loads the primitive syntax pages (cv, wcel, wceq), even unhinted", async () => {
+  it("always loads the primitive syntax pages (cv, wcel, wceq, weq, wel), even unhinted", async () => {
     const main = new DOMParser().parseFromString(
       `<table summary="Proof of theorem">
          <tr><th>Step</th><th>Hyp</th><th>Ref</th><th>Expression</th></tr>
@@ -87,6 +87,8 @@ describe("assembleGifGrammar", () => {
     expect(seen).toContain("cv.html");
     expect(seen).toContain("wcel.html");
     expect(seen).toContain("wceq.html");
+    expect(seen).toContain("weq.html");
+    expect(seen).toContain("wel.html");
   });
 
   it("a second assembly sharing a cache (store) skips every fetch", async () => {
