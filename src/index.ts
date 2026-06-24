@@ -23,6 +23,7 @@ import { chooseSpine, isSmallStep } from "./spine";
 import { injectStyles } from "./styles";
 import { parseProofTable } from "./table";
 import { formatTokens } from "./token";
+import { installParseWarning } from "./parse-status";
 import { applyViewToLinks, installViewToggle, tableSelected } from "./view";
 
 declare const __USERSCRIPT_VERSION__: string;
@@ -208,20 +209,21 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   const finish =
     (install: (results: ParsedExpression[]) => void) =>
     (results: ParsedExpression[]) => {
-      for (const { tokens, proof } of results) {
-        if (!proof)
-          console.log(`${LOG} could not parse:`, formatTokens(tokens));
-      }
-      // Warn if the page displays syntax it did not list in its Syntax hints --
-      // a metamath site-generation bug we work around (see grammar.ts / TODO).
+      const failures = results.filter(({ proof }) => !proof);
+      for (const { tokens } of failures)
+        console.warn(`${LOG} could not parse:`, formatTokens(tokens));
+      // Info if the page declares incomplete Syntax hints -- the script found
+      // them via workarounds so expressions still parse, but it signals an
+      // upstream site-generation bug (see grammar.ts / TODO).
       const proofs = results
         .map((r) => r.proof)
         .filter((p): p is Proof => p !== null);
       const missing = missingSyntaxHints(proofs, declaredHints);
       if (missing.length)
-        console.warn(
+        console.info(
           `${LOG} incomplete Syntax hints -- shown but not listed: ${missing.join(", ")}`,
         );
+      installParseWarning(banner, failures.length);
       install(results);
       console.log(`${LOG} finished`);
     };
