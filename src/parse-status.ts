@@ -6,8 +6,19 @@ import type { ParsedExpression } from "./page";
  * the cells whose parse failures matter for the calculation view.
  * Returns false for math in description paragraphs or other non-proof contexts.
  */
-export function isProofExpression(_expr: ParsedExpression): boolean {
-  return true; // stub -- replaced in the next commit
+export function isProofExpression(expr: ParsedExpression): boolean {
+  const loc = expr.locations[0];
+  if (!loc) return false;
+  const el =
+    loc.node instanceof Element ? loc.node : loc.node.parentElement;
+  if (!el) return false;
+  if (el.closest('table[summary="Assertion"]')) return true;
+  if (el.closest('table[summary^="Hypothes"]')) return true;
+  const proofTable = el.closest('table[summary="Proof of theorem"]');
+  if (!proofTable) return false;
+  const td = el.closest("td");
+  if (!td) return false;
+  return [...(td.parentElement?.children ?? [])].indexOf(td) === 3;
 }
 
 /**

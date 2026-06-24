@@ -11,13 +11,13 @@ const exprAt = (node: Element): ParsedExpression => ({
 });
 
 describe("isProofExpression", () => {
-  it.fails("returns false for an expression in a description paragraph (outside proof columns)", () => {
+  it("returns false for an expression in a description paragraph (outside proof columns)", () => {
     // Math that appears in the theorem's description text is not a proof-column
     // expression.  Parse failures there are irrelevant to the calculation view
     // and must not trigger the parse-warning indicator.
     const span = document.createElement("span");
     document.body.appendChild(span);
-    expect(isProofExpression(exprAt(span))).toBe(false); // stub returns true → fails
+    expect(isProofExpression(exprAt(span))).toBe(false);
     span.remove();
   });
 

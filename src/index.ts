@@ -23,7 +23,7 @@ import { chooseSpine, isSmallStep } from "./spine";
 import { injectStyles } from "./styles";
 import { parseProofTable } from "./table";
 import { formatTokens } from "./token";
-import { installParseWarning } from "./parse-status";
+import { installParseWarning, isProofExpression } from "./parse-status";
 import { applyViewToLinks, installViewToggle, tableSelected } from "./view";
 
 declare const __USERSCRIPT_VERSION__: string;
@@ -209,7 +209,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   const finish =
     (install: (results: ParsedExpression[]) => void) =>
     (results: ParsedExpression[]) => {
-      const failures = results.filter(({ proof }) => !proof);
+      const failures = results.filter((r) => !r.proof && isProofExpression(r));
       for (const { tokens } of failures)
         console.warn(`${LOG} could not parse:`, formatTokens(tokens));
       // Info if the page declares incomplete Syntax hints -- the script found
