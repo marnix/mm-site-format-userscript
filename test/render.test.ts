@@ -68,7 +68,7 @@ describe("renderCalculation", () => {
     // Conclusion (STEP3) stays; the hint and the rest are hidden.
     expect(rows[0].style.display).not.toBe("none");
     expect(rows[0].textContent).toContain("STEP3");
-    expect(rows[1].style.display).toBe("none"); // \u21d0 { a1i }
+    expect(rows[1].style.display).toBe("none"); // \u21d0 (<==) { a1i }
     expect(rows[2].style.display).toBe("none"); // HYP2
 
     // A disclosure marker on the conclusion expands it on click.
@@ -126,7 +126,7 @@ describe("renderCalculation", () => {
       [...tr.children].map((td) => td.textContent),
     );
     expect(rows[0]).toEqual(["", "GOAL"]);
-    expect(rows[1][0]).toBe("\u21d4"); // spine ends here, not \u21d0
+    expect(rows[1][0]).toBe("\u21d4"); // spine ends here, not \u21d0 (<==)
     expect(rows[1][1]).toBe("{ using subproofs and bitrd }");
     expect(rows[rows.length - 1]).toEqual(["", "TRUE"]); // ...down to TRUE
   });

@@ -7,8 +7,8 @@ import { attachTooltip } from "./tooltip";
 
 // Operator separators: leading space (small indent after <br>) and NBSP*2
 // after (non-collapsing extra space before the next expression).
-const OP_IMPLIES = " \u21d0\u00a0\u00a0"; // " <==  " with NBSP (\u00a0)
-const OP_AND = " &\u00a0\u00a0"; //          " &  " with NBSP (\u00a0)
+const OP_IMPLIES = " \u21d0\u00a0\u00a0"; // " <==  " with non-breaking space (\u00a0)
+const OP_AND = " &\u00a0\u00a0"; //          " &  " with non-breaking space (\u00a0)
 
 /**
  * Builds tooltip content from a fetched theorem page by cloning its expression

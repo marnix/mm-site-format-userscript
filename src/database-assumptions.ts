@@ -13,7 +13,7 @@ export const TOP_TYPE = "$TOP";
 // An assertion is `<turnstile> <wff>`. The one built-in rule turns "prove this
 // statement" into "parse a wff after the turnstile" -- i.e. the top of every
 // expression is a wff. The turnstile differs by rendering: `|-` on GIF pages,
-// `\u22a2` on Unicode pages, so there is one top rule per mode.
+// `\u22a2` (|-) on Unicode pages, so there is one top rule per mode.
 export const GIF_TOP_RULE: InferenceRule = {
   assumptions: [["wff", "chi"]],
   conclusion: [TOP_TYPE, "|-", "chi"],

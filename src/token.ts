@@ -155,7 +155,7 @@ export function locateMathSpan(
         // reusing the base character's position so the token stays located there.
         // Push per UTF-16 code unit (not per code point), so run indices stay
         // aligned with the joined run text's offsets -- a surrogate-pair subscript
-        // (e.g. `\u{1d45f}` in `\u2191\u{1d45f}`) would otherwise desync them and the munch's offsets
+        // (e.g. `\u{1d45f}` (math-italic r) in `\u2191\u{1d45f}` (up-arrow + math-italic r)) would otherwise desync them and the munch's offsets
         // would run off the end of `run`.
         const base = run[run.length - 1];
         const subText = el.textContent ?? "";

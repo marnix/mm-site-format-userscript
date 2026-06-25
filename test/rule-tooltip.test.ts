@@ -162,7 +162,7 @@ describe("attachRuleTooltipsToPage", () => {
   it("attaches to links where a newline precedes the &nbsp; (Referenced-by pattern)", () => {
     // In metamath.org's 'This theorem is referenced by:' section, the HTML is:
     //   <a href="bitr2d.html">bitr2d</a>\n&nbsp;<span class="r">282</span>
-    // The \n means the text node between <a> and <span class="r"> is "\n\u00a0",
+    // The \n means the text node between <a> and <span class="r"> is "\n\u00a0" (NBSP),
     // not just "\u00a0", so a strict === "\u00a0" check misses these links.
     const div = document.createElement("div");
     div.innerHTML =

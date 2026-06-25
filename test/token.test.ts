@@ -119,7 +119,7 @@ describe("locateMathSpan (mpeuni)", () => {
 
 describe("tokenizeMathSpan ({ and } split as individual tokens on grammar pages)", () => {
   it("splits { adjacent to non-paren char into separate tokens (no vocab)", () => {
-    // Mimics copab assertion: {\u27e8 appears as raw text before the first variable
+    // Mimics copab assertion: {\u27e8 (<., left angle bracket) appears as raw text before the first variable
     // span. splitConstants must not collapse {\u27e8 into one token, or the parser
     // can never match csn(cop(...)) because {\u27e8 would land in the vocab and the
     // proof table would tokenize it as one opaque literal.
@@ -201,7 +201,7 @@ describe("tokenizeMathSpan (dense Unicode: subscripts and concatenated constants
   });
 
   it("folds a surrogate-pair subscript (e.g. \u2191\u{1d45f}) without running off the run", () => {
-    // relexpaddg renders relation exponentiation as `\u2191` with `\u{1d45f}` (U+1D45F, a
+    // relexpaddg renders relation exponentiation as `\u2191` (up-arrow) with `\u{1d45f}` (U+1D45F, a
     // surrogate pair) in a <sub>. Folding it must stay aligned with the run's
     // UTF-16 offsets, or the vocabulary munch indexes past the end and throws.
     const span = document.createElement("span");

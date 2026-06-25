@@ -16,10 +16,10 @@ const node = (r: InferenceRule, ...subproofs: Proof[]): Proof => ({
 });
 
 describe("missingSyntaxHints", () => {
-  // \u00ac ( x \u2208 x ): wn over wcel over cv-coerced setvars -- the elirrv shape.
+  // -. ( x e. x ): wn over wcel over cv-coerced setvars -- the elirrv shape.
   const cvx = () => node(rule("cv", ["class", "x"]));
-  const wcel = node(rule("wcel", ["wff", "A", "\u2208", "B"]), cvx(), cvx());
-  const wn = node(rule("wn", ["wff", "\u00ac", "ph"]), wcel);
+  const wcel = node(rule("wcel", ["wff", "A", "e.", "B"]), cvx(), cvx());
+  const wn = node(rule("wn", ["wff", "-.", "ph"]), wcel);
 
   it("reports constructors used in the proofs but not declared", () => {
     expect(missingSyntaxHints([wn], new Set(["wn"]))).toEqual(["wcel"]);
