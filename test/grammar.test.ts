@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest";
 import { createCache } from "../src/cache";
-import { assembleGifGrammar } from "../src/grammar";
+import { assembleGifGrammar, assembleUniGrammar } from "../src/grammar";
 import { GIF_TOP_RULE } from "../src/database-assumptions";
 import { parseExpression, type KindOf } from "../src/parse";
 import { evaluate } from "../src/proof";
@@ -18,6 +18,43 @@ const doc = new DOMParser().parseFromString(
 const fetcher = vi.fn(async (url: string) =>
   readFixture("mpegif", url.split("/").pop()!),
 );
+
+describe("assembleUniGrammar: rule ordering (longer patterns first)", () => {
+  // cuni (∪ A, len 3) and ciun (∪ x ∈ A B, len 6) share the ∪ prefix.
+  // nmulprop's syntax hints list cuni before ciun, so without a sort they appear
+  // in that order.  The packrat parser takes the first matching rule; with cuni
+  // first it greedily picks cuni(cv(x)) and leaves the rest of the indexed-union
+  // expression unconsumed.  assembleUniGrammar must sort rules by conclusion
+  // length (desc) so ciun (more specific) is tried before cuni.
+  const PAGE_URL = "https://us.metamath.org/mpeuni/ciun-ordering-test.html";
+
+  // Minimal page declaring cuni before ciun as syntax hints.
+  const pageHtml = `<html><body>
+    <table><tr><td><b>Syntax hints:</b>
+      <a href="cuni.html">cuni</a>
+      <a href="ciun.html">ciun</a>
+    </td></tr></table>
+  </body></html>`;
+
+  const fetcher = async (url: string): Promise<string> => {
+    const name = url.split("/").pop()!;
+    try {
+      return readFixture("mpeuni", name);
+    } catch {
+      return "<html></html>"; // primitives with no fixture → skipped
+    }
+  };
+
+  it("places ciun (len 6) before cuni (len 3) even when cuni is listed first in syntax hints", async () => {
+    const doc = new DOMParser().parseFromString(pageHtml, "text/html");
+    const rules = await assembleUniGrammar(doc, PAGE_URL, fetcher);
+    const ciunIdx = rules.findIndex((r) => r.label === "ciun");
+    const cuniIdx = rules.findIndex((r) => r.label === "cuni");
+    expect(ciunIdx).toBeGreaterThanOrEqual(0); // ciun must be present
+    expect(cuniIdx).toBeGreaterThanOrEqual(0); // cuni must be present
+    expect(ciunIdx).toBeLessThan(cuniIdx); // ciun before cuni
+  });
+});
 
 describe("assembleGifGrammar", () => {
   it("collects the $TOP rule plus a rule per syntax-hint page (wi, wb)", async () => {

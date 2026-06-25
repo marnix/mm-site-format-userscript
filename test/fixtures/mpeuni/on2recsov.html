@@ -1,0 +1,1177 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML LANG="EN-US">
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<STYLE TYPE="text/css">
+<!--
+img { margin-bottom: -4px }
+.r { font-family: "Arial Narrow";
+     font-size: x-small;
+   }
+.i { font-family: "Arial Narrow";
+     font-size: x-small;
+     color: gray;
+   }
+-->
+</STYLE>
+<STYLE TYPE="text/css">
+<!--
+  .setvar { color: red; }
+  .wff { color: blue; }
+  .class { color: #C3C; }
+  .symvar { border-bottom:1px dotted;color:#C3C}
+  .typecode { color: gray }
+  .hidden { color: gray }
+  @font-face {
+    font-family: XITSMath-Regular;
+    src: url(xits-math.woff);
+  }
+  .math { font-family: XITSMath-Regular }
+-->
+</STYLE>
+<LINK href="mmset.css" title="mmset"
+    rel="stylesheet" type="text/css">
+<LINK href="mmsetalt.css" title="mmsetalt"
+    rel="alternate stylesheet" type="text/css">
+<TITLE>on2recsov - Metamath Proof Explorer</TITLE>
+<LINK REL="shortcut icon" HREF="favicon.ico" TYPE="image/x-icon">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
+  <TR>
+    <TD ALIGN=LEFT VALIGN=TOP WIDTH="25%"><A HREF=
+    "mmset.html"><IMG SRC="mm.gif"
+      BORDER=0
+      ALT="MPE Home"
+      TITLE="MPE Home"
+      HEIGHT=32 WIDTH=32 ALIGN=TOP STYLE="margin-bottom:0px"></A>
+    </TD>
+    <TD ALIGN=CENTER COLSPAN=2 VALIGN=TOP><FONT SIZE="+3" COLOR="#006633"><B>
+Metamath Proof Explorer
+      </B></FONT></TD>
+    <TD ALIGN=RIGHT VALIGN=TOP WIDTH="25%">
+      <FONT SIZE=-1 FACE=sans-serif>
+      <A HREF="on2recsfn.html">
+      &lt; Previous</A>&nbsp;&nbsp;
+      <A HREF="on2ind.html">Next &gt;</A>
+      </FONT><FONT FACE=sans-serif SIZE=-2>
+      <BR><A HREF="mmtheorems87.html#on2recsov">Nearby theorems</A>
+      </FONT>
+    </TD>
+  </TR>
+  <TR>
+    <TD COLSPAN=2 ALIGN=LEFT VALIGN=TOP><FONT SIZE=-2
+      FACE=sans-serif>
+      <A HREF="../mm.html">Mirrors</A>&nbsp; &gt;
+      &nbsp;<A HREF="../index.html">Home</A>&nbsp; &gt;
+      &nbsp;<A HREF="mmset.html">MPE Home</A>&nbsp; &gt;
+      &nbsp;<A HREF="mmtheorems.html">Th. List</A>&nbsp; &gt;
+      &nbsp;on2recsov
+      </FONT>
+    </TD>
+    <TD COLSPAN=2 ALIGN=RIGHT VALIGN=TOP>
+      <FONT SIZE=-2 FACE=sans-serif>
+<A HREF="http://metamath.tirix.org/mpests/on2recsov.html">Structured
+version</A>&nbsp;&nbsp; <A
+HREF="https://expln.github.io/metamath/asrt/on2recsov.html">Visualization
+version</A>&nbsp;&nbsp; 
+      <A HREF="../mpegif/on2recsov.html">GIF version</A>
+      </FONT>
+    </TD>
+  </TR>
+</TABLE>
+<HR NOSHADE SIZE=1>
+<CENTER><B><FONT SIZE="+1">Theorem <FONT
+COLOR="#006633">on2recsov</FONT></FONT></B>&nbsp;<SPAN CLASS=r
+STYLE="color:#B76800">8638</SPAN></CENTER>
+<CENTER><TABLE><TR><TD ALIGN=LEFT><B>Description: </B>Calculate the value of
+the double ordinal recursion operator.
+         (Contributed by Scott Fenton, 3-Sep-2024.)</TD></TR></TABLE></CENTER>
+
+<CENTER><TABLE BORDER CELLSPACING=0 BGCOLOR="#EEFFFA"
+SUMMARY="Hypothesis">
+<CAPTION><B>Hypothesis</B></CAPTION>
+<TR><TH>Ref
+</TH><TH>Expression</TH></TR>
+<TR ALIGN=LEFT><TD>on2recs.1</TD><TD>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN><SPAN
+CLASS=class STYLE="color:#C3C">&#x1D439;</SPAN> = frecs({&lang;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On) &and;
+(((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>)
+E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)
+&or; (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or; (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>))}, (On &times; On), <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>)</SPAN></TD></TR>
+</TABLE></CENTER>
+<CENTER><TABLE BORDER CELLSPACING=0 BGCOLOR="#EEFFFA"
+SUMMARY="Assertion">
+<CAPTION><B>Assertion</B></CAPTION>
+<TR><TH>Ref
+</TH><TH>Expression</TH></TR>
+<TR ALIGN=LEFT><TD><FONT COLOR="#006633"><B>on2recsov</B></FONT></TD><TD>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; (<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN><SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN><SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) = (&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN> &#8638; ((suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &times; suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) &#8726; {&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;}))))</SPAN></TD></TR>
+</TABLE></CENTER>
+
+
+<CENTER><A HREF="mmset.html#distinct">Distinct variable</A> group: <SPAN
+CLASS=math> &nbsp; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>,<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN></SPAN></CENTER>
+<CENTER><A HREF="mmset.html#allowedsubst">Allowed substitution</A> hints: <SPAN
+CLASS=math> &nbsp; <SPAN CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>(<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>,<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &nbsp; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>(<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>,<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &nbsp; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN>(<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>,<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &nbsp; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>(<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>,<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>)</SPAN></CENTER>
+<HR NOSHADE SIZE=1>
+<CENTER><TABLE BORDER CELLSPACING=0 BGCOLOR="#EEFFFA"
+SUMMARY="Proof of theorem">
+<CAPTION><B>Proof of Theorem <FONT
+   COLOR="#006633">on2recsov</FONT></B></CAPTION>
+<TR><TH>Step</TH><TH>Hyp</TH><TH>Ref
+</TH><TH>Expression</TH></TR>
+<TR ALIGN=LEFT><TD>1</TD><TD>&nbsp;</TD><TD><A HREF="df-ov.html"
+TITLE="Define the value of an operation. Definition of operation value in [Enderton] p. 79....">df-ov</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#C85B00">7399</SPAN></TD><TD><A NAME="1"></A>
+<SPAN CLASS=i>. . 3</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN><SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN><SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) = (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN>&lsquo;&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>2</TD><TD>&nbsp;</TD><TD><A HREF="opelxp.html"
+TITLE="Ordered pair membership in a Cartesian product. (Contributed by NM, 15-Nov-1994.)...">opelxp</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#DB4900">5683</SPAN></TD><TD><A NAME="2"></A>
+<SPAN CLASS=i>. . . 4</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866;
+</SPAN>(&lang;<SPAN CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN>&rang; &isin; (On &times; On)
+&harr; (<SPAN CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and;
+<SPAN CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin;
+On))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>3</TD><TD>&nbsp;</TD><TD><A HREF="eqid.html"
+TITLE="Law of identity (reflexivity of class equality). Theorem 6.4 of [Quine] p. 41. This...">eqid</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F21D00">2762</SPAN></TD><TD><A NAME="3"></A>
+<SPAN CLASS=i>. . . . . . . 8</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866;
+</SPAN>{&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))} = {&lang;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>, <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On) &and;
+(((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>)
+E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)
+&or; (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or; (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>))}</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>4</TD><TD>&nbsp;</TD><TD><A HREF="onfr.html"
+TITLE="The ordinal class is well-founded. This proof does not require the axiom of...">onfr</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#D35000">6385</SPAN></TD><TD><A NAME="4"></A>
+<SPAN CLASS=i>. . . . . . . . 9</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN> E Fr
+On</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>5</TD><TD><A HREF="#4">4</A></TD><TD><A HREF="a1i.html"
+TITLE="Inference introducing an antecedent. Inference associated with ~ ax-1 . Its...">a1i</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0000">11</SPAN></TD><TD><A NAME="5"></A>
+<SPAN CLASS=i>. . . . . . . 8</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(&#x22A4;
+&rarr; E Fr On)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>6</TD><TD><A HREF="#3">3</A>, <A HREF="#5">5</A>, <A
+HREF="#5">5</A></TD><TD><A HREF="frxp2.html"
+TITLE="Another way of giving a well-founded order to a Cartesian product of two classes....">frxp2</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#BE6200">8124</SPAN></TD><TD><A NAME="6"></A>
+<SPAN CLASS=i>. . . . . . 7</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(&#x22A4;
+&rarr; {&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))} Fr (On &times;
+On))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>7</TD><TD><A HREF="#6">6</A></TD><TD><A HREF="mptru.html"
+TITLE="Eliminate ` T. ` as an antecedent. A proposition implied by ` T. ` is true. This is...">mptru</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F70A00">1567</SPAN></TD><TD><A NAME="7"></A>
+<SPAN CLASS=i>. . . . . 6</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866;
+</SPAN>{&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))} Fr (On &times;
+On)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>8</TD><TD>&nbsp;</TD><TD><A HREF="epweon.html"
+TITLE="The membership relation well-orders the class of ordinal numbers. This proof does...">epweon</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#C35E00">7758</SPAN></TD><TD><A NAME="8"></A>
+<SPAN CLASS=i>. . . . . . . . . 10</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN> E We
+On</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>9</TD><TD>&nbsp;</TD><TD><A HREF="weso.html"
+TITLE="A well-ordering is a strict ordering. (Contributed by NM, 16-Mar-1997.)">weso</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#DB4900">5638</SPAN></TD><TD><A NAME="9"></A>
+<SPAN CLASS=i>. . . . . . . . . 10</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>( E We On
+&rarr; E Or On)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>10</TD><TD>&nbsp;</TD><TD><A HREF="sopo.html"
+TITLE="A strict linear order is a strict partial order. (Contributed by NM, 28-Mar-1997.)">sopo</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#DC4800">5574</SPAN></TD><TD><A NAME="10"></A>
+<SPAN CLASS=i>. . . . . . . . . 10</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>( E Or On
+&rarr; E Po On)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>11</TD><TD><A HREF="#8">8</A>, <A HREF="#9">9</A>, <A
+HREF="#10">10</A></TD><TD><A HREF="mp2b.html"
+TITLE="A double modus ponens inference. (Contributed by Mario Carneiro, 24-Jan-2013.)">mp2b</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0000">10</SPAN></TD><TD><A NAME="11"></A>
+<SPAN CLASS=i>. . . . . . . . 9</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN> E Po
+On</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>12</TD><TD><A HREF="#11">11</A></TD><TD><A HREF="a1i.html"
+TITLE="Inference introducing an antecedent. Inference associated with ~ ax-1 . Its...">a1i</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0000">11</SPAN></TD><TD><A NAME="12"></A>
+<SPAN CLASS=i>. . . . . . . 8</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(&#x22A4;
+&rarr; E Po On)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>13</TD><TD><A HREF="#3">3</A>, <A HREF="#12">12</A>, <A
+HREF="#12">12</A></TD><TD><A HREF="poxp2.html"
+TITLE="Another way of partially ordering a Cartesian product of two classes. (Contributed...">poxp2</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#BE6200">8123</SPAN></TD><TD><A NAME="13"></A>
+<SPAN CLASS=i>. . . . . . 7</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(&#x22A4;
+&rarr; {&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))} Po (On &times;
+On))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>14</TD><TD><A HREF="#13">13</A></TD><TD><A HREF="mptru.html"
+TITLE="Eliminate ` T. ` as an antecedent. A proposition implied by ` T. ` is true. This is...">mptru</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F70A00">1567</SPAN></TD><TD><A NAME="14"></A>
+<SPAN CLASS=i>. . . . . 6</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866;
+</SPAN>{&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))} Po (On &times;
+On)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>15</TD><TD>&nbsp;</TD><TD><A HREF="epse.html"
+TITLE="The membership relation is set-like on any class. (This is the origin of the term...">epse</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#DB4900">5629</SPAN></TD><TD><A NAME="15"></A>
+<SPAN CLASS=i>. . . . . . . . 9</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN> E Se
+On</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>16</TD><TD><A HREF="#15">15</A></TD><TD><A HREF="a1i.html"
+TITLE="Inference introducing an antecedent. Inference associated with ~ ax-1 . Its...">a1i</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0000">11</SPAN></TD><TD><A NAME="16"></A>
+<SPAN CLASS=i>. . . . . . . 8</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(&#x22A4;
+&rarr; E Se On)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>17</TD><TD><A HREF="#3">3</A>, <A HREF="#16">16</A>, <A
+HREF="#16">16</A></TD><TD><A HREF="sexp2.html"
+TITLE="Condition for the relation in ~ frxp2 to be set-like. (Contributed by Scott Fenton,...">sexp2</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#BE6200">8126</SPAN></TD><TD><A NAME="17"></A>
+<SPAN CLASS=i>. . . . . . 7</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(&#x22A4;
+&rarr; {&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))} Se (On &times;
+On))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>18</TD><TD><A HREF="#17">17</A></TD><TD><A HREF="mptru.html"
+TITLE="Eliminate ` T. ` as an antecedent. A proposition implied by ` T. ` is true. This is...">mptru</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F70A00">1567</SPAN></TD><TD><A NAME="18"></A>
+<SPAN CLASS=i>. . . . . 6</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866;
+</SPAN>{&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))} Se (On &times;
+On)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>19</TD><TD><A HREF="#7">7</A>, <A HREF="#14">14</A>, <A
+HREF="#18">18</A></TD><TD><A HREF="3pm3.2i.html"
+TITLE="Infer conjunction of premises. (Contributed by NM, 10-Feb-1995.)">3pm3.2i</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F70900">1353</SPAN></TD><TD><A NAME="19"></A>
+<SPAN CLASS=i>. . . . 5</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866;
+</SPAN>({&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))} Fr (On &times; On) &and;
+{&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))} Po (On &times; On) &and;
+{&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))} Se (On &times;
+On))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>20</TD><TD>&nbsp;</TD><TD>on2recs.1</TD><TD><A
+NAME="20"></A>
+<SPAN CLASS=i>. . . . . 6</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN><SPAN
+CLASS=class STYLE="color:#C3C">&#x1D439;</SPAN> = frecs({&lang;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On) &and;
+(((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>)
+E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)
+&or; (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or; (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>))}, (On &times; On), <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>21</TD><TD><A HREF="#20">20</A></TD><TD><A HREF="fpr2.html"
+TITLE="Law of well-founded recursion over a partial order, part two. Now we establish the...">fpr2</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#BB6400">8285</SPAN></TD><TD><A NAME="21"></A>
+<SPAN CLASS=i>. . . . 5</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866;
+</SPAN>((({&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))} Fr (On &times; On) &and;
+{&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))} Po (On &times; On) &and;
+{&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))} Se (On &times; On)) &and;
+&lang;<SPAN CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang; &isin; (On &times; On)) &rarr; (<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D439;</SPAN>&lsquo;&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;) = (&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN> &#8638; Pred({&lang;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>, <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On) &and;
+(((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>)
+E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)
+&or; (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or; (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>))}, (On &times; On), &lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;))))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>22</TD><TD><A HREF="#19">19</A>, <A
+HREF="#21">21</A></TD><TD><A HREF="mpan.html"
+TITLE="An inference based on modus ponens. (Contributed by NM, 30-Aug-1993.) (Proof...">mpan</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F90400">700</SPAN></TD><TD><A NAME="22"></A>
+<SPAN CLASS=i>. . . 4</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866;
+</SPAN>(&lang;<SPAN CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN>&rang; &isin; (On &times; On)
+&rarr; (<SPAN CLASS=class STYLE="color:#C3C">&#x1D439;</SPAN>&lsquo;&lang;<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;) = (&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN> &#8638; Pred({&lang;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>, <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On) &and;
+(((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>)
+E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)
+&or; (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or; (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>))}, (On &times; On), &lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;))))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>23</TD><TD><A HREF="#2">2</A>, <A
+HREF="#22">22</A></TD><TD><A HREF="sylbir.html"
+TITLE="A mixed syllogism inference from a biconditional and an implication. (Contributed by...">sylbir</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0100">237</SPAN></TD><TD><A NAME="23"></A>
+<SPAN CLASS=i>. . 3</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; (<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D439;</SPAN>&lsquo;&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;) = (&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN> &#8638; Pred({&lang;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>, <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On) &and;
+(((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>)
+E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)
+&or; (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or; (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>))}, (On &times; On), &lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;))))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>24</TD><TD><A HREF="#1">1</A>, <A
+HREF="#23">23</A></TD><TD><A HREF="eqtrid.html"
+TITLE="An equality transitivity deduction. (Contributed by NM, 21-Jun-1993.)">eqtrid</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F11D00">2809</SPAN></TD><TD><A NAME="24"></A>
+<SPAN CLASS=i>. 2</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; (<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN><SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN><SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) = (&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN> &#8638; Pred({&lang;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>, <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On) &and;
+(((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>)
+E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)
+&or; (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or; (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>))}, (On &times; On), &lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;))))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>25</TD><TD><A HREF="#3">3</A></TD><TD><A
+HREF="xpord2pred.html"
+TITLE="Calculate the predecessor class in ~ frxp2 . (Contributed by Scott Fenton,...">xpord2pred</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#BE6200">8125</SPAN></TD><TD><A NAME="25"></A>
+<SPAN CLASS=i>. . . . 5</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr;
+Pred({&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))}, (On &times; On),
+&lang;<SPAN CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;) = (((Pred( E , On, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>) &cup; {<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>}) &times; (Pred( E , On, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) &cup; {<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>})) &#8726; {&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;}))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>26</TD><TD>&nbsp;</TD><TD><A HREF="predon.html"
+TITLE="The predecessor of an ordinal under ` _E ` and ` On ` is itself. (Contributed by...">predon</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#C35E00">7769</SPAN></TD><TD><A NAME="26"></A>
+<SPAN CLASS=i>. . . . . . . . . 10</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &rarr; Pred( E , On,
+<SPAN CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>) = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>27</TD><TD><A HREF="#26">26</A></TD><TD><A
+HREF="adantr.html"
+TITLE="Inference adding a conjunct to the right of an antecedent. (Contributed by NM,...">adantr</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F90300">484</SPAN></TD><TD><A NAME="27"></A>
+<SPAN CLASS=i>. . . . . . . . 9</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; Pred( E , On,
+<SPAN CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>) = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>28</TD><TD><A HREF="#27">27</A></TD><TD><A
+HREF="uneq1d.html"
+TITLE="Deduction adding union to the right in a class equality. (Contributed by NM,...">uneq1d</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#E93300">4120</SPAN></TD><TD><A NAME="28"></A>
+<SPAN CLASS=i>. . . . . . . 8</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; (Pred( E ,
+On, <SPAN CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>) &cup; {<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>}) = (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &cup; {<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>}))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>29</TD><TD>&nbsp;</TD><TD><A HREF="df-suc.html"
+TITLE="Define the successor of a class. When applied to an ordinal number, the successor...">df-suc</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#D35000">6352</SPAN></TD><TD><A NAME="29"></A>
+<SPAN CLASS=i>. . . . . . . 8</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>suc <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> = (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &cup; {<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>})</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>30</TD><TD><A HREF="#28">28</A>, <A
+HREF="#29">29</A></TD><TD><A HREF="eqtr4di.html"
+TITLE="An equality transitivity deduction. (Contributed by NM, 21-Jun-1993.)">eqtr4di</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F11E00">2815</SPAN></TD><TD><A NAME="30"></A>
+<SPAN CLASS=i>. . . . . . 7</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; (Pred( E ,
+On, <SPAN CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>) &cup; {<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>}) = suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>31</TD><TD>&nbsp;</TD><TD><A HREF="predon.html"
+TITLE="The predecessor of an ordinal under ` _E ` and ` On ` is itself. (Contributed by...">predon</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#C35E00">7769</SPAN></TD><TD><A NAME="31"></A>
+<SPAN CLASS=i>. . . . . . . . . 10</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On &rarr; Pred( E , On,
+<SPAN CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN>) = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>32</TD><TD><A HREF="#31">31</A></TD><TD><A
+HREF="adantl.html"
+TITLE="Inference adding a conjunct to the left of an antecedent. (Contributed by NM,...">adantl</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F90300">485</SPAN></TD><TD><A NAME="32"></A>
+<SPAN CLASS=i>. . . . . . . . 9</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; Pred( E , On,
+<SPAN CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN>) = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>33</TD><TD><A HREF="#32">32</A></TD><TD><A
+HREF="uneq1d.html"
+TITLE="Deduction adding union to the right in a class equality. (Contributed by NM,...">uneq1d</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#E93300">4120</SPAN></TD><TD><A NAME="33"></A>
+<SPAN CLASS=i>. . . . . . . 8</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; (Pred( E ,
+On, <SPAN CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN>) &cup; {<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN>}) = (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &cup; {<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>}))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>34</TD><TD>&nbsp;</TD><TD><A HREF="df-suc.html"
+TITLE="Define the successor of a class. When applied to an ordinal number, the successor...">df-suc</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#D35000">6352</SPAN></TD><TD><A NAME="34"></A>
+<SPAN CLASS=i>. . . . . . . 8</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>suc <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> = (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &cup; {<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>})</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>35</TD><TD><A HREF="#33">33</A>, <A
+HREF="#34">34</A></TD><TD><A HREF="eqtr4di.html"
+TITLE="An equality transitivity deduction. (Contributed by NM, 21-Jun-1993.)">eqtr4di</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F11E00">2815</SPAN></TD><TD><A NAME="35"></A>
+<SPAN CLASS=i>. . . . . . 7</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; (Pred( E ,
+On, <SPAN CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN>) &cup; {<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN>}) = suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>36</TD><TD><A HREF="#30">30</A>, <A
+HREF="#35">35</A></TD><TD><A HREF="xpeq12d.html"
+TITLE="Equality deduction for Cartesian product. (Contributed by NM, 8-Dec-2013.)">xpeq12d</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#DB4900">5678</SPAN></TD><TD><A NAME="36"></A>
+<SPAN CLASS=i>. . . . . 6</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; ((Pred( E ,
+On, <SPAN CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>) &cup; {<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>}) &times; (Pred( E , On, <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN>) &cup; {<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>})) = (suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &times; suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>37</TD><TD><A HREF="#36">36</A></TD><TD><A
+HREF="difeq1d.html"
+TITLE="Deduction adding difference to the right in a class equality. (Contributed by NM,...">difeq1d</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#E93300">4079</SPAN></TD><TD><A NAME="37"></A>
+<SPAN CLASS=i>. . . . 5</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; (((Pred( E ,
+On, <SPAN CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>) &cup; {<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>}) &times; (Pred( E , On, <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN>) &cup; {<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>})) &#8726; {&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;}) = ((suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &times; suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) &#8726; {&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;}))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>38</TD><TD><A HREF="#25">25</A>, <A
+HREF="#37">37</A></TD><TD><A HREF="eqtrd.html"
+TITLE="An equality transitivity deduction. (Contributed by NM, 21-Jun-1993.)">eqtrd</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F21D00">2797</SPAN></TD><TD><A NAME="38"></A>
+<SPAN CLASS=i>. . . 4</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr;
+Pred({&lang;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and;
+<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On)
+&and; (((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>) &or; (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or;
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) =
+(2<SUP>nd</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))
+&and; <SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>))}, (On &times; On),
+&lang;<SPAN CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;) = ((suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &times; suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) &#8726; {&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;}))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>39</TD><TD><A HREF="#38">38</A></TD><TD><A
+HREF="reseq2d.html"
+TITLE="Equality deduction for restrictions. (Contributed by Paul Chapman, 22-Jun-2011.)">reseq2d</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#D84C00">5965</SPAN></TD><TD><A NAME="39"></A>
+<SPAN CLASS=i>. . 3</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; (<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D439;</SPAN> &#8638; Pred({&lang;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>, <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On) &and;
+(((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>)
+E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)
+&or; (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or; (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>))}, (On &times; On), &lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;)) = (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN> &#8638; ((suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &times; suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) &#8726; {&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;})))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>40</TD><TD><A HREF="#39">39</A></TD><TD><A
+HREF="oveq2d.html"
+TITLE="Equality deduction for operation value. (Contributed by NM, 13-Mar-1995.)">oveq2d</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#C85B00">7412</SPAN></TD><TD><A NAME="40"></A>
+<SPAN CLASS=i>. 2</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; (&lang;<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN> &#8638; Pred({&lang;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>, <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>&rang; &#8739; (<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN> &isin; (On &times; On) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; (On &times; On) &and;
+(((1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>)
+E (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)
+&or; (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>) = (1<SUP>st</SUP> &lsquo;<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>)) &and; ((2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) E (2<SUP>nd</SUP> &lsquo;<SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>) &or; (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>) = (2<SUP>nd</SUP>
+&lsquo;<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN>)) &and; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &ne; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN>))}, (On &times; On), &lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;))) = (&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN> &#8638; ((suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &times; suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) &#8726; {&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;}))))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>41</TD><TD><A HREF="#24">24</A>, <A
+HREF="#40">40</A></TD><TD><A HREF="eqtrd.html"
+TITLE="An equality transitivity deduction. (Contributed by NM, 21-Jun-1993.)">eqtrd</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F21D00">2797</SPAN></TD><TD><A NAME="41"></A>
+<SPAN CLASS=i>1</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &isin; On &and; <SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> &isin; On) &rarr; (<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN><SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN><SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) = (&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN> &#8638; ((suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &times; suc <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) &#8726; {&lang;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>, <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&rang;}))))</SPAN></TD></TR>
+</TABLE></CENTER>
+<CENTER><TABLE CELLSPACING=5><TR><TD ALIGN=LEFT><FONT SIZE=-1><B>Colors of
+variables:</B>  <SPAN CLASS=wff STYLE="color:blue;font-style:normal">wff</SPAN>
+<SPAN CLASS=setvar STYLE="color:red;font-style:normal">setvar</SPAN> <SPAN
+CLASS=class STYLE="color:#C3C;font-style:normal">class</SPAN></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>Syntax hints:</B>  &nbsp;<SPAN CLASS=math>
+&rarr; </SPAN><A HREF="wi.html">wi</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#FA0000">4</SPAN> &nbsp;<SPAN CLASS=math> &and; </SPAN><A
+HREF="wa.html">wa</A>&nbsp;<SPAN CLASS=r STYLE="color:#FA0200">399</SPAN>
+&nbsp;<SPAN CLASS=math> &or; </SPAN><A HREF="wo.html">wo</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F90500">858</SPAN> &nbsp;<SPAN CLASS=math> &and; </SPAN><A
+HREF="w3a.html">w3a</A>&nbsp;<SPAN CLASS=r STYLE="color:#F80700">1098</SPAN>
+&nbsp;<SPAN CLASS=math> = </SPAN><A HREF="wceq.html">wceq</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F70A00">1560</SPAN> &nbsp;<SPAN
+CLASS=math>&#x22A4;</SPAN><A HREF="wtru.html">wtru</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F70A00">1561</SPAN> &nbsp;<SPAN CLASS=math> &isin; </SPAN><A
+HREF="wcel.html">wcel</A>&nbsp;<SPAN CLASS=r STYLE="color:#F51200">2142</SPAN>
+&nbsp;<SPAN CLASS=math> &ne; </SPAN><A HREF="wne.html">wne</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F12000">2957</SPAN> &nbsp;<SPAN CLASS=math> &#8726;
+</SPAN><A HREF="cdif.html">cdif</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3901</SPAN> &nbsp;<SPAN CLASS=math> &cup; </SPAN><A
+HREF="cun.html">cun</A>&nbsp;<SPAN CLASS=r STYLE="color:#EB3000">3902</SPAN>
+&nbsp;<SPAN CLASS=math>{</SPAN><A HREF="csn.html">csn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E53A00">4582</SPAN> &nbsp;<SPAN CLASS=math>&lang;</SPAN><A
+HREF="cop.html">cop</A>&nbsp;<SPAN CLASS=r STYLE="color:#E53A00">4588</SPAN>
+&nbsp;<i> class class class </i><A HREF="wbr.html">wbr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E04200">5100</SPAN> &nbsp;<SPAN CLASS=math>{</SPAN><A
+HREF="copab.html">copab</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E04300">5162</SPAN> &nbsp;<SPAN CLASS=math> E </SPAN><A
+HREF="cep.html">cep</A>&nbsp;<SPAN CLASS=r STYLE="color:#DC4800">5546</SPAN>
+&nbsp;<SPAN CLASS=math> Po </SPAN><A HREF="wpo.html">wpo</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DC4800">5553</SPAN> &nbsp;<SPAN CLASS=math> Or </SPAN><A
+HREF="wor.html">wor</A>&nbsp;<SPAN CLASS=r STYLE="color:#DC4800">5554</SPAN>
+&nbsp;<SPAN CLASS=math> Fr </SPAN><A HREF="wfr.html">wfr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4800">5597</SPAN> &nbsp;<SPAN CLASS=math> Se </SPAN><A
+HREF="wse.html">wse</A>&nbsp;<SPAN CLASS=r STYLE="color:#DB4800">5598</SPAN>
+&nbsp;<SPAN CLASS=math> We </SPAN><A HREF="wwe.html">wwe</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4800">5599</SPAN> &nbsp;<SPAN CLASS=math> &times; </SPAN><A
+HREF="cxp.html">cxp</A>&nbsp;<SPAN CLASS=r STYLE="color:#DB4900">5645</SPAN>
+&nbsp;<SPAN CLASS=math> &#8638; </SPAN><A HREF="cres.html">cres</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#DB4900">5649</SPAN> &nbsp;<SPAN CLASS=math>Pred</SPAN><A
+HREF="cpred.html">cpred</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D44F00">6287</SPAN> &nbsp;<SPAN CLASS=math>On</SPAN><A
+HREF="con0.html">con0</A>&nbsp;<SPAN CLASS=r STYLE="color:#D45000">6346</SPAN>
+&nbsp;<SPAN CLASS=math>suc </SPAN><A HREF="csuc.html">csuc</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#D45000">6348</SPAN> &nbsp;<SPAN
+CLASS=math>&lsquo;</SPAN><A HREF="cfv.html">cfv</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6521</SPAN> &nbsp;(<i>class class class</i>)<A
+HREF="co.html">co</A>&nbsp;<SPAN CLASS=r STYLE="color:#C85B00">7396</SPAN>
+&nbsp;<SPAN CLASS=math>1<SUP>st</SUP> </SPAN><A
+HREF="c1st.html">c1st</A>&nbsp;<SPAN CLASS=r STYLE="color:#C06100">7968</SPAN>
+&nbsp;<SPAN CLASS=math>2<SUP>nd</SUP> </SPAN><A
+HREF="c2nd.html">c2nd</A>&nbsp;<SPAN CLASS=r STYLE="color:#C06100">7969</SPAN>
+&nbsp;<SPAN CLASS=math>frecs</SPAN><A HREF="cfrecs.html">cfrecs</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#BC6400">8261</SPAN></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>This theorem was proved from axioms:</B>
+&nbsp;<A HREF="ax-mp.html">ax-mp</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#FA0000">5</SPAN> &nbsp;<A HREF="ax-1.html">ax-1</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0000">6</SPAN> &nbsp;<A
+HREF="ax-2.html">ax-2</A>&nbsp;<SPAN CLASS=r STYLE="color:#FA0000">7</SPAN>
+&nbsp;<A HREF="ax-3.html">ax-3</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#FA0000">8</SPAN> &nbsp;<A
+HREF="ax-gen.html">ax-gen</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F60C00">1815</SPAN> &nbsp;<A HREF="ax-4.html">ax-4</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F60C00">1829</SPAN> &nbsp;<A
+HREF="ax-5.html">ax-5</A>&nbsp;<SPAN CLASS=r STYLE="color:#F60E00">1930</SPAN>
+&nbsp;<A HREF="ax-6.html">ax-6</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F60F00">1987</SPAN> &nbsp;<A HREF="ax-7.html">ax-7</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F51000">2028</SPAN> &nbsp;<A
+HREF="ax-8.html">ax-8</A>&nbsp;<SPAN CLASS=r STYLE="color:#F51200">2144</SPAN>
+&nbsp;<A HREF="ax-9.html">ax-9</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51200">2152</SPAN> &nbsp;<A
+HREF="ax-10.html">ax-10</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51200">2175</SPAN> &nbsp;<A
+HREF="ax-11.html">ax-11</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51200">2191</SPAN> &nbsp;<A
+HREF="ax-12.html">ax-12</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F41300">2212</SPAN> &nbsp;<A
+HREF="ax-ext.html">ax-ext</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F21C00">2734</SPAN> &nbsp;<A
+HREF="ax-rep.html">ax-rep</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DF4400">5227</SPAN> &nbsp;<A
+HREF="ax-sep.html">ax-sep</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DF4400">5246</SPAN> &nbsp;<A
+HREF="ax-nul.html">ax-nul</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DF4400">5256</SPAN> &nbsp;<A
+HREF="ax-pow.html">ax-pow</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DE4500">5322</SPAN> &nbsp;<A
+HREF="ax-pr.html">ax-pr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DE4600">5390</SPAN> &nbsp;<A
+HREF="ax-un.html">ax-un</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#C35E00">7718</SPAN></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>This theorem depends on definitions:</B>
+&nbsp;<A HREF="df-bi.html">df-bi</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#FA0100">209</SPAN> &nbsp;<A
+HREF="df-an.html">df-an</A>&nbsp;<SPAN CLASS=r STYLE="color:#FA0200">400</SPAN>
+&nbsp;<A HREF="df-or.html">df-or</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F90500">859</SPAN> &nbsp;<A
+HREF="df-3or.html">df-3or</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F80700">1099</SPAN> &nbsp;<A
+HREF="df-3an.html">df-3an</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F80700">1100</SPAN> &nbsp;<A
+HREF="df-tru.html">df-tru</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F70A00">1563</SPAN> &nbsp;<A
+HREF="df-fal.html">df-fal</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F70A00">1573</SPAN> &nbsp;<A
+HREF="df-ex.html">df-ex</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F70B00">1800</SPAN> &nbsp;<A
+HREF="df-nf.html">df-nf</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F60C00">1804</SPAN> &nbsp;<A
+HREF="df-sb.html">df-sb</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51100">2091</SPAN> &nbsp;<A
+HREF="df-mo.html">df-mo</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F31900">2566</SPAN> &nbsp;<A
+HREF="df-eu.html">df-eu</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F31A00">2596</SPAN> &nbsp;<A
+HREF="df-clab.html">df-clab</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F21C00">2741</SPAN> &nbsp;<A
+HREF="df-cleq.html">df-cleq</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F21C00">2754</SPAN> &nbsp;<A
+HREF="df-clel.html">df-clel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F11E00">2837</SPAN> &nbsp;<A
+HREF="df-nfc.html">df-nfc</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F11F00">2911</SPAN> &nbsp;<A
+HREF="df-ne.html">df-ne</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F12000">2958</SPAN> &nbsp;<A
+HREF="df-ral.html">df-ral</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F02200">3077</SPAN> &nbsp;<A
+HREF="df-rex.html">df-rex</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F02200">3087</SPAN> &nbsp;<A
+HREF="df-reu.html">df-reu</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EF2700">3368</SPAN> &nbsp;<A
+HREF="df-rab.html">df-rab</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EE2800">3415</SPAN> &nbsp;<A HREF="df-v.html">df-v</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#EE2900">3456</SPAN> &nbsp;<A
+HREF="df-sbc.html">df-sbc</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EC2E00">3745</SPAN> &nbsp;<A
+HREF="df-csb.html">df-csb</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB2F00">3853</SPAN> &nbsp;<A
+HREF="df-dif.html">df-dif</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3907</SPAN> &nbsp;<A
+HREF="df-un.html">df-un</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3909</SPAN> &nbsp;<A
+HREF="df-in.html">df-in</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3911</SPAN> &nbsp;<A
+HREF="df-ss.html">df-ss</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3921</SPAN> &nbsp;<A
+HREF="df-pss.html">df-pss</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3924</SPAN> &nbsp;<A
+HREF="df-nul.html">df-nul</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E73600">4286</SPAN> &nbsp;<A
+HREF="df-if.html">df-if</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E63900">4481</SPAN> &nbsp;<A
+HREF="df-pw.html">df-pw</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E53A00">4557</SPAN> &nbsp;<A
+HREF="df-sn.html">df-sn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E53A00">4583</SPAN> &nbsp;<A
+HREF="df-pr.html">df-pr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E53A00">4585</SPAN> &nbsp;<A
+HREF="df-op.html">df-op</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E53A00">4589</SPAN> &nbsp;<A
+HREF="df-uni.html">df-uni</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E23E00">4866</SPAN> &nbsp;<A
+HREF="df-iun.html">df-iun</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E24000">4951</SPAN> &nbsp;<A
+HREF="df-br.html">df-br</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E04200">5101</SPAN> &nbsp;<A
+HREF="df-opab.html">df-opab</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E04300">5163</SPAN> &nbsp;<A
+HREF="df-mpt.html">df-mpt</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DF4300">5182</SPAN> &nbsp;<A
+HREF="df-tr.html">df-tr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DF4400">5208</SPAN> &nbsp;<A
+HREF="df-id.html">df-id</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DC4800">5542</SPAN> &nbsp;<A
+HREF="df-eprel.html">df-eprel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DC4800">5547</SPAN> &nbsp;<A
+HREF="df-po.html">df-po</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DC4800">5555</SPAN> &nbsp;<A
+HREF="df-so.html">df-so</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DC4800">5556</SPAN> &nbsp;<A
+HREF="df-fr.html">df-fr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4800">5600</SPAN> &nbsp;<A
+HREF="df-se.html">df-se</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4800">5601</SPAN> &nbsp;<A
+HREF="df-we.html">df-we</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4800">5602</SPAN> &nbsp;<A
+HREF="df-xp.html">df-xp</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5653</SPAN> &nbsp;<A
+HREF="df-rel.html">df-rel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5654</SPAN> &nbsp;<A
+HREF="df-cnv.html">df-cnv</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5655</SPAN> &nbsp;<A
+HREF="df-co.html">df-co</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5656</SPAN> &nbsp;<A
+HREF="df-dm.html">df-dm</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5657</SPAN> &nbsp;<A
+HREF="df-rn.html">df-rn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5658</SPAN> &nbsp;<A
+HREF="df-res.html">df-res</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5659</SPAN> &nbsp;<A
+HREF="df-ima.html">df-ima</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5660</SPAN> &nbsp;<A
+HREF="df-pred.html">df-pred</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D44F00">6288</SPAN> &nbsp;<A
+HREF="df-ord.html">df-ord</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D45000">6349</SPAN> &nbsp;<A
+HREF="df-on.html">df-on</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D45000">6350</SPAN> &nbsp;<A
+HREF="df-suc.html">df-suc</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D35000">6352</SPAN> &nbsp;<A
+HREF="df-iota.html">df-iota</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25100">6477</SPAN> &nbsp;<A
+HREF="df-fun.html">df-fun</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6523</SPAN> &nbsp;<A
+HREF="df-fn.html">df-fn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6524</SPAN> &nbsp;<A HREF="df-f.html">df-f</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#D25200">6525</SPAN> &nbsp;<A
+HREF="df-f1.html">df-f1</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6526</SPAN> &nbsp;<A
+HREF="df-fo.html">df-fo</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6527</SPAN> &nbsp;<A
+HREF="df-f1o.html">df-f1o</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6528</SPAN> &nbsp;<A
+HREF="df-fv.html">df-fv</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6529</SPAN> &nbsp;<A
+HREF="df-ov.html">df-ov</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#C85B00">7399</SPAN> &nbsp;<A
+HREF="df-1st.html">df-1st</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#C06100">7970</SPAN> &nbsp;<A
+HREF="df-2nd.html">df-2nd</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#C06100">7971</SPAN> &nbsp;<A
+HREF="df-frecs.html">df-frecs</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#BC6400">8262</SPAN></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>This theorem is referenced by:</B> &nbsp;<A
+HREF="naddcllem.html">naddcllem</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#B66800">8646</SPAN> &nbsp;<A
+HREF="nmulprop.html">nmulprop</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#756AFF">36537</SPAN></FONT></TD></TR>
+</TABLE></CENTER>
+<TABLE BORDER=0 WIDTH="100%">
+<TR><TD WIDTH="25%">&nbsp;</TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM>
+<FONT SIZE=-2 FACE=sans-serif>
+Copyright terms:
+<A HREF="../copyright.html#pd">Public domain</A>
+</FONT></TD><TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="25%">
+<FONT SIZE=-2 FACE=sans-serif>
+<A HREF="http://validator.w3.org/check?uri=referer">
+W3C validator</A>
+</FONT></TD></TR></TABLE>
+</BODY></HTML>

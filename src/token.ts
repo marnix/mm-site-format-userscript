@@ -39,7 +39,7 @@ export interface LocatedToken {
 function* splitConstants(
   text: string,
 ): Iterable<{ text: string; start: number; end: number }> {
-  const re = /[()]|[^()\s]+/g;
+  const re = /[(){}]|[^(){}\s]+/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(text))) {
     yield { text: m[0], start: m.index, end: m.index + m[0].length };

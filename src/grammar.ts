@@ -116,7 +116,15 @@ async function assembleGrammar(
         .catch(() => null),
     ),
   );
-  return [topRule, ...rules.filter((r): r is InferenceRule => r !== null)];
+  // Sort rules by conclusion length descending so that more-specific (longer)
+  // patterns are tried before shorter ones that share the same prefix.  This
+  // matters when two rules have the same first conclusion token and one is a
+  // prefix of the other: e.g. cuni (∪ A, len 3) vs ciun (∪ x ∈ A B, len 6).
+  // The packrat parser takes the first matching rule; without this sort, cuni
+  // greedily wins and leaves the indexed-union body unconsumed.
+  const filtered = rules.filter((r): r is InferenceRule => r !== null);
+  filtered.sort((a, b) => b.conclusion.length - a.conclusion.length);
+  return [topRule, ...filtered];
 }
 
 /** The syntax-definition label of a page URL, e.g. `.../wcel.html` -> `wcel`. */
