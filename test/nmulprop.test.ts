@@ -7,7 +7,7 @@
 //
 // Integration test: every proof-column expression must parse with 0 failures.
 //
-// Memory note: parsing 183 fixture files through happy-dom requires ~4–6 GB
+// Memory note: parsing 183 fixture files through happy-dom requires ~4-6 GB
 // of heap.  Run with NODE_OPTIONS='--max-old-space-size=8192' or equivalent.
 import { existsSync } from "fs";
 import { join } from "path";

@@ -119,18 +119,18 @@ describe("locateMathSpan (mpeuni)", () => {
 
 describe("tokenizeMathSpan ({ and } split as individual tokens on grammar pages)", () => {
   it("splits { adjacent to non-paren char into separate tokens (no vocab)", () => {
-    // Mimics copab assertion: {⟨ appears as raw text before the first variable
-    // span. splitConstants must not collapse {⟨ into one token, or the parser
-    // can never match csn(cop(...)) because {⟨ would land in the vocab and the
+    // Mimics copab assertion: {\u27e8 appears as raw text before the first variable
+    // span. splitConstants must not collapse {\u27e8 into one token, or the parser
+    // can never match csn(cop(...)) because {\u27e8 would land in the vocab and the
     // proof table would tokenize it as one opaque literal.
     const span = document.createElement("span");
-    span.innerHTML = '{⟨<span class="setvar">x</span>⟩}';
+    span.innerHTML = '{\u27e8<span class="setvar">x</span>\u27e9}';
     const kinds = new Set(["setvar"]);
     expect(tokenizeMathSpan(span, kinds)).toEqual([
       { kind: null, text: "{" },
-      { kind: null, text: "⟨" }, // ⟨
+      { kind: null, text: "\u27e8" }, // \u27e8
       { kind: "setvar", text: "x" },
-      { kind: null, text: "⟩" }, // ⟩
+      { kind: null, text: "\u27e9" }, // \u27e9
       { kind: null, text: "}" },
     ]);
   });

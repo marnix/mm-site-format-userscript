@@ -119,7 +119,7 @@ async function assembleGrammar(
   // Sort rules by conclusion length descending so that more-specific (longer)
   // patterns are tried before shorter ones that share the same prefix.  This
   // matters when two rules have the same first conclusion token and one is a
-  // prefix of the other: e.g. cuni (∪ A, len 3) vs ciun (∪ x ∈ A B, len 6).
+  // prefix of the other: e.g. cuni (union A, len 3) vs ciun (union x in A B, len 6).
   // The packrat parser takes the first matching rule; without this sort, cuni
   // greedily wins and leaves the indexed-union body unconsumed.
   const filtered = rules.filter((r): r is InferenceRule => r !== null);

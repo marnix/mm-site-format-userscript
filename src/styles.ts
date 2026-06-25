@@ -18,7 +18,7 @@
 //   (EWD1300 layout: symmetric space around hints, more around sub-calculations)
 // - `...-fold`            the >/v disclosure marker
 // - `...-banner`          the fixed "active" banner (bottom-right)
-// - `...-parse-warn`      parse-failure indicator inside the banner (amber ⚠)
+// - `...-parse-warn`      parse-failure indicator inside the banner (amber !)
 // - `...-view-box`        the fixed Calculation/Table switch box, when the page
 //                       has no "... version" line to host the switch (top-right)
 const CSS = `

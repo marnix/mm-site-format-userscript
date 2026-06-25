@@ -9,8 +9,7 @@ import type { ParsedExpression } from "./page";
 export function isProofExpression(expr: ParsedExpression): boolean {
   const loc = expr.locations[0];
   if (!loc) return false;
-  const el =
-    loc.node instanceof Element ? loc.node : loc.node.parentElement;
+  const el = loc.node instanceof Element ? loc.node : loc.node.parentElement;
   if (!el) return false;
   if (el.closest('table[summary="Assertion"]')) return true;
   if (el.closest('table[summary^="Hypothes"]')) return true;
@@ -35,6 +34,6 @@ export function installParseWarning(
   span.className = "mm-site-format-parse-warn";
   const noun = failureCount === 1 ? "expression" : "expressions";
   span.title = `${failureCount} ${noun} could not be parsed`;
-  span.textContent = " ⚠";
+  span.textContent = " \u26a0";
   banner.appendChild(span);
 }

@@ -65,7 +65,7 @@ describe("installParseWarning", () => {
     installParseWarning(banner, 3);
     const span = banner.querySelector(".mm-site-format-parse-warn");
     expect(span).not.toBeNull();
-    expect(span!.textContent).toContain("⚠");
+    expect(span!.textContent).toContain("\u26a0");
     expect(span!.getAttribute("title")).toContain("3");
   });
 

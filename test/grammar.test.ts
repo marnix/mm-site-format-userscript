@@ -20,7 +20,7 @@ const fetcher = vi.fn(async (url: string) =>
 );
 
 describe("assembleUniGrammar: rule ordering (longer patterns first)", () => {
-  // cuni (∪ A, len 3) and ciun (∪ x ∈ A B, len 6) share the ∪ prefix.
+  // cuni (union A, len 3) and ciun (union x in A B, len 6) share the "union" prefix.
   // nmulprop's syntax hints list cuni before ciun, so without a sort they appear
   // in that order.  The packrat parser takes the first matching rule; with cuni
   // first it greedily picks cuni(cv(x)) and leaves the rest of the indexed-union
@@ -41,7 +41,7 @@ describe("assembleUniGrammar: rule ordering (longer patterns first)", () => {
     try {
       return readFixture("mpeuni", name);
     } catch {
-      return "<html></html>"; // primitives with no fixture → skipped
+      return "<html></html>"; // primitives with no fixture -> skipped
     }
   };
 
