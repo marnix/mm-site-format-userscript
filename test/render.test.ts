@@ -233,6 +233,82 @@ describe("renderCalculation", () => {
     tooltip.remove();
   });
 
+  it("fetches rule page content for a non-spine given hint ref when fetchRuleTooltip is provided and the ref has an href", async () => {
+    // Reproduces the axsepg bug: an axiom/theorem used as a leaf (no subproofs)
+    // becomes a "given"; its hint ref must show the unsubstituted page content,
+    // not the proof-table expression (the substituted instantiation).
+    const pageContent = document.createElement("span");
+    pageContent.textContent = "AXSEPG_PAGE";
+
+    const calc: Calculation = {
+      kind: "step",
+      inferenceRuleRefHtml: el('<a href="exlimiiv.html">exlimiiv</a>'),
+      expressionHtml: el("CONCL"),
+      subcalculations: [
+        {
+          kind: "given",
+          hypothesisRefHtml: el('<a href="axsepg.html">axsepg</a>'),
+          expressionHtml: el("SUBST_EXPR"), // substituted -- must NOT appear in tooltip
+        },
+        {
+          kind: "given",
+          hypothesisRefHtml: el("maj"),
+          expressionHtml: el("MAJOR"),
+        },
+      ],
+      spine: 1, // axsepg is non-spine; it appears in the { using ... } hint
+    };
+    const box = renderCalculation(calc, {
+      fetchRuleTooltip: (href) =>
+        Promise.resolve(href === "axsepg.html" ? (pageContent as Node) : null),
+    });
+
+    const hintRow = [...box.querySelector("tbody")!.children][1] as HTMLElement;
+    const hintCell = hintRow.children[1] as HTMLElement;
+    const axsepgRef = hintCell.querySelector("a[href='axsepg.html']")!
+      .parentElement as HTMLElement;
+
+    axsepgRef.dispatchEvent(new MouseEvent("mouseenter"));
+    await Promise.resolve();
+
+    const tooltip = document.querySelector(
+      ".mm-site-format-ref-tooltip",
+    ) as HTMLElement;
+    expect(tooltip).not.toBeNull();
+    expect(tooltip.textContent).toContain("AXSEPG_PAGE");
+    expect(tooltip.textContent).not.toContain("SUBST_EXPR");
+    tooltip.remove();
+  });
+
+  it("fetches rule page content for a leaf given ref when fetchRuleTooltip is provided and the ref has an href", async () => {
+    // Same bug in the appendGiven path: a top-level given (leaf calc) must also
+    // use the fetched page content, not the proof-table expression.
+    const pageContent = document.createElement("span");
+    pageContent.textContent = "LEAF_PAGE";
+
+    const calc: Calculation = {
+      kind: "given",
+      hypothesisRefHtml: el('<a href="axsepg.html">axsepg</a>'),
+      expressionHtml: el("SUBST_EXPR"),
+    };
+    const box = renderCalculation(calc, {
+      fetchRuleTooltip: () => Promise.resolve(pageContent as Node | null),
+    });
+
+    const rows = [...box.querySelector("tbody")!.children] as HTMLElement[];
+    const refSpan = rows[0].children[0].firstElementChild as HTMLElement;
+    refSpan.dispatchEvent(new MouseEvent("mouseenter"));
+    await Promise.resolve();
+
+    const tooltip = document.querySelector(
+      ".mm-site-format-ref-tooltip",
+    ) as HTMLElement;
+    expect(tooltip).not.toBeNull();
+    expect(tooltip.textContent).toContain("LEAF_PAGE");
+    expect(tooltip.textContent).not.toContain("SUBST_EXPR");
+    tooltip.remove();
+  });
+
   it("fades a small step's hint and its continuation expression, not the step's own expression", () => {
     // A single-premise, near-identity step (smallSpine) over a given.
     const calc: Calculation = {

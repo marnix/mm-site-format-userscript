@@ -96,8 +96,16 @@ function appendStep(
     if (i === step.spine) return;
     if (sub.kind === "given") {
       const refEl = clone(sub.hypothesisRefHtml);
+      const href =
+        sub.hypothesisRefHtml.querySelector("a")?.getAttribute("href") ?? null;
+      const fetchRule = options?.fetchRuleTooltip;
       // sub.expressionHtml is not in the calc DOM, so no spacers -- acceptable.
-      attachTooltip(refEl, () => clone(sub.expressionHtml));
+      attachTooltip(
+        refEl,
+        href && fetchRule && !href.startsWith("#")
+          ? () => fetchRule(href)
+          : () => clone(sub.expressionHtml),
+      );
       items.push(refEl);
     } else nested++;
   });
@@ -149,7 +157,7 @@ function appendStep(
   // fades that continuation expression too, so hint + result read as one faint
   // unit.
   const spine = step.subcalculations[step.spine as number];
-  if (spine?.kind === "given") appendGiven(spine, tbody, small);
+  if (spine?.kind === "given") appendGiven(spine, tbody, small, options);
   else if (spine?.kind === "step") appendStep(spine, tbody, small, options);
 }
 
@@ -158,12 +166,25 @@ function appendStep(
  * spine: its expression is the calculation's last line, with its Ref in the
  * left column, parenthesised, in front of it.
  */
-function appendGiven(given: Given, tbody: HTMLElement, faded = false): void {
+function appendGiven(
+  given: Given,
+  tbody: HTMLElement,
+  faded = false,
+  options?: RenderOptions,
+): void {
   const ref = document.createElement("span");
   ref.append("(", clone(given.hypothesisRefHtml), ")");
   const expr = clone(given.expressionHtml);
+  const href =
+    given.hypothesisRefHtml.querySelector("a")?.getAttribute("href") ?? null;
+  const fetchRule = options?.fetchRuleTooltip;
   // expr is in the calc DOM and will have spacers by hover time.
-  attachTooltip(ref, () => expr.cloneNode(true) as Node);
+  attachTooltip(
+    ref,
+    href && fetchRule && !href.startsWith("#")
+      ? () => fetchRule(href)
+      : () => expr.cloneNode(true) as Node,
+  );
   tbody.appendChild(row(ref, expr, "expr", faded));
 }
 
@@ -230,7 +251,7 @@ function renderCalcTable(
   const table = document.createElement("table");
   const tbody = document.createElement("tbody");
   table.appendChild(tbody);
-  if (calc.kind === "given") appendGiven(calc, tbody);
+  if (calc.kind === "given") appendGiven(calc, tbody, false, options);
   else appendStep(calc, tbody, false, options);
   return table;
 }
