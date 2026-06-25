@@ -128,9 +128,9 @@ describe("tokenizeMathSpan ({ and } split as individual tokens on grammar pages)
     const kinds = new Set(["setvar"]);
     expect(tokenizeMathSpan(span, kinds)).toEqual([
       { kind: null, text: "{" },
-      { kind: null, text: "\u27e8" }, // \u27e8
+      { kind: null, text: "\u27e8" }, // <.
       { kind: "setvar", text: "x" },
-      { kind: null, text: "\u27e9" }, // \u27e9
+      { kind: null, text: "\u27e9" }, // .>
       { kind: null, text: "}" },
     ]);
   });
@@ -140,7 +140,7 @@ describe("tokenizeMathSpan (dense Unicode: subscripts and concatenated constants
   const kinds = new Set(["setvar"]);
 
   it("splits run-together constants by vocabulary and folds subscripts", () => {
-    // Mimics 00sr step 3: [\u27e8x, y\u27e9] ~R 0R, where the brackets are concatenated
+    // Mimics 00sr step 3: [ <. x , y .> ] ~R 0R, where the brackets are concatenated
     // with no delimiter and ~R / 0R render with the R in a <sub> element.
     const span = document.createElement("span");
     span.innerHTML =
