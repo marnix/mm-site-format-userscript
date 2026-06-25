@@ -49,11 +49,13 @@ The parsing kernel and grammar:
 - **`rule.ts`** — one grammar rule from a syntax-definition page.
 - **`database-assumptions.ts`** — the set.mm-database assumptions we bake in
   (collected just below `config`): the `$TOP`/turnstile top rules and the
-  always-loaded primitive syntax pages (`cv`, `wcel`, `wceq`) the site's hints
-  omit.
+  always-loaded primitive syntax pages (`cv`, `wcel`, `wceq`, `weq`, `wel`) the
+  site's hints omit (site-generation workarounds — see below).
 - **`grammar.ts`** — assembles the grammar: the built-in `$TOP` rule + a rule
   per syntax-hint page + Ref-page hints + the primitives. Holds
   `GRAMMAR_CACHE_VERSION` and `missingSyntaxHints` (the incomplete-hints check).
+  Also contains the breakdown-table fallback (a site-generation workaround — see
+  below).
 - **`expression.ts`** / **`loader.ts`** — find expressions / linked-page URLs.
 - **`cache.ts`** — caches the _result_ of processing a linked page (rules, hint
   URLs) per URL: in-memory + an optional `sessionStorage` layer.
@@ -78,6 +80,38 @@ Interaction and rendering:
 - **`index.ts`** — the entry point wiring it all together (two parse passes,
   calc-box sizing, the early grid hide).
 - **`config.ts`** — tunable constants (highlight colours).
+
+## Site-generation limitations and workarounds
+
+The metamath.org site's "Syntax hints" rows are incomplete in two known ways
+(tracked in TODO — "Incomplete Syntax hints", reported as metamath-exe issue
+[#187](https://github.com/metamath/metamath-exe/issues/187)).
+
+**Always-loaded primitives** (`database-assumptions.ts`): `cv`, `wcel`, `wceq`,
+`weq`, `wel` are unconditionally fetched on every page, even when absent from
+the "Syntax hints" row. The site omits `cv` on _every_ page and omits `wcel` /
+`wceq` when their operands are setvars (e.g. `x e. y`) rather than classes.
+`weq` and `wel` are `$p` syntax theorems omitted because the site's hint
+collector only scanned `$a` statements — fixed in the upstream fix branch
+`syntax-hints-def-bodies`.
+
+**Ref-page syntax hints** (`grammar.ts` — `assembleGrammar`): the syntax hints
+of every theorem cited in the proof table's Ref column are loaded on top of the
+page's own hints. This is a workaround for proof-derived hints: every
+constructor used in a proof step is introduced by some cited assertion whose own
+syntax hints list it, so the union covers the full proof.
+
+**Breakdown-table fallback** (`grammar.ts` — `extractBreakdownRefUrls`): `$a |-`
+definition pages (like `df-mul`) have no "Syntax hints" row at all. As a
+fallback, their "Detailed syntax breakdown of definition" table is read instead
+— it lists every constructor in the definition body's parse tree. This covers
+constructors like `wo` (disjunction) that only appear inside a definition
+referenced in the proof.
+
+A residual gap remains for displayed expressions that are _not_ proof steps
+(e.g. a definitional cross-reference like `( Disj R <-> ... )` on `disjrel`);
+such expressions just fail to parse and are left alone. Closing that gap fully
+would need transitive syntax loading (see TODO — "Correctness").
 
 ## Key algorithms (where to read)
 
