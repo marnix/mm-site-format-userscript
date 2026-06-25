@@ -7,6 +7,24 @@ A browser userscript that improves the formatting and readability of
 
 ## What it does
 
+It renders the proof as a **calculation** — in the style of Dijkstra's
+[EWD1300](https://www.cs.utexas.edu/~EWD/transcriptions/EWD13xx/EWD1300.html) —
+shown above the "Proof of Theorem" table: each step's statement, followed by a
+`⇐ { using … }` hint naming the inference rule and the facts it uses. The main
+line follows the sub-derivation closest in structure to the step's conclusion
+(the expression being transformed); the other sub-derivations are indented and
+start collapsed (showing just their conclusion and a `▶` marker), expanding on
+click, while leaf facts (hypotheses and axioms) show their reference inline.
+Where a step combines two symmetric premises with no clear main line, the
+calculation ends that branch at `⇔ TRUE`. The calculation's expressions get the
+same whitespace and hover-highlighting as the table below.
+
+A **Calculation version / Table version** switch — added to the page's top-right
+"… version" links — shows one and hides the other, with the calculation shown by
+default. (Add `?view=table` to a proof URL to start in the table view.) Choosing
+the table view carries onto the metamath.org links you follow, so the whole site
+stays in that view until you switch back.
+
 On a metamath.org proof page — both the Unicode (`mpeuni`) and GIF (`mpegif`)
 renderings — the script parses every Metamath expression and adds **hover
 highlighting**: pointing at any token highlights the smallest sub-expression
@@ -33,24 +51,6 @@ proof table's Ref column and in the "Referenced by:" section — shows a **rule
 tooltip**: the linked theorem's conclusion, followed by its hypotheses separated
 by `⇐` and `&`, so you can read the rule without navigating away. Works on both
 Unicode and GIF pages.
-
-It also renders the proof as a **calculation** — in the style of Dijkstra's
-[EWD1300](https://www.cs.utexas.edu/~EWD/transcriptions/EWD13xx/EWD1300.html) —
-shown above the "Proof of Theorem" table: each step's statement, followed by a
-`⇐ { using … }` hint naming the inference rule and the facts it uses. The main
-line follows the sub-derivation closest in structure to the step's conclusion
-(the expression being transformed); the other sub-derivations are indented and
-start collapsed (showing just their conclusion and a `▶` marker), expanding on
-click, while leaf facts (hypotheses and axioms) show their reference inline.
-Where a step combines two symmetric premises with no clear main line, the
-calculation ends that branch at `⇔ TRUE`. The calculation's expressions get the
-same whitespace and hover-highlighting as the table below.
-
-A **Calculation version / Table version** switch — added to the page's top-right
-"… version" links — shows one and hides the other, with the calculation shown by
-default. (Add `?view=table` to a proof URL to start in the table view.) Choosing
-the table view carries onto the metamath.org links you follow, so the whole site
-stays in that view until you switch back.
 
 ## Installation
 
