@@ -1,11 +1,22 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest";
 import { createCache } from "../src/cache";
-import { assembleGifGrammar, assembleUniGrammar } from "../src/grammar";
+import {
+  assembleGifGrammar,
+  assembleUniGrammar,
+  GRAMMAR_CACHE_VERSION,
+} from "../src/grammar";
 import { GIF_TOP_RULE } from "../src/database-assumptions";
 import { parseExpression, type KindOf } from "../src/parse";
 import { evaluate } from "../src/proof";
 import { readFixture } from "./helpers";
+
+// GRAMMAR_CACHE_VERSION must be bumped whenever the grammar extraction logic
+// changes (e.g. splitConstants regex, sort order) so stale sessionStorage
+// caches from older builds do not cause parse failures in the browser.
+it("GRAMMAR_CACHE_VERSION is at least 3 (bumped after splitConstants fix)", () => {
+  expect(Number(GRAMMAR_CACHE_VERSION)).toBeGreaterThanOrEqual(3);
+});
 
 const PAGE_URL = "https://us.metamath.org/mpegif/bitrdi.html";
 

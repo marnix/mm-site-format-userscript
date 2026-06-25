@@ -18,7 +18,7 @@ import { gifAssertionRule, uniAssertionRule } from "./rule";
 
 /** Bump when the cached extraction format (grammar rules / URL lists) changes,
  *  so stale entries from an older build are ignored. */
-export const GRAMMAR_CACHE_VERSION = "2";
+export const GRAMMAR_CACHE_VERSION = "3";
 
 type RuleExtractor = (doc: Document) => InferenceRule | null;
 
