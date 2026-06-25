@@ -18,7 +18,8 @@ so you can see where it recurs.
 
 It parses by reconstructing each expression's grammar from the page's "Syntax
 hints" links, so an expression is only highlighted once it has been fully
-parsed; anything it cannot parse is left untouched.
+parsed; anything it cannot parse is left untouched, and a ⚠ indicator in the
+page banner reports how many expressions failed to parse (if any).
 
 It also adds **parse-tree-guided whitespace**: extra space around the larger
 operators in an expression (more for outer/bigger sub-expressions, tight around
