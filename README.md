@@ -1,5 +1,7 @@
 # MM Site Format
 
+[![CI](https://github.com/marnix/mm-site-format-userscript/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/marnix/mm-site-format-userscript/actions/workflows/ci.yml)
+
 A browser userscript that improves the formatting and readability of
 [metamath.org](https://metamath.org) proof pages.
 
