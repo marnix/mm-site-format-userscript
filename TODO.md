@@ -49,13 +49,20 @@
     `<->` of disjrel's definitional cross-reference `( Disj R <-> … )`) is
     hinted by neither the page nor any Ref page.
 
-  Worked around here by always loading the omitted primitives `cv`/`wcel`/`wceq`
-  (see `database-assumptions.ts`) and by reading the Ref pages' hints; the
-  non-step gap would need transitive loading (see Correctness — though note that
-  cannot recover a constructor listed on _no_ reachable page). Check whether it
-  is already reported on <https://groups.google.com/g/metamath> /
-  <https://github.com/metamath/metamath-exe>; a fix likely belongs in the
-  site-generation repos.
+  Reported as
+  [metamath-exe issue #187](https://github.com/metamath/metamath-exe/issues/187).
+  A local branch `syntax-hints-def-bodies` (not yet pushed upstream) adds hints
+  from `$a |-` definition bodies and includes `$p` syntax theorems (fixing the
+  `weq`/`wel` omission). Worked around here by always loading the omitted
+  primitives `cv`/`wcel`/`wceq`/`weq`/`wel` (see `database-assumptions.ts`) and
+  by reading the Ref pages' hints with a breakdown-table fallback for `$a |-`
+  definition pages (see `grammar.ts`). Once the upstream fix is merged and
+  ships: `weq`/`wel` could be dropped from `PRIMITIVE_SYNTAX_PAGES`, and the
+  breakdown-table fallback (`extractBreakdownRefUrls` in `grammar.ts`) could be
+  simplified or removed. The categorical `cv` omission on every page is a
+  separate gap not covered by #187. The non-step gap would need transitive
+  loading (see Correctness — though that cannot recover a constructor listed on
+  _no_ reachable page).
 
 - **ILE / iset.mm rendering inconsistencies**: ilegif pages (e.g.
   `speano5.html`) render the "Colors of variables" legend with the old
