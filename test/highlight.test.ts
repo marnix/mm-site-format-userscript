@@ -8,6 +8,7 @@ import {
   tokenAtPoint,
   type Highlighter,
 } from "../src/highlight";
+import { SPACE_CLASS } from "../src/space";
 import { parseUniExpressions, type ParsedExpression } from "../src/page";
 import type { Proof } from "../src/proof";
 import type { TokenLocation } from "../src/token";
@@ -101,6 +102,21 @@ describe("tokenAtPoint (GIF: image tokens + bare-text tokens like Disj)", () => 
       document as unknown as { caretPositionFromPoint: unknown }
     ).caretPositionFromPoint = () => ({ offsetNode: text, offset: 2 });
     expect(tokenAtPoint(locations, 10, 10)).toBe(1);
+  });
+});
+
+describe("tokenAtPoint (spacer: highlights the expression containing it)", () => {
+  it("resolves the token immediately following a spacer when the pointer is over the spacer", () => {
+    const spacerEl = document.createElement("span");
+    spacerEl.className = SPACE_CLASS;
+    const varSpan = document.createElement("span");
+    varSpan.className = "wff";
+    varSpan.textContent = "ph";
+    document.body.append(spacerEl, varSpan);
+    const locations: TokenLocation[] = [{ type: "element", node: varSpan }];
+    (document as unknown as { elementFromPoint: unknown }).elementFromPoint =
+      () => spacerEl;
+    expect(tokenAtPoint(locations, 10, 10)).toBe(0);
   });
 });
 

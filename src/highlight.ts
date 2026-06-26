@@ -278,6 +278,14 @@ export function tokenAtPoint(
         return i;
     }
   }
+  // Spacers have no text, so the caret and element lookups above both miss.
+  // Walk forward from the spacer to the token it precedes.
+  if (el?.classList.contains(SPACE_CLASS)) {
+    for (let sib = el.nextSibling; sib; sib = sib.nextSibling) {
+      const i = findTokenAt(locations, sib, 0);
+      if (i !== null) return i;
+    }
+  }
   const caret = caretAt(x, y);
   return caret ? findTokenAt(locations, caret.node, caret.offset) : null;
 }
