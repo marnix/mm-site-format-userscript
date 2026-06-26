@@ -8,6 +8,8 @@
 // Token type itself is unchanged.
 
 import {
+  parseCssColor,
+  rgbKey,
   variableKindOfImg,
   type ImageSampler,
   type KindColors,
@@ -118,6 +120,7 @@ export function locateMathSpan(
   span: Element,
   kinds: Set<string>,
   vocab?: Set<string>,
+  colors?: KindColors,
 ): LocatedToken[] {
   const out: LocatedToken[] = [];
   const maxLen = vocab ? Math.max(1, ...[...vocab].map((c) => c.length)) : 1;
@@ -150,6 +153,22 @@ export function locateMathSpan(
             token: { kind: cls, text },
             location: { type: "element", node: el },
           });
+      } else if (cls === "symvar" && colors) {
+        // Symbol variable: kind encoded as inline color, not CSS class name.
+        // Used for operator-shaped variables like .||. (U+2225) on geometry pages.
+        const style = el.getAttribute("style") ?? "";
+        const m = style.match(/color\s*:\s*([^;]+)/i);
+        const rgb = m ? parseCssColor(m[1]) : null;
+        const kind = rgb ? (colors.get(rgbKey(rgb)) ?? null) : null;
+        if (kind) {
+          flush();
+          const text = el.textContent?.trim() ?? "";
+          if (text)
+            out.push({
+              token: { kind, text },
+              location: { type: "element", node: el },
+            });
+        }
       } else if (isSubscript(el) && run.length > 0) {
         // Fold the subscript into the preceding token (e.g. `~` + `R` = `~R`),
         // reusing the base character's position so the token stays located there.
@@ -229,8 +248,9 @@ export function tokenizeMathSpan(
   span: Element,
   kinds: Set<string>,
   vocab?: Set<string>,
+  colors?: KindColors,
 ): Token[] {
-  return locateMathSpan(span, kinds, vocab).map((lt) => lt.token);
+  return locateMathSpan(span, kinds, vocab, colors).map((lt) => lt.token);
 }
 
 /** Tokenizes a GIF run (tokens only). */

@@ -9,6 +9,7 @@ import {
   tokenizeGifRun,
   tokenizeMathSpan,
 } from "../src/token";
+import type { KindColors } from "../src/kind";
 import { findTokenAt } from "../src/highlight";
 import { gifSampler, readFixture } from "./helpers";
 
@@ -214,6 +215,23 @@ describe("tokenizeMathSpan (dense Unicode: subscripts and concatenated constants
       { kind: null, text: "\u2191\u{1d45f}" },
       { kind: "class", text: "\u{1d441}" },
       { kind: null, text: ")" },
+    ]);
+  });
+});
+
+describe("tokenizeMathSpan (symvar: dotted-underline symbol variables)", () => {
+  it("recognizes a symvar-classed span as a class variable via inline color", () => {
+    // prlngref.html uses .||. (.||.) styled as CLASS=symvar color:#C3C.
+    // The tokenizer must treat it as a class variable, not a constant -- otherwise
+    // `wbr A .||. A` and `.||. = (parlnG ' G)` cannot parse.
+    const span = document.createElement("span");
+    span.innerHTML =
+      '<span class="symvar" style="border-bottom:1px dotted;color:#C3C">\u2225</span>';
+    const kinds = new Set(["wff", "setvar", "class"]);
+    // #C3C = rgb(204,51,204): the class color used in the legend.
+    const colors: KindColors = new Map([["204,51,204", "class"]]);
+    expect(tokenizeMathSpan(span, kinds, undefined, colors)).toEqual([
+      { kind: "class", text: "\u2225" },
     ]);
   });
 });

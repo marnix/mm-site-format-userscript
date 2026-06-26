@@ -11,7 +11,7 @@ import {
   GRAMMAR_CACHE_VERSION,
 } from "./grammar";
 import { findGifRuns, findMathSpans } from "./expression";
-import { parseKindColors, parseKindNames, type ImageSampler } from "./kind";
+import { parseKindColors, type ImageSampler } from "./kind";
 import type { Fetcher } from "./loader";
 import { TOP_TYPE } from "./database-assumptions";
 import { parseExpression, type KindOf } from "./parse";
@@ -122,17 +122,23 @@ export async function parseUniExpressions(
   root: ParentNode = doc,
   cache: Cache = createCache(null, GRAMMAR_CACHE_VERSION),
 ): Promise<ParsedExpression[]> {
-  const kinds = parseKindNames(doc);
+  const colors = parseKindColors(doc);
+  const kinds = new Set(colors.values());
   const rules = await assembleUniGrammar(doc, pageUrl, fetcher, cache);
   // Split dense runs of concatenated constants against the grammar's tokens.
   const constants = collectConstants(rules);
   const spans = findMathSpans(root);
-  const located = spans.map((span) => locateMathSpan(span, kinds, constants));
+  const located = spans.map((span) =>
+    locateMathSpan(span, kinds, constants, colors),
+  );
   const parsed = parseLocated(located, rules);
 
   return parsed.map((expr, i) => {
     if (!expr.proof) return expr;
     insertSpacers(located[i], gapUnits(expr.proof));
-    return withLocations(expr, locateMathSpan(spans[i], kinds, constants));
+    return withLocations(
+      expr,
+      locateMathSpan(spans[i], kinds, constants, colors),
+    );
   });
 }

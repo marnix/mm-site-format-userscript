@@ -13,7 +13,7 @@ export type VariableKind = string; // e.g. "wff", "setvar", "class"
 /** Maps an "r,g,b" colour key to the variable kind drawn in that colour. */
 export type KindColors = Map<string, VariableKind>;
 
-const rgbKey = (c: Rgb) => c.join(",");
+export const rgbKey = (c: Rgb) => c.join(",");
 
 const NAMED_COLORS: Record<string, Rgb> = {
   black: [0, 0, 0],
