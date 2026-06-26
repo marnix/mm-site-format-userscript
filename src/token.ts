@@ -154,8 +154,10 @@ export function locateMathSpan(
             location: { type: "element", node: el },
           });
       } else if (cls === "symvar" && colors) {
-        // Symbol variable: kind encoded as inline color, not CSS class name.
-        // Used for operator-shaped variables like .||. (U+2225) on geometry pages.
+        // `symvar` is set.mm's rendering variant for dot-prefixed "operator as
+        // variable" tokens (e.g. .||. renders as \u2225 with a dotted underline).
+        // It is always class-typed; the kind is not the CSS class name but the
+        // inline color, which matches the `class` entry in the colors legend.
         const style = el.getAttribute("style") ?? "";
         const m = style.match(/color\s*:\s*([^;]+)/i);
         const rgb = m ? parseCssColor(m[1]) : null;
