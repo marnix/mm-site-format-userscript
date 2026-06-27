@@ -287,7 +287,31 @@ export function tokenAtPoint(
     }
   }
   const caret = caretAt(x, y);
-  return caret ? findTokenAt(locations, caret.node, caret.offset) : null;
+  if (!caret) return null;
+  const exact = findTokenAt(locations, caret.node, caret.offset);
+  if (exact !== null) return exact;
+  // Caret is in trailing whitespace of a text token (e.g. althtmldef operators
+  // like " &rarr; " leave a space after the arrow in the same text node after
+  // the left space is split off by spacer insertion).  Snap to the last token
+  // in the same text node whose range ends at or before the caret offset.
+  if (caret.node.nodeType === Node.TEXT_NODE) {
+    let best: number | null = null;
+    let bestEnd = -1;
+    for (let j = 0; j < locations.length; j++) {
+      const loc = locations[j];
+      if (
+        loc.type === "text" &&
+        loc.node === caret.node &&
+        loc.end <= caret.offset &&
+        loc.end > bestEnd
+      ) {
+        bestEnd = loc.end;
+        best = j;
+      }
+    }
+    if (best !== null) return best;
+  }
+  return null;
 }
 
 /**

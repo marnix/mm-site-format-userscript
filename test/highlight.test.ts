@@ -118,6 +118,24 @@ describe("tokenAtPoint (spacer: highlights the expression containing it)", () =>
       () => spacerEl;
     expect(tokenAtPoint(locations, 10, 10)).toBe(0);
   });
+
+  it("snaps to the preceding token when the caret is in trailing whitespace of a text token", () => {
+    // althtmldef entries like " &rarr; " put spaces around operators.  After
+    // spacer insertion the left space is split off; the operator ends up in a
+    // text node like "\u2192 " (arrow + trailing space).  Hovering in that
+    // trailing space must snap to the arrow token, not return null.
+    const text = document.createTextNode("\u2192 "); // "-> " with trailing space
+    document.body.appendChild(text);
+    const locations: TokenLocation[] = [
+      { type: "text", node: text, start: 0, end: 1 }, // just the arrow char
+    ];
+    (document as unknown as { elementFromPoint: unknown }).elementFromPoint =
+      () => document.body;
+    (
+      document as unknown as { caretPositionFromPoint: unknown }
+    ).caretPositionFromPoint = () => ({ offsetNode: text, offset: 1 }); // in the trailing space
+    expect(tokenAtPoint(locations, 10, 10)).toBe(0);
+  });
 });
 
 describe("installHover cross-view matching", () => {
