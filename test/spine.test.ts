@@ -21,6 +21,7 @@ const node = (conclusion: string[], ...subproofs: Proof[]): Proof => ({
 const WI = ["wff", "(", "ph", "->", "ps", ")"];
 const WB = ["wff", "(", "ph", "<->", "ps", ")"];
 const WA = ["wff", "(", "ph", "/\\", "ps", ")"];
+const WO = ["wff", "(", "ph", "\\/", "ps", ")"];
 const WCEL = ["wff", "A", "e.", "B"];
 const WCEQ = ["wff", "A", "=", "B"];
 const CXP = ["class", "(", "A", "X.", "B", ")"];
@@ -120,6 +121,63 @@ describe("chooseSpine", () => {
         { parse: b, trivial: false },
       ]),
     ).toBeNull();
+  });
+
+  it("mpjaod: size picks jaod.1 (has ch, smaller than the existential in jaod.3); should pick jaod.3 (no ch)", () => {
+    // fsumconst step 30: conclusion ( ph -> ch ) where ch = Sum_{k in A} B = (#'A * B) (~10 nodes).
+    // jaod.1 ( ph -> ( ps -> ch ) ): contains ch, ~7 nodes -- smallest by ground coincidence.
+    // jaod.2 ( ph -> ( th -> ch ) ): contains ch, ~11 nodes.
+    // jaod.3 ( ph -> ( ps \/ th ) ): NO ch, ~11 nodes -- correct spine (the disjunction).
+    // All three tie on structural overlap (wi + ph; ch/wo-node diverges from wi/wo-node).
+    // The size tiebreaker incorrectly picks jaod.1; min-LCS should pick jaod.3.
+    const ch = node(WCEQ, leaf("class", "A"), leaf("class", "B")); // 3 nodes
+    const th = node(
+      WA, // 7 nodes: bigger than ch, models the E.f condition
+      node(WCEL, leaf("class", "C"), leaf("class", "D")),
+      node(WCEL, leaf("class", "E"), leaf("class", "F")),
+    );
+    const concl = node(WI, leaf("wff", "ph"), ch);
+    const j1 = node(WI, leaf("wff", "ph"), node(WI, leaf("wff", "ps"), ch)); // 7 nodes
+    const j2 = node(WI, leaf("wff", "ph"), node(WI, th, ch)); // 11 nodes
+    const j3 = node(WI, leaf("wff", "ph"), node(WO, leaf("wff", "ps"), th)); // 11 nodes
+    expect(
+      chooseSpine(concl, [
+        { parse: j1, trivial: false },
+        { parse: j2, trivial: false },
+        { parse: j3, trivial: false },
+      ]),
+    ).toBe(2); // currently returns 0 (jaod.1 wins by size)
+  });
+
+  it("mpjaod with large ph: ph is a tree so maxSubtreeOverlap ties at root; divergingSubtreeOverlap is needed", () => {
+    // Like the previous test but ph is a complex tree (not a leaf).  When ph is
+    // large, maxSubtreeOverlap(conclusion, j1) == maxSubtreeOverlap(conclusion, j3)
+    // == 1 + treeSize(ph) (dominated by the shared root overlap), so the MSO
+    // tiebreaker never fires and size picks j1 again.  divergingSubtreeOverlap
+    // walks through the shared ph subtree and only measures divergence in the
+    // consequent, correctly returning treeSize(ch) for j1 and 0 for j3.
+    const ch = node(WCEQ, leaf("class", "A"), leaf("class", "B")); // 3 nodes
+    const ph = node(
+      WA,
+      node(WCEL, leaf("class", "C"), leaf("class", "D")),
+      node(WCEL, leaf("class", "E"), leaf("class", "F")),
+    ); // 7 nodes -- bigger than ch
+    const th = node(
+      WA,
+      node(WCEL, leaf("class", "G"), leaf("class", "H")),
+      node(WCEL, leaf("class", "I"), leaf("class", "J")),
+    ); // 7 nodes
+    const concl = node(WI, ph, ch);
+    const j1 = node(WI, ph, node(WI, leaf("wff", "ps"), ch)); // 12 nodes
+    const j2 = node(WI, ph, node(WI, th, ch)); // 16 nodes
+    const j3 = node(WI, ph, node(WO, leaf("wff", "ps"), th)); // 16 nodes
+    expect(
+      chooseSpine(concl, [
+        { parse: j1, trivial: false },
+        { parse: j2, trivial: false },
+        { parse: j3, trivial: false },
+      ]),
+    ).toBe(2);
   });
 
   it("mpbid: overlap ties, so the smaller premise (psi, not the rewrite psi<->chi) wins", () => {

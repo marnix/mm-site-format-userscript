@@ -79,15 +79,66 @@ export function isSmallStep(step: string[], continuation: string[]): boolean {
   return ratio <= SMALL_STEP_MAX_DIFF;
 }
 
+/** Maximum structural overlap between `target` and any subtree of `tree`. */
+function maxSubtreeOverlap(target: Proof, tree: Proof): number {
+  let best = structuralOverlap(target, tree);
+  for (const child of tree.subproofs) {
+    const c = maxSubtreeOverlap(target, child);
+    if (c > best) best = c;
+  }
+  return best;
+}
+
+/**
+ * Measures how much of the "diverging" part of `conclusion` reappears as a
+ * subtree in the corresponding "diverging" part of `hypothesis`. Walks down
+ * their shared top-level structure (same rule, paired children); at each point
+ * where they diverge, asks whether the conclusion's sub-tree reappears anywhere
+ * inside the hypothesis's sub-tree (maxSubtreeOverlap). Sum over all diverging
+ * branches. A high score means the hypothesis "contains" the conclusion -- it is
+ * a rewrite rule, not the main transformed expression. Use as a tiebreaker:
+ * prefer the candidate with the LOWEST score.
+ *
+ * Unlike maxSubtreeOverlap applied to the whole conclusion, this is not
+ * dominated by the shared prefix (e.g. a large common antecedent `ph`), so it
+ * correctly distinguishes mpjaod's jaod.1 (consequent wi(ps,ch) contains ch)
+ * from jaod.3 (consequent wo(ps,th) does not contain ch) regardless of ph's size.
+ */
+export function divergingSubtreeOverlap(
+  conclusion: Proof,
+  hypothesis: Proof,
+): number {
+  const cLeaf = conclusion.subproofs.length === 0;
+  const hLeaf = hypothesis.subproofs.length === 0;
+  if (cLeaf && hLeaf) return 0;
+  if (
+    cLeaf ||
+    hLeaf ||
+    conclusion.rule.conclusion.join(" ") !==
+      hypothesis.rule.conclusion.join(" ") ||
+    conclusion.subproofs.length !== hypothesis.subproofs.length
+  )
+    return maxSubtreeOverlap(conclusion, hypothesis);
+  let total = 0;
+  for (let i = 0; i < conclusion.subproofs.length; i++)
+    total += divergingSubtreeOverlap(
+      conclusion.subproofs[i],
+      hypothesis.subproofs[i],
+    );
+  return total;
+}
+
 /**
  * The index of the spine sub-proof: the one whose parse tree overlaps the
  * conclusion's the most. Among equal-overlap candidates, prefer a non-trivial
  * (derived) sub-proof over a trivial one (a leaf -- a hypothesis / 0-assumption
  * step), so the main line flows through reasoning. When several non-trivial
- * sub-proofs still tie, prefer the smallest: the running expression is one side
- * of the step's rewrite, while a rewrite premise (e.g. `( psi <-> chi )`) carries both
- * sides and is larger. Returns null only when even the smallest is not unique --
- * a genuinely symmetric step (e.g. `bitrd`), which has no clear main line.
+ * sub-proofs still tie, prefer the one with the lowest divergingSubtreeOverlap:
+ * a hypothesis whose diverging part contains the conclusion's diverging part as
+ * a subtree is a rewrite rule, not the main transformed input (e.g. mpjaod's
+ * jaod.1/jaod.2 contain the conclusion's consequent ch inside wi(ps,ch); jaod.3,
+ * the disjunction being eliminated, does not). Falls back to smallest size, then
+ * returns null for a genuinely symmetric step (e.g. `bitrd`).
  */
 export function chooseSpine(
   conclusion: Proof,
@@ -102,7 +153,13 @@ export function chooseSpine(
   const nonTrivial = top.filter((t) => !t.trivial);
   if (nonTrivial.length === 0) return top[0].index;
   if (nonTrivial.length === 1) return nonTrivial[0].index;
-  const minSize = Math.min(...nonTrivial.map((t) => t.size));
-  const smallest = nonTrivial.filter((t) => t.size === minSize);
+  const mso = nonTrivial.map((t) =>
+    divergingSubtreeOverlap(conclusion, subproofs[t.index].parse),
+  );
+  const minMso = Math.min(...mso);
+  const msoTop = nonTrivial.filter((_, i) => mso[i] === minMso);
+  if (msoTop.length === 1) return msoTop[0].index;
+  const minSize = Math.min(...msoTop.map((t) => t.size));
+  const smallest = msoTop.filter((t) => t.size === minSize);
   return smallest.length === 1 ? smallest[0].index : null;
 }
