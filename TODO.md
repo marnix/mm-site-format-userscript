@@ -78,20 +78,17 @@
 
 ## Calculational proof rendering
 
-- **Use LCS to break spine ties**: `chooseSpine` returns null for genuinely
-  symmetric steps (e.g. `bitrd` where both hypotheses tie on every metric).
-  Those steps currently show no spine arrow. A fallback: compute the token-level
-  LCS between the conclusion and each hypothesis, and pick the one with the
-  higher score. _Need a real-world example in set.mm or iset.mm where this would
-  change a rendered calculation before implementing_, since it's unclear any
-  such case is actually reached (the structural metrics appear to resolve all
-  cases tested so far).
+- ~~**Use LCS to break spine ties**~~ — done (`anchorSpine` in `spine.ts`, wired
+  in `index.ts`): when `chooseSpine` returns null (all structural metrics tie,
+  e.g. `bitrd` with symmetric hypotheses) and there is a parent anchor, the LCS
+  of each hypothesis against the parent step's token sequence picks the one that
+  shares the most tokens with what came before. Handles eqtr...i chains (A=B and
+  B=C have the same parse-tree shape; the anchor A=D identifies A=B).
 
-- **Fold small steps instead of graying them**: rather than deemphasizing a
-  "small" step (current `stepIsSmall` opacity), drop its row entirely and fold
-  its Ref into the surviving hint. E.g. `elrels2` would collapse to a single
-  step whose hint gains `; using df-rels 38877`. TBD: whether to also append the
-  small step's own Ref — e.g. ` (and eleq2i 2844)`. Supersedes the gray-out.
+- ~~**Fold small steps instead of graying them**~~ — done (`render.ts`): a step
+  with `smallSpine` is folded into its parent's hint as `; using rule` and its
+  intermediate expression is omitted entirely. Chains of consecutive small steps
+  are folded in a single loop. Superseded the gray-out.
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.
 - **Sub-expression calculations**: instead of relating whole `|- …` statements

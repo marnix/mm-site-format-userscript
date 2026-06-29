@@ -13,7 +13,6 @@
 // - `...-calc-hint`       a `{ using ... }` hint cell (indented after the operator;
 //                       wraps with a hanging indent by the width of "{ ")
 // - `...-calc-subcalc`    an indented nested sub-calculation cell
-// - `...-calc-faded`      a deemphasized "small" step's hint / continuation
 // - `...-calc-row--hint`, `--subcalc`  vertical space around hints / sub-calcs
 //   (EWD1300 layout: symmetric space around hints, more around sub-calculations)
 // - `...-fold`            the >/v disclosure marker
@@ -29,7 +28,6 @@ const CSS = `
 .mm-site-format-calc-expr { padding-left:1.6em; text-indent:-1.6em }
 .mm-site-format-calc-hint { padding-left:calc(1.5em + 1.3ch); text-indent:-1.3ch }
 .mm-site-format-calc-subcalc { padding-left:2em }
-.mm-site-format-calc-faded { opacity:0.2 }
 .mm-site-format-calc-row--hint > td { padding-top:0.3em; padding-bottom:0.3em }
 .mm-site-format-calc-row--subcalc > td { padding-top:0.5em; padding-bottom:0.5em }
 .mm-site-format-fold { cursor:pointer; user-select:none; opacity:0.6 }

@@ -140,7 +140,10 @@ would need transitive syntax loading (see TODO — "Correctness").
   span, plus `matchingOccurrences` (same token sequence ⇒ same parse tree).
 - **Parse-tree whitespace** — `spans.ts` (`gapUnits`) + `space.ts`.
 - **Calculational rendering** — `table.ts`/`calculation.ts`/`render.ts`, sized
-  and toggled in `index.ts`/`view.ts`.
+  and toggled in `index.ts`/`view.ts`. A step whose single premise barely
+  differs from its own expression (`isSmallStep`, `spine.ts`) is marked
+  `smallSpine`; `render.ts` folds it into its parent's hint (`; using rule`) and
+  omits its intermediate expression entirely.
 
 ## Deferred directions
 

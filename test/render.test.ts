@@ -309,8 +309,98 @@ describe("renderCalculation", () => {
     tooltip.remove();
   });
 
-  it("fades a small step's hint and its continuation expression, not the step's own expression", () => {
-    // A single-premise, near-identity step (smallSpine) over a given.
+  it("folds a small spine step: skips the intermediate expression and merges its rule into the parent hint", () => {
+    // P (not-small) -> A (smallSpine) -> given.  A's expression must disappear;
+    // A's rule ref is appended to P's hint as "; using <rule>".
+    const calc: Calculation = {
+      kind: "step",
+      inferenceRuleRefHtml: el('<a href="syl.html">syl</a>'),
+      expressionHtml: el("GOAL"),
+      subcalculations: [
+        {
+          kind: "step",
+          inferenceRuleRefHtml: el('<a href="eleq2i.html">eleq2i</a>'),
+          expressionHtml: el("INTERMEDIATE"),
+          subcalculations: [
+            {
+              kind: "given",
+              hypothesisRefHtml: el("df-rels"),
+              expressionHtml: el("RESULT"),
+            },
+          ],
+          spine: 0,
+          smallSpine: true,
+        },
+      ],
+      spine: 0,
+    };
+    const box = renderCalculation(calc);
+    // INTERMEDIATE must not appear anywhere in the output.
+    expect(box.textContent).not.toContain("INTERMEDIATE");
+    const rows = [...box.querySelector("tbody")!.children] as HTMLElement[];
+    // 3 rows: GOAL expr, merged hint, (df-rels) RESULT -- not 5.
+    expect(rows).toHaveLength(3);
+    const right = (tr: HTMLElement) => tr.children[1] as HTMLElement;
+    expect(right(rows[0]).textContent).toContain("GOAL");
+    // Merged hint contains both rule refs, the folded one appended with "; using".
+    expect(right(rows[1]).textContent).toContain("syl");
+    expect(right(rows[1]).textContent).toContain("; using");
+    expect(right(rows[1]).textContent).toContain("eleq2i");
+    // Continuation (the given) at full strength -- no faded class.
+    expect(right(rows[2]).textContent).toContain("RESULT");
+    expect(right(rows[2]).classList.contains("mm-site-format-calc-faded")).toBe(
+      false,
+    );
+  });
+
+  it("folds a chain of small spine steps in one merged hint", () => {
+    // P -> A (small) -> B (small) -> given.  Both A and B disappear; both rule
+    // refs appear in P's hint.
+    const calc: Calculation = {
+      kind: "step",
+      inferenceRuleRefHtml: el("outer"),
+      expressionHtml: el("GOAL"),
+      subcalculations: [
+        {
+          kind: "step",
+          inferenceRuleRefHtml: el("step-a"),
+          expressionHtml: el("MID1"),
+          subcalculations: [
+            {
+              kind: "step",
+              inferenceRuleRefHtml: el("step-b"),
+              expressionHtml: el("MID2"),
+              subcalculations: [
+                {
+                  kind: "given",
+                  hypothesisRefHtml: el("h"),
+                  expressionHtml: el("RESULT"),
+                },
+              ],
+              spine: 0,
+              smallSpine: true,
+            },
+          ],
+          spine: 0,
+          smallSpine: true,
+        },
+      ],
+      spine: 0,
+    };
+    const box = renderCalculation(calc);
+    expect(box.textContent).not.toContain("MID1");
+    expect(box.textContent).not.toContain("MID2");
+    const rows = [...box.querySelector("tbody")!.children] as HTMLElement[];
+    expect(rows).toHaveLength(3); // GOAL, merged hint, (h) RESULT
+    const right = (tr: HTMLElement) => tr.children[1] as HTMLElement;
+    expect(right(rows[1]).textContent).toContain("outer");
+    expect(right(rows[1]).textContent).toContain("step-a");
+    expect(right(rows[1]).textContent).toContain("step-b");
+  });
+
+  it("a small spine step renders normally (no fading) when the spine is not a further small step", () => {
+    // A step with smallSpine=true whose only spine child is a given: renders as
+    // three rows (expr, hint, given) without any faded styling.
     const calc: Calculation = {
       kind: "step",
       inferenceRuleRefHtml: el('<a href="r.html">r</a>'),
@@ -327,20 +417,16 @@ describe("renderCalculation", () => {
     };
     const box = renderCalculation(calc);
     const rows = [...box.querySelector("tbody")!.children] as HTMLElement[];
-    const right = (tr: HTMLElement) => tr.children[1] as HTMLElement; // content
-    const left = (tr: HTMLElement) => tr.children[0] as HTMLElement; // label
-    const faded = (cell: HTMLElement) =>
-      cell.classList.contains("mm-site-format-calc-faded");
-
-    expect(rows[0].textContent).toContain("TOP"); // the step's own expression...
-    expect(faded(right(rows[0]))).toBe(false); // ...stays at full strength
-    expect(rows[1].textContent).toContain("{ using r }"); // hint...
-    expect(faded(right(rows[1]))).toBe(true); // ...is faded
-    expect(rows[2].textContent).toContain("RESULT"); // continuation expression...
-    expect(faded(right(rows[2]))).toBe(true);
-    // ...but its left-column Ref label stays sharp, so you can still see where
-    // the conclusion came from.
-    expect(rows[2].textContent).toContain("(h)");
-    expect(faded(left(rows[2]))).toBe(false);
+    const right = (tr: HTMLElement) => tr.children[1] as HTMLElement;
+    expect(rows).toHaveLength(3);
+    expect(right(rows[0]).textContent).toContain("TOP");
+    expect(right(rows[1]).textContent).toContain("{ using r }");
+    expect(right(rows[1]).classList.contains("mm-site-format-calc-faded")).toBe(
+      false,
+    );
+    expect(right(rows[2]).textContent).toContain("RESULT");
+    expect(right(rows[2]).classList.contains("mm-site-format-calc-faded")).toBe(
+      false,
+    );
   });
 });

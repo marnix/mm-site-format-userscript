@@ -51,15 +51,11 @@ const ROW_CLASS: Record<RowKind, string> = {
   subcalc: "mm-site-format-calc-row--subcalc",
 };
 
-/** A two-column row: the operator on the left, `content` on the right, styled by
- *  `kind`. `faded` deemphasizes the right cell only (a "small" step) -- never the
- *  left column, so the operator and a leaf's Ref label stay sharp and you can
- *  still see where the conclusion came from. */
+/** A two-column row: the operator on the left, `content` on the right, styled by `kind`. */
 function row(
   operator: string | Node,
   content: Node,
   kind: RowKind,
-  faded = false,
 ): HTMLTableRowElement {
   const tr = document.createElement("tr");
   tr.className = ROW_CLASS[kind];
@@ -68,28 +64,35 @@ function row(
   if (typeof operator === "string") op.textContent = operator;
   else op.appendChild(operator);
   const main = document.createElement("td");
-  main.className =
-    CONTENT_CLASS[kind] + (faded ? " mm-site-format-calc-faded" : "");
+  main.className = CONTENT_CLASS[kind];
   main.appendChild(content);
   tr.append(op, main);
   return tr;
 }
 
-// `faded` deemphasizes this step's own expression line -- set by the parent when
-// the transition *into* this step was small (its hint + result, faded together).
 function appendStep(
   step: Step,
   tbody: HTMLElement,
-  faded = false,
   options?: RenderOptions,
 ): void {
   const expr = clone(step.expressionHtml);
-  tbody.appendChild(row("", expr, "expr", faded));
+  tbody.appendChild(row("", expr, "expr"));
 
-  // Hint: the non-spine given premises (each by its Ref), then
-  // "subproof"/"subproofs" if any non-spine premise is itself a derivation
-  // (those are shown below), and the inference rule last. The spine premise
-  // continues the main line below.
+  // Fold small-step spines: walk the spine chain while each step has smallSpine,
+  // collecting their rule refs to merge into this step's hint.  The intermediate
+  // expressions are omitted entirely.
+  const foldedSteps: Step[] = [];
+  let effectiveSpine: Calculation | null =
+    step.spine !== null ? step.subcalculations[step.spine] : null;
+  while (effectiveSpine?.kind === "step" && effectiveSpine.smallSpine) {
+    foldedSteps.push(effectiveSpine);
+    effectiveSpine =
+      effectiveSpine.spine !== null
+        ? effectiveSpine.subcalculations[effectiveSpine.spine]
+        : null;
+  }
+
+  // Hint: non-spine given premises, subproof count, rule ref, folded rule refs.
   const items: Node[] = [];
   let nested = 0;
   step.subcalculations.forEach((sub, i) => {
@@ -99,7 +102,6 @@ function appendStep(
       const href =
         sub.hypothesisRefHtml.querySelector("a")?.getAttribute("href") ?? null;
       const fetchRule = options?.fetchRuleTooltip;
-      // sub.expressionHtml is not in the calc DOM, so no spacers -- acceptable.
       attachTooltip(
         refEl,
         href && fetchRule && !href.startsWith("#")
@@ -113,8 +115,6 @@ function appendStep(
     items.push(
       document.createTextNode(nested === 1 ? "subproof" : "subproofs"),
     );
-  // The inference rule ref: tooltip shows the rule's conclusion + hypotheses
-  // fetched from the linked page, or falls back to this step's expression.
   const ruleRef = clone(step.inferenceRuleRefHtml);
   const ruleHref =
     step.inferenceRuleRefHtml.querySelector("a")?.getAttribute("href") ?? null;
@@ -129,16 +129,26 @@ function appendStep(
   const hint = document.createElement("span");
   hint.append("{ using ");
   appendSeries(hint, items);
+  for (const folded of foldedSteps) {
+    const foldedRef = clone(folded.inferenceRuleRefHtml);
+    const foldedHref =
+      folded.inferenceRuleRefHtml.querySelector("a")?.getAttribute("href") ??
+      null;
+    attachTooltip(
+      foldedRef,
+      foldedHref && fetchRule
+        ? () => fetchRule(foldedHref)
+        : () => clone(folded.expressionHtml),
+    );
+    hint.append("; using ");
+    hint.append(foldedRef);
+  }
   hint.append(" }");
-  // With no clear main line (spine === null) the step holds outright: `<==>` down
-  // to TRUE, justified by all its sub-proofs; otherwise the spine continues.
-  // A "small" step's hint -- and its continuation expression below -- are faded.
-  const ended = step.spine === null;
-  const small = step.smallSpine ?? false;
-  tbody.appendChild(row(ended ? TERMINAL : OPERATOR, hint, "hint", small));
 
-  // Non-spine step sub-calculations: indented sub-derivations, in order, each
-  // set apart with extra vertical space and collapsed by default.
+  const ended = effectiveSpine === null;
+  tbody.appendChild(row(ended ? TERMINAL : OPERATOR, hint, "hint"));
+
+  // Non-spine step sub-calculations: indented sub-derivations, in order.
   step.subcalculations.forEach((sub, i) => {
     if (sub.kind === "step" && i !== step.spine) {
       const table = renderCalcTable(sub, options);
@@ -152,13 +162,10 @@ function appendStep(
     return;
   }
 
-  // The spine continues the main line: a step extends it; a given ends it (its
-  // expression is the last line, with its Ref in the left column). A small step
-  // fades that continuation expression too, so hint + result read as one faint
-  // unit.
-  const spine = step.subcalculations[step.spine as number];
-  if (spine?.kind === "given") appendGiven(spine, tbody, small, options);
-  else if (spine?.kind === "step") appendStep(spine, tbody, small, options);
+  if (effectiveSpine?.kind === "given")
+    appendGiven(effectiveSpine, tbody, options);
+  else if (effectiveSpine?.kind === "step")
+    appendStep(effectiveSpine, tbody, options);
 }
 
 /**
@@ -169,7 +176,6 @@ function appendStep(
 function appendGiven(
   given: Given,
   tbody: HTMLElement,
-  faded = false,
   options?: RenderOptions,
 ): void {
   const ref = document.createElement("span");
@@ -178,14 +184,13 @@ function appendGiven(
   const href =
     given.hypothesisRefHtml.querySelector("a")?.getAttribute("href") ?? null;
   const fetchRule = options?.fetchRuleTooltip;
-  // expr is in the calc DOM and will have spacers by hover time.
   attachTooltip(
     ref,
     href && fetchRule && !href.startsWith("#")
       ? () => fetchRule(href)
       : () => expr.cloneNode(true) as Node,
   );
-  tbody.appendChild(row(ref, expr, "expr", faded));
+  tbody.appendChild(row(ref, expr, "expr"));
 }
 
 // While a calculation is being built, each collapsible sub-calculation registers
@@ -251,8 +256,8 @@ function renderCalcTable(
   const table = document.createElement("table");
   const tbody = document.createElement("tbody");
   table.appendChild(tbody);
-  if (calc.kind === "given") appendGiven(calc, tbody, false, options);
-  else appendStep(calc, tbody, false, options);
+  if (calc.kind === "given") appendGiven(calc, tbody, options);
+  else appendStep(calc, tbody, options);
   return table;
 }
 
