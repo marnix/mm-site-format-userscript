@@ -29,8 +29,19 @@ export function structuralOverlap(a: Proof, b: Proof): number {
   if (a.rule.conclusion.join(" ") !== b.rule.conclusion.join(" ")) return 0;
   if (a.subproofs.length !== b.subproofs.length) return 0;
   let matched = 1;
-  for (let i = 0; i < a.subproofs.length; i++)
-    matched += structuralOverlap(a.subproofs[i], b.subproofs[i]);
+  for (let i = 0; i < a.subproofs.length; i++) {
+    const ai = a.subproofs[i];
+    const bi = b.subproofs[i];
+    const aiLeaf = ai.subproofs.length === 0;
+    const biLeaf = bi.subproofs.length === 0;
+    if (aiLeaf && biLeaf) matched++;
+    else if (
+      !aiLeaf &&
+      !biLeaf &&
+      ai.rule.conclusion.join(" ") === bi.rule.conclusion.join(" ")
+    )
+      matched++;
+  }
   return matched;
 }
 
@@ -152,11 +163,39 @@ export function divergingSubtreeOverlap(
 }
 
 /**
+ * The position index of the first argument where `conclusion` and `hypothesis`
+ * structurally diverge (different rule, or leaf vs. non-leaf). Treats leaf vs.
+ * leaf as a match regardless of identity (same convention as structuralOverlap).
+ * Returns `conclusion.subproofs.length` when no diverging position is found.
+ * Only meaningful when both proofs share the same root rule.
+ */
+function firstDivergingPosition(conclusion: Proof, hypothesis: Proof): number {
+  for (let i = 0; i < conclusion.subproofs.length; i++) {
+    const ci = conclusion.subproofs[i];
+    const hi = hypothesis.subproofs[i];
+    const ciLeaf = ci.subproofs.length === 0;
+    const hiLeaf = hi.subproofs.length === 0;
+    if (ciLeaf && hiLeaf) continue;
+    if (
+      !ciLeaf &&
+      !hiLeaf &&
+      ci.rule.conclusion.join(" ") === hi.rule.conclusion.join(" ")
+    )
+      continue;
+    return i;
+  }
+  return conclusion.subproofs.length;
+}
+
+/**
  * The index of the spine sub-proof: the one whose parse tree overlaps the
  * conclusion's the most. Among equal-overlap candidates, prefer a non-trivial
  * (derived) sub-proof over a trivial one (a leaf -- a hypothesis / 0-assumption
  * step), so the main line flows through reasoning. When several non-trivial
- * sub-proofs still tie, prefer the one with the lowest divergingSubtreeOverlap:
+ * sub-proofs still tie, prefer the one that first diverges from the conclusion
+ * at the earliest argument position (lower index = the hypothesis preserves more
+ * of the conclusion's trailing arguments, e.g. the consequent of a `syl` step).
+ * When that still ties, prefer the one with the lowest divergingSubtreeOverlap:
  * a hypothesis whose diverging part contains the conclusion's diverging part as
  * a subtree is a rewrite rule, not the main transformed input (e.g. mpjaod's
  * jaod.1/jaod.2 contain the conclusion's consequent ch inside wi(ps,ch); jaod.3,
@@ -176,11 +215,17 @@ export function chooseSpine(
   const nonTrivial = top.filter((t) => !t.trivial);
   if (nonTrivial.length === 0) return top[0].index;
   if (nonTrivial.length === 1) return nonTrivial[0].index;
-  const mso = nonTrivial.map((t) =>
+  const fdp = nonTrivial.map((t) =>
+    firstDivergingPosition(conclusion, subproofs[t.index].parse),
+  );
+  const minFdp = Math.min(...fdp);
+  const fdpTop = nonTrivial.filter((_, i) => fdp[i] === minFdp);
+  if (fdpTop.length === 1) return fdpTop[0].index;
+  const mso = fdpTop.map((t) =>
     divergingSubtreeOverlap(conclusion, subproofs[t.index].parse),
   );
   const minMso = Math.min(...mso);
-  const msoTop = nonTrivial.filter((_, i) => mso[i] === minMso);
+  const msoTop = fdpTop.filter((_, i) => mso[i] === minMso);
   if (msoTop.length === 1) return msoTop[0].index;
   const minSize = Math.min(...msoTop.map((t) => t.size));
   const smallest = msoTop.filter((t) => t.size === minSize);

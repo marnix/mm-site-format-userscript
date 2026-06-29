@@ -121,9 +121,21 @@ would need transitive syntax loading (see TODO — "Correctness").
 - **Tokenizing the dense Unicode rendering** — `token.ts`: longest-match against
   the constant vocabulary, plus subscript folding (UTF-16-aware for surrogate
   pairs).
-- **Choosing the spine** — `spine.ts`: top-down structural overlap of parse
-  trees; ties broken toward the smaller non-trivial sub-proof; a symmetric step
-  has no spine and ends at `⇔ TRUE`.
+- **Choosing the spine** — `spine.ts`: structural overlap of parse trees, then a
+  chain of tiebreakers. `structuralOverlap` counts matching positions at the top
+  level and one level of children (same rule or both leaves), without recursing
+  into the ground substitutions — so an accidentally large shared sub-expression
+  does not dominate. Ties resolved in order: (1) non-trivial sub-proof over a
+  leaf hypothesis; (2) `firstDivergingPosition` — prefer the hypothesis that
+  first diverges from the conclusion at the earliest argument index (preserves
+  the trailing arguments, e.g. the consequent of a `syl` step); (3)
+  `divergingSubtreeOverlap` — prefer the hypothesis whose diverging part does
+  _not_ contain the conclusion's diverging part as a subtree (rules out
+  rewrite-rule hypotheses, e.g. `mpjaod`'s `jaod.1`/`jaod.2` both contain the
+  conclusion's consequent while `jaod.3` does not); (4) smallest expression
+  size; (5) `anchorSpine` (token-level LCS with the parent step's expression)
+  for structurally-identical hypotheses; (6) null — no clear spine, renders as
+  `⇔ TRUE`.
 - **Hover + occurrence highlighting** — `highlight.ts`: smallest containing node
   span, plus `matchingOccurrences` (same token sequence ⇒ same parse tree).
 - **Parse-tree whitespace** — `spans.ts` (`gapUnits`) + `space.ts`.

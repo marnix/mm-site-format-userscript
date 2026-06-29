@@ -27,6 +27,7 @@ const WI = ["wff", "(", "ph", "->", "ps", ")"];
 const WB = ["wff", "(", "ph", "<->", "ps", ")"];
 const WA = ["wff", "(", "ph", "/\\", "ps", ")"];
 const WO = ["wff", "(", "ph", "\\/", "ps", ")"];
+const WEX = ["wff", "E.", "x", "ph"];
 const WCEL = ["wff", "A", "e.", "B"];
 const WCEQ = ["wff", "A", "=", "B"];
 const CXP = ["class", "(", "A", "X.", "B", ")"];
@@ -48,6 +49,27 @@ describe("structuralOverlap", () => {
   it("is 0 for leaf vs node", () => {
     const wb = node(WB, leaf("wff", "ph"), leaf("wff", "ps"));
     expect(structuralOverlap(leaf("wff", "ps"), wb)).toBe(0);
+  });
+
+  it("does not recurse beyond immediate children: matching child rule counts 1, not treeSize", () => {
+    // wi( wcel(A, D), ps ) vs wi( wcel(A, cxp(B,C)), th )
+    // Root: wi matches (+1). Child0: wcel vs wcel same-rule (+1). Child1: both leaves (+1). Total = 3.
+    // Without this fix the old recursive code gives 4: +1 for A_leaf matching inside wcel.
+    const a = node(
+      WI,
+      node(WCEL, leaf("class", "A"), leaf("class", "D")),
+      leaf("wff", "ps"),
+    );
+    const b = node(
+      WI,
+      node(
+        WCEL,
+        leaf("class", "A"),
+        node(CXP, leaf("class", "B"), leaf("class", "C")),
+      ),
+      leaf("wff", "th"),
+    );
+    expect(structuralOverlap(a, b)).toBe(3);
   });
 });
 
@@ -183,6 +205,55 @@ describe("chooseSpine", () => {
         { parse: j3, trivial: false },
       ]),
     ).toBe(2);
+  });
+
+  it("syl: non-trivial antecedent-matching hyp must not beat non-trivial consequent-matching hyp", () => {
+    // optocl step 8 structure (both hyps non-trivial):
+    //   conclusion: ( A e. (B x. C) -> ps )
+    //   h1: ( A e. (B x. C) -> E.x E.y (x e. B /\ y e. C) ) -- antecedent matches, non-trivial
+    //   h2: ( E.x E.y (x e. B /\ y e. C) -> ps )            -- consequent matches, non-trivial
+    // Both overlap 2. DSO misfires: wexBig contains inner wcel(x,B) so
+    // maxSubtreeOverlap(wcel(A,cxp), wexBig) >= 2, giving DSO(h2)>DSO(h1) -> h1 wins.
+    const setX = leaf("set", "x");
+    const setY = leaf("set", "y");
+    const wexBig = node(
+      WEX,
+      setX,
+      node(
+        WEX,
+        setY,
+        node(
+          WA,
+          node(WCEL, setX, leaf("class", "B")),
+          node(WCEL, setY, leaf("class", "C")),
+        ),
+      ),
+    );
+    const conclusion = node(
+      WI,
+      node(
+        WCEL,
+        leaf("class", "A"),
+        node(CXP, leaf("class", "B"), leaf("class", "C")),
+      ),
+      leaf("wff", "ps"),
+    );
+    const h1 = node(
+      WI,
+      node(
+        WCEL,
+        leaf("class", "A"),
+        node(CXP, leaf("class", "B"), leaf("class", "C")),
+      ),
+      wexBig,
+    );
+    const h2 = node(WI, wexBig, leaf("wff", "ps"));
+    expect(
+      chooseSpine(conclusion, [
+        { parse: h1, trivial: false },
+        { parse: h2, trivial: false },
+      ]),
+    ).toBe(1); // spine = h2 (consequent-matching)
   });
 
   it("mpbid: overlap ties, so the smaller premise (psi, not the rewrite psi<->chi) wins", () => {
