@@ -134,7 +134,9 @@ would need transitive syntax loading (see TODO — "Correctness").
   rewrite-rule hypotheses, e.g. `mpjaod`'s `jaod.1`/`jaod.2` both contain the
   conclusion's consequent while `jaod.3` does not); (4) smallest expression
   size; (5) `anchorSpine` (token-level LCS with the parent step's expression)
-  for structurally-identical hypotheses; (6) null — no clear spine, renders as
+  for structurally-identical hypotheses — e.g. eqtr...i chains where `A=B` and
+  `B=C` have the same parse-tree shape; the anchor identifies `A=B` because it
+  shares tokens with the preceding `A=D`; (6) null — no clear spine, renders as
   `⇔ TRUE`.
 - **Hover + occurrence highlighting** — `highlight.ts`: smallest containing node
   span, plus `matchingOccurrences` (same token sequence ⇒ same parse tree).

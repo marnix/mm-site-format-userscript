@@ -78,17 +78,6 @@
 
 ## Calculational proof rendering
 
-- ~~**Use LCS to break spine ties**~~ — done (`anchorSpine` in `spine.ts`, wired
-  in `index.ts`): when `chooseSpine` returns null (all structural metrics tie,
-  e.g. `bitrd` with symmetric hypotheses) and there is a parent anchor, the LCS
-  of each hypothesis against the parent step's token sequence picks the one that
-  shares the most tokens with what came before. Handles eqtr...i chains (A=B and
-  B=C have the same parse-tree shape; the anchor A=D identifies A=B).
-
-- ~~**Fold small steps instead of graying them**~~ — done (`render.ts`): a step
-  with `smallSpine` is folded into its parent's hint as `; using rule` and its
-  intermediate expression is omitted entirely. Chains of consecutive small steps
-  are folded in a single loop. Superseded the gray-out.
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.
 - **Sub-expression calculations**: instead of relating whole `|- …` statements
