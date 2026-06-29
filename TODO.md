@@ -80,12 +80,12 @@
 
 - **Use LCS to break spine ties**: `chooseSpine` returns null for genuinely
   symmetric steps (e.g. `bitrd` where both hypotheses tie on every metric).
-  Those steps currently show no spine arrow. A fallback: compute the
-  token-level LCS between the conclusion and each hypothesis, and pick the
-  one with the higher score. _Need a real-world example in set.mm or iset.mm
-  where this would change a rendered calculation before implementing_, since
-  it's unclear any such case is actually reached (the structural metrics
-  appear to resolve all cases tested so far).
+  Those steps currently show no spine arrow. A fallback: compute the token-level
+  LCS between the conclusion and each hypothesis, and pick the one with the
+  higher score. _Need a real-world example in set.mm or iset.mm where this would
+  change a rendered calculation before implementing_, since it's unclear any
+  such case is actually reached (the structural metrics appear to resolve all
+  cases tested so far).
 
 - **Fold small steps instead of graying them**: rather than deemphasizing a
   "small" step (current `stepIsSmall` opacity), drop its row entirely and fold

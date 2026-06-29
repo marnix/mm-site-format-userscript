@@ -100,4 +100,54 @@ describe("proofTreeToCalculation", () => {
       evaluateCalculation(proofTreeToCalculation(bitrdiProofTree)),
     ).toEqual(bitrdiProofTree);
   });
+
+  it("threads the parent's tokens as anchor to the spine child only", () => {
+    // bitrdiProofTree: root (bitrd) -> [child0=bitrdi1(leaf), child1=a1i->[bitrdi2(leaf)]]
+    // spineFor always returns 0, so child0 is the spine child at the root.
+    // child0 is a leaf, so spineFor is never called for it.
+    // child1 is non-spine, so it gets anchor=null.
+    // To expose anchor threading to the non-leaf spine child, we need a tree
+    // where the spine child itself has subproofs. Build a 3-level chain:
+    //   root -> [mid(spine) -> [leaf1(spine)], leaf2(non-spine)]
+    const leaf1: ProofTree = {
+      refHtml: ref("ref1"),
+      expressionHtml: ref("L1"),
+      subproofs: [],
+    };
+    const leaf2: ProofTree = {
+      refHtml: ref("ref2"),
+      expressionHtml: ref("L2"),
+      subproofs: [],
+    };
+    const mid: ProofTree = {
+      refHtml: ref("mid"),
+      expressionHtml: ref("M"),
+      subproofs: [leaf1],
+    };
+    const root: ProofTree = {
+      refHtml: ref("root"),
+      expressionHtml: ref("R"),
+      subproofs: [mid, leaf2],
+    };
+
+    // Spy: record (node label, anchor) for each spineFor call.
+    const calls: [string, string[] | null][] = [];
+    const spySpineFor = (
+      node: ProofTree,
+      anchor: string[] | null,
+    ): number | null => {
+      calls.push([node.expressionHtml.textContent ?? "", anchor]);
+      return 0;
+    };
+    const tokensFor = (node: ProofTree): string[] | null =>
+      node.expressionHtml.textContent?.split("") ?? null;
+
+    proofTreeToCalculation(root, spySpineFor, () => false, tokensFor, null);
+
+    // spineFor is called for root (anchor=null) and mid (anchor=tokensFor(root)).
+    // leaf1 and leaf2 are leaves; spineFor is never called for them.
+    expect(calls).toHaveLength(2);
+    expect(calls[0]).toEqual(["R", null]); // root: no parent anchor
+    expect(calls[1]).toEqual(["M", tokensFor(root)]); // mid: spine child, gets root's tokens
+  });
 });

@@ -19,7 +19,7 @@ import {
   attachRuleTooltipsToPage,
   makeRuleTooltipFetcher,
 } from "./rule-tooltip";
-import { chooseSpine, isSmallStep } from "./spine";
+import { anchorSpine, chooseSpine, isSmallStep } from "./spine";
 import { injectStyles } from "./styles";
 import { parseProofTable } from "./table";
 import { formatTokens } from "./token";
@@ -100,18 +100,27 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     const tokensOf = (node: ProofTree): string[] | null =>
       exprOf(node)?.tokens.map((t) => t.text) ?? null;
 
-    const spineFor = (node: ProofTree): number | null => {
+    const spineFor = (
+      node: ProofTree,
+      anchor: string[] | null,
+    ): number | null => {
       const conclusion = parseOf(node);
       const subs = node.subproofs.map((s) => ({
         parse: parseOf(s),
         trivial: s.subproofs.length === 0,
       }));
       // Without parse trees, fall back to the first sub-proof; otherwise a null
-      // from chooseSpine means "no clear main line" -- end the spine.
+      // from chooseSpine means "no clear main line". Try the anchor tiebreaker
+      // before giving up.
       if (!conclusion || subs.some((s) => !s.parse)) return 0;
-      return chooseSpine(
+      const result = chooseSpine(
         conclusion,
         subs as { parse: Proof; trivial: boolean }[],
+      );
+      if (result !== null || anchor === null) return result;
+      return anchorSpine(
+        anchor,
+        node.subproofs.map((s) => tokensOf(s)),
       );
     };
     // Single-premise only (matching the earlier userscript's stepIsSmall): a
@@ -122,7 +131,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       const premise = tokensOf(node.subproofs[0]);
       return !!step && !!premise && isSmallStep(step, premise);
     };
-    return { spineFor, smallFor };
+    return { spineFor, smallFor, tokensOf };
   };
 
   // Fix the calculation box to its fully-expanded width, so expanding a
@@ -162,8 +171,13 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
 
   const showCalculation = (results: ParsedExpression[]): HTMLElement | null => {
     if (!proofTree || !proofTable) return null;
-    const { spineFor, smallFor } = choosers(results);
-    const calc = proofTreeToCalculation(proofTree, spineFor, smallFor);
+    const { spineFor, smallFor, tokensOf: tokensOf_ } = choosers(results);
+    const calc = proofTreeToCalculation(
+      proofTree,
+      spineFor,
+      smallFor,
+      tokensOf_,
+    );
     const rendered = renderCalculation(calc, { fetchRuleTooltip });
     // Into the caption, below the "Proof of Theorem" heading -- so the heading
     // stays in place whichever view is shown.

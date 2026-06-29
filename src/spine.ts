@@ -42,7 +42,7 @@ function treeSize(proof: Proof): number {
 }
 
 /** Length of the longest common subsequence of two token sequences. */
-function lcsLength(a: string[], b: string[]): number {
+export function lcsLength(a: string[], b: string[]): number {
   const prev = new Array(b.length + 1).fill(0);
   for (let i = 1; i <= a.length; i++) {
     let diag = 0; // prev[j-1] before it is overwritten
@@ -54,6 +54,29 @@ function lcsLength(a: string[], b: string[]): number {
     }
   }
   return prev[b.length];
+}
+
+/**
+ * Tiebreaker for `chooseSpine` when structural metrics return null: among
+ * `subproofTokens`, pick the hypothesis whose token sequence has the highest
+ * LCS with `anchorTokens` (the previous step's expression in the calculation
+ * chain). Returns null when no hypothesis has tokens, or when the best score
+ * is shared by two or more. Null entries in `subproofTokens` are skipped.
+ */
+export function anchorSpine(
+  anchorTokens: string[],
+  subproofTokens: (string[] | null)[],
+): number | null {
+  const scores = subproofTokens.map((t) =>
+    t !== null ? lcsLength(anchorTokens, t) : -1,
+  );
+  const best = Math.max(...scores);
+  if (best < 0) return null;
+  const bestIndices = scores.reduce<number[]>(
+    (acc, s, i) => (s === best ? [...acc, i] : acc),
+    [],
+  );
+  return bestIndices.length === 1 ? bestIndices[0] : null;
 }
 
 /** A step "adds little" when this size-aware difference of its expression and

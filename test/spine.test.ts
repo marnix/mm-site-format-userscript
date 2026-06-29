@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { InferenceRule, Proof } from "../src/proof";
-import { chooseSpine, isSmallStep, structuralOverlap } from "../src/spine";
+import {
+  anchorSpine,
+  chooseSpine,
+  isSmallStep,
+  structuralOverlap,
+} from "../src/spine";
 
 const rule = (conclusion: string[]): InferenceRule => ({
   assumptions: [],
@@ -218,5 +223,28 @@ describe("isSmallStep", () => {
     const conclusion = toks("( ph -> ps )");
     const premise = toks("( ( ph -> ps ) -> ( ch -> ( th -> ta ) ) )");
     expect(isSmallStep(conclusion, premise)).toBe(false);
+  });
+});
+
+describe("anchorSpine", () => {
+  const toks = (s: string) => s.split(" ");
+
+  it("picks the hypothesis sharing the most tokens with the anchor", () => {
+    // anchor = 'A = D' (3 tokens); h1 = 'A = B' shares 'A' and '='; h2 = 'B = C' shares only '='
+    expect(anchorSpine(toks("A = D"), [toks("A = B"), toks("B = C")])).toBe(0);
+  });
+
+  it("returns null when both hypotheses tie against the anchor", () => {
+    expect(
+      anchorSpine(toks("A = B"), [toks("A = B"), toks("A = B")]),
+    ).toBeNull();
+  });
+
+  it("skips hypotheses with no token data", () => {
+    expect(anchorSpine(toks("A = D"), [null, toks("A = B")])).toBe(1);
+  });
+
+  it("returns null when all token data is missing", () => {
+    expect(anchorSpine(toks("A"), [null, null])).toBeNull();
   });
 });

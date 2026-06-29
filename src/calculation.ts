@@ -71,8 +71,11 @@ export function evaluateCalculation(calc: Calculation): ProofTree {
  */
 export function proofTreeToCalculation(
   tree: ProofTree,
-  spineFor: (node: ProofTree) => number | null = () => 0,
+  spineFor: (node: ProofTree, anchor: string[] | null) => number | null = () =>
+    0,
   smallFor: (node: ProofTree) => boolean = () => false,
+  tokensFor: (node: ProofTree) => string[] | null = () => null,
+  anchor: string[] | null = null,
 ): Calculation {
   if (tree.subproofs.length === 0)
     return {
@@ -80,14 +83,22 @@ export function proofTreeToCalculation(
       hypothesisRefHtml: tree.refHtml,
       expressionHtml: tree.expressionHtml,
     };
+  const spineIndex = spineFor(tree, anchor);
+  const nextAnchor = tokensFor(tree);
   const step: Step = {
     kind: "step",
     inferenceRuleRefHtml: tree.refHtml,
     expressionHtml: tree.expressionHtml,
-    subcalculations: tree.subproofs.map((s) =>
-      proofTreeToCalculation(s, spineFor, smallFor),
+    subcalculations: tree.subproofs.map((s, i) =>
+      proofTreeToCalculation(
+        s,
+        spineFor,
+        smallFor,
+        tokensFor,
+        i === spineIndex ? nextAnchor : null,
+      ),
     ),
-    spine: spineFor(tree),
+    spine: spineIndex,
   };
   if (smallFor(tree)) step.smallSpine = true;
   return step;
