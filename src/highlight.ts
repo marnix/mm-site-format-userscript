@@ -116,7 +116,7 @@ declare const Highlight: { new (): HighlightLike };
 declare const CSS: { highlights?: Map<string, HighlightLike> } | undefined;
 
 /** A sub-expression to paint: where its tokens are, and which span of them. */
-interface PaintItem {
+export interface PaintItem {
   locations: TokenLocation[];
   span: Span;
 }
@@ -124,7 +124,7 @@ interface PaintItem {
 /** Paints highlights: text via the Highlight API, elements via a background
  * class (the Highlight API does not paint replaced elements like the
  * transparent-background GIF glyphs). One painter owns one named highlight. */
-interface Painter {
+export interface Painter {
   paint(items: PaintItem[]): void;
   clear(): void;
 }

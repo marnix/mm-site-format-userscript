@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML LANG="EN-US">
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<STYLE TYPE="text/css">
+<!--
+img { margin-bottom: -4px }
+.r { font-family: "Arial Narrow";
+     font-size: x-small;
+   }
+.i { font-family: "Arial Narrow";
+     font-size: x-small;
+     color: gray;
+   }
+-->
+</STYLE>
+<STYLE TYPE="text/css">
+<!--
+  .setvar { color: red; }
+  .wff { color: blue; }
+  .class { color: #C3C; }
+  .symvar { border-bottom:1px dotted;color:#C3C}
+  .typecode { color: gray }
+  .hidden { color: gray }
+  @font-face {
+    font-family: XITSMath-Regular;
+    src: url(xits-math.woff);
+  }
+  .math { font-family: XITSMath-Regular }
+-->
+</STYLE>
+<LINK href="mmset.css" title="mmset"
+    rel="stylesheet" type="text/css">
+<LINK href="mmsetalt.css" title="mmsetalt"
+    rel="alternate stylesheet" type="text/css">
+<TITLE>cv - Intuitionistic Logic Explorer</TITLE>
+<LINK REL="shortcut icon" HREF="favicon.ico" TYPE="image/x-icon">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
+  <TR>
+    <TD ALIGN=LEFT VALIGN=TOP WIDTH="25%"><A HREF=
+    "mmil.html"><IMG SRC="_icon-il.gif"
+      BORDER=0
+      ALT="ILE Home"
+      TITLE="ILE Home"
+      HEIGHT=32 WIDTH=32 ALIGN=TOP STYLE="margin-bottom:0px"></A>
+    </TD>
+    <TD ALIGN=CENTER COLSPAN=2 VALIGN=TOP><FONT SIZE="+3" COLOR="#006633"><B>
+Intuitionistic Logic Explorer
+      </B></FONT></TD>
+    <TD ALIGN=RIGHT VALIGN=TOP WIDTH="25%">
+      <FONT SIZE=-1 FACE=sans-serif>
+      <A HREF="wal.html">
+      &lt; Previous</A>&nbsp;&nbsp;
+      <A HREF="wceq.html">Next &gt;</A>
+      </FONT><FONT FACE=sans-serif SIZE=-2>
+      <BR><A HREF="mmtheorems14.html#cv">Nearby theorems</A>
+      </FONT>
+    </TD>
+  </TR>
+  <TR>
+    <TD COLSPAN=2 ALIGN=LEFT VALIGN=TOP><FONT SIZE=-2
+      FACE=sans-serif>
+      <A HREF="../mm.html">Mirrors</A>&nbsp; &gt;
+      &nbsp;<A HREF="../index.html">Home</A>&nbsp; &gt;
+      &nbsp;<A HREF="mmil.html">ILE Home</A>&nbsp; &gt;
+      &nbsp;<A HREF="mmtheorems.html">Th. List</A>&nbsp; &gt;
+      &nbsp;cv
+      </FONT>
+    </TD>
+    <TD COLSPAN=2 ALIGN=RIGHT VALIGN=TOP>
+      <FONT SIZE=-2 FACE=sans-serif>
+
+      <A HREF="../ilegif/cv.html">GIF version</A>
+      </FONT>
+    </TD>
+  </TR>
+</TABLE>
+<HR NOSHADE SIZE=1>
+<CENTER><B><FONT SIZE="+1">Syntax Definition <FONT
+COLOR="#006633">cv</FONT></FONT></B>&nbsp;<SPAN CLASS=r
+STYLE="color:#E93400">1397</SPAN></CENTER>
+<CENTER><TABLE><TR><TD ALIGN=LEFT><B>Description: </B>This syntax construction
+states that a variable <SPAN CLASS=math><SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN></SPAN>, which has been
+       declared to be a setvar variable by $f statement vx, is also a class
+       expression.  This can be justified informally as follows.  We know that
+       the class builder <SPAN CLASS=math>{<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN> &#8739; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN> &isin; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>}</SPAN> is a class by <A
+HREF="cab.html">cab</A>&nbsp;<SPAN CLASS=r STYLE="color:#D15200">2220</SPAN>. 
+Since (when
+       <SPAN CLASS=math><SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN></SPAN> is distinct from <SPAN
+CLASS=math><SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN></SPAN>) we
+have <SPAN CLASS=math><SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> =
+{<SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &#8739; <SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN> &isin; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>}</SPAN> by
+       <A HREF="cvjust.html">cvjust</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D15300">2229</SPAN>, we can argue that the syntax &quot;<SPAN
+CLASS=math><SPAN CLASS=typecode STYLE="color:gray">class </SPAN><SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN></SPAN> &quot; can be viewed as
+       an abbreviation for &quot;<SPAN CLASS=math><SPAN CLASS=typecode
+STYLE="color:gray">class </SPAN>{<SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN> &#8739; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN> &isin; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN>}</SPAN>&quot;.  See the discussion
+       under the definition of class in [<A HREF="mmil.html#Jech">Jech</A>] p.
+4 showing that &quot;Every set can
+       be considered to be a class.&quot;
+<P STYLE="margin-bottom:0em">
+       While it is tempting and perhaps occasionally useful to view <A
+HREF="cv.html">cv</A>&nbsp;<SPAN CLASS=r STYLE="color:#E93400">1397</SPAN> as a
+       &quot;type conversion&quot; from a setvar variable to a class variable,
+keep in
+       mind that <A HREF="cv.html">cv</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E93400">1397</SPAN> is intrinsically no different from any other
+       class-building syntax such as <A HREF="cab.html">cab</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#D15200">2220</SPAN>, <A
+HREF="cun.html">cun</A>&nbsp;<SPAN CLASS=r STYLE="color:#AB7000">3212</SPAN>,
+or <A HREF="c0.html">c0</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#9F7600">3512</SPAN>.
+<P STYLE="margin-bottom:0em">
+       For a general discussion of the theory of classes and the role of <A
+HREF="cv.html">cv</A>&nbsp;<SPAN CLASS=r STYLE="color:#E93400">1397</SPAN>,
+       see <A
+HREF="https://us.metamath.org/mpeuni/mmset.html#class">https://us.metamath.org/mpeuni/mmset.html#class</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#E93400">1397</SPAN>.
+<P STYLE="margin-bottom:0em">
+       (The description above applies to set theory, not predicate calculus.
+       The purpose of introducing <SPAN CLASS=math><SPAN CLASS=typecode
+STYLE="color:gray">class </SPAN><SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN></SPAN> here, and not in set theory where
+       it belongs, is to allow us to express i.e.  &quot;prove&quot; the <A
+HREF="weq.html">weq</A>&nbsp;<SPAN CLASS=r STYLE="color:#E53A00">1552</SPAN> of
+       predicate calculus from the <A HREF="wceq.html">wceq</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#E93400">1398</SPAN> of set theory, so that we don't
+       overload the <SPAN CLASS=math>=</SPAN> connective with two syntax
+definitions.  This is done
+       to prevent ambiguity that would complicate some Metamath
+parsers.)</TD></TR></TABLE></CENTER>
+
+<CENTER><TABLE BORDER CELLSPACING=0 BGCOLOR="#EEFFFA"
+SUMMARY="Hypothesis">
+<CAPTION><B>Hypothesis</B></CAPTION>
+<TR><TH>Ref
+</TH><TH>Expression</TH></TR>
+<TR ALIGN=LEFT><TD>vx.cv</TD><TD>
+<SPAN CLASS=math><SPAN CLASS=typecode STYLE="color:gray">setvar </SPAN><SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN></SPAN></TD></TR>
+</TABLE></CENTER>
+<CENTER><TABLE BORDER CELLSPACING=0 BGCOLOR="#EEFFFA"
+SUMMARY="Assertion">
+<CAPTION><B>Assertion</B></CAPTION>
+<TR><TH>Ref
+</TH><TH>Expression</TH></TR>
+<TR ALIGN=LEFT><TD><FONT COLOR="#006633"><B>cv</B></FONT></TD><TD>
+<SPAN CLASS=math><SPAN CLASS=typecode STYLE="color:gray">class </SPAN><SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN></SPAN></TD></TR>
+</TABLE></CENTER>
+
+
+<HR NOSHADE SIZE=1>
+<CENTER>See definition <A HREF="df-tru.html">df-tru</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E93400">1401</SPAN> for more information.</CENTER><HR NOSHADE
+SIZE=1>
+<CENTER><TABLE CELLSPACING=7><TR><TD ALIGN=LEFT><FONT SIZE=-1><B>Colors of
+variables:</B>  <FONT COLOR="#0000FF">wff</FONT> <FONT
+COLOR="#FF0000">set</FONT> <FONT COLOR="#CC33CC">class</FONT></FONT></TD></TR>
+</TABLE></CENTER>
+<TABLE BORDER=0 WIDTH="100%">
+<TR><TD WIDTH="25%">&nbsp;</TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM>
+<FONT SIZE=-2 FACE=sans-serif>
+Copyright terms:
+<A HREF="../copyright.html#pd">Public domain</A>
+</FONT></TD><TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="25%">
+<FONT SIZE=-2 FACE=sans-serif>
+<A HREF="http://validator.w3.org/check?uri=referer">
+W3C validator</A>
+</FONT></TD></TR></TABLE>
+</BODY></HTML>

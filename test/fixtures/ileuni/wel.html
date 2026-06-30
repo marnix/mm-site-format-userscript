@@ -1,0 +1,432 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML LANG="EN-US">
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<STYLE TYPE="text/css">
+<!--
+img { margin-bottom: -4px }
+.r { font-family: "Arial Narrow";
+     font-size: x-small;
+   }
+.i { font-family: "Arial Narrow";
+     font-size: x-small;
+     color: gray;
+   }
+-->
+</STYLE>
+<STYLE TYPE="text/css">
+<!--
+  .setvar { color: red; }
+  .wff { color: blue; }
+  .class { color: #C3C; }
+  .symvar { border-bottom:1px dotted;color:#C3C}
+  .typecode { color: gray }
+  .hidden { color: gray }
+  @font-face {
+    font-family: XITSMath-Regular;
+    src: url(xits-math.woff);
+  }
+  .math { font-family: XITSMath-Regular }
+-->
+</STYLE>
+<LINK href="mmset.css" title="mmset"
+    rel="stylesheet" type="text/css">
+<LINK href="mmsetalt.css" title="mmsetalt"
+    rel="alternate stylesheet" type="text/css">
+<TITLE>wel - Intuitionistic Logic Explorer</TITLE>
+<LINK REL="shortcut icon" HREF="favicon.ico" TYPE="image/x-icon">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
+  <TR>
+    <TD ALIGN=LEFT VALIGN=TOP WIDTH="25%"><A HREF=
+    "mmil.html"><IMG SRC="_icon-il.gif"
+      BORDER=0
+      ALT="ILE Home"
+      TITLE="ILE Home"
+      HEIGHT=32 WIDTH=32 ALIGN=TOP STYLE="margin-bottom:0px"></A>
+    </TD>
+    <TD ALIGN=CENTER COLSPAN=2 VALIGN=TOP><FONT SIZE="+3" COLOR="#006633"><B>
+Intuitionistic Logic Explorer
+      </B></FONT></TD>
+    <TD ALIGN=RIGHT VALIGN=TOP WIDTH="25%">
+      <FONT SIZE=-1 FACE=sans-serif>
+      <A HREF="wcel.html">
+      &lt; Previous</A>&nbsp;&nbsp;
+      <A HREF="ax-13.html">Next &gt;</A>
+      </FONT><FONT FACE=sans-serif SIZE=-2>
+      <BR><A HREF="mmtheorems23.html#wel">Nearby theorems</A>
+      </FONT>
+    </TD>
+  </TR>
+  <TR>
+    <TD COLSPAN=2 ALIGN=LEFT VALIGN=TOP><FONT SIZE=-2
+      FACE=sans-serif>
+      <A HREF="../mm.html">Mirrors</A>&nbsp; &gt;
+      &nbsp;<A HREF="../index.html">Home</A>&nbsp; &gt;
+      &nbsp;<A HREF="mmil.html">ILE Home</A>&nbsp; &gt;
+      &nbsp;<A HREF="mmtheorems.html">Th. List</A>&nbsp; &gt;
+      &nbsp;wel
+      </FONT>
+    </TD>
+    <TD COLSPAN=2 ALIGN=RIGHT VALIGN=TOP>
+      <FONT SIZE=-2 FACE=sans-serif>
+
+      <A HREF="../ilegif/wel.html">GIF version</A>
+      </FONT>
+    </TD>
+  </TR>
+</TABLE>
+<HR NOSHADE SIZE=1>
+<CENTER><B><FONT SIZE="+1">Theorem <FONT
+COLOR="#006633">wel</FONT></FONT></B>&nbsp;<SPAN CLASS=r
+STYLE="color:#D15200">2206</SPAN></CENTER>
+<CENTER><TABLE><TR><TD ALIGN=LEFT><B>Description: </B>Extend wff definition to
+include atomic formulas with the membership
+     predicate.  This is read either &quot;<SPAN CLASS=math><SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN></SPAN> is an element of <SPAN
+CLASS=math><SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN></SPAN>&quot;,
+     or &quot;<SPAN CLASS=math><SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN></SPAN> is a member of <SPAN CLASS=math><SPAN
+CLASS=setvar STYLE="color:red">&#x1D466;</SPAN></SPAN>&quot;, or &quot;<SPAN
+CLASS=math><SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN></SPAN> belongs
+to <SPAN CLASS=math><SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN></SPAN>&quot;,
+     or &quot;<SPAN CLASS=math><SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN></SPAN> contains <SPAN CLASS=math><SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN></SPAN>&quot;.  Note:  The
+phrase &quot;<SPAN CLASS=math><SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN></SPAN> includes
+     <SPAN CLASS=math><SPAN CLASS=setvar
+STYLE="color:red">&#x1D465;</SPAN></SPAN> &quot; means &quot;<SPAN
+CLASS=math><SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN></SPAN> is a
+subset of <SPAN CLASS=math><SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN></SPAN>&quot;; to use it also for
+     <SPAN CLASS=math><SPAN CLASS=setvar STYLE="color:red">&#x1D465;</SPAN>
+&isin; <SPAN CLASS=setvar STYLE="color:red">&#x1D466;</SPAN></SPAN>, as some
+authors occasionally do, is poor form and causes
+     confusion, according to George Boolos (1992 lecture at MIT).
+<P STYLE="margin-bottom:0em">
+     This syntactical construction introduces a binary non-logical predicate
+     symbol <SPAN CLASS=math>&isin;</SPAN> into our predicate calculus.  We
+will eventually use it for
+     the membership predicate of set theory, but that is irrelevant at this
+     point: the predicate calculus axioms for <SPAN CLASS=math>&isin;</SPAN>
+apply to any arbitrary
+     binary predicate symbol.  &quot;Non-logical&quot; means that the predicate
+is
+     presumed to have additional properties beyond the realm of predicate
+     calculus, although these additional properties are not specified by
+     predicate calculus itself but rather by the axioms of a theory (in our
+     case set theory) added to predicate calculus.  &quot;Binary&quot; means
+that the
+     predicate has two arguments.
+<P STYLE="margin-bottom:0em">
+     Instead of introducing <A HREF="wel.html">wel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D15200">2206</SPAN> as an axiomatic statement, as was done in an
+     older version of this database, we introduce it by &quot;proving&quot; a
+special
+     case of set theory's more general <A HREF="wcel.html">wcel</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#D25200">2205</SPAN>.  This lets us avoid overloading
+     the <SPAN CLASS=math>&isin;</SPAN> connective, thus preventing ambiguity
+that would complicate
+     certain Metamath parsers.  However, logically <A
+HREF="wel.html">wel</A>&nbsp;<SPAN CLASS=r STYLE="color:#D15200">2206</SPAN> is
+considered to be a
+     primitive syntax, even though here it is artificially &quot;derived&quot;
+from
+     <A HREF="wcel.html">wcel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">2205</SPAN>.  Note:  To see the proof steps of this
+syntax proof, type &quot;MM&gt;
+     SHOW PROOF wel / ALL&quot; in the Metamath program.  (Contributed by NM,
+     24-Jan-2006.)</TD></TR></TABLE></CENTER>
+
+<CENTER><TABLE BORDER CELLSPACING=0 BGCOLOR="#EEFFFA"
+SUMMARY="Assertion">
+<CAPTION><B>Assertion</B></CAPTION>
+<TR><TH>Ref
+</TH><TH>Expression</TH></TR>
+<TR ALIGN=LEFT><TD><FONT COLOR="#006633"><B>wel</B></FONT></TD><TD>
+<SPAN CLASS=math><SPAN CLASS=typecode STYLE="color:gray">wff </SPAN><SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN></SPAN></TD></TR>
+</TABLE></CENTER>
+
+
+<HR NOSHADE SIZE=1>
+<CENTER><TABLE BORDER CELLSPACING=0 BGCOLOR="#EEFFFA"
+SUMMARY="Proof of theorem">
+<CAPTION><B>Proof of Theorem <FONT
+   COLOR="#006633">wel</FONT></B></CAPTION>
+<TR><TH>Step</TH><TH>Hyp</TH><TH>Ref
+</TH><TH>Expression</TH></TR>
+<TR ALIGN=LEFT><TD>1</TD><TD>&nbsp;</TD><TD><A HREF="wcel.html"
+TITLE="Extend wff definition to include the membership connective between classes. For a...">wcel</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#D25200">2205</SPAN></TD><TD><A NAME="1"></A>
+<SPAN CLASS=i>1</SPAN>
+<SPAN CLASS=math><SPAN CLASS=typecode STYLE="color:gray">wff </SPAN><SPAN
+CLASS=setvar STYLE="color:red">&#x1D465;</SPAN> &isin; <SPAN CLASS=setvar
+STYLE="color:red">&#x1D466;</SPAN></SPAN></TD></TR>
+</TABLE></CENTER>
+<CENTER><TABLE CELLSPACING=5><TR><TD ALIGN=LEFT><FONT SIZE=-1><B>Colors of
+variables:</B>  <FONT COLOR="#0000FF">wff</FONT> <FONT
+COLOR="#FF0000">set</FONT> <FONT COLOR="#CC33CC">class</FONT></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>Syntax hints:</B>  &nbsp;<SPAN CLASS=math>
+&isin; </SPAN><A HREF="wcel.html">wcel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">2205</SPAN></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>This theorem is referenced by:</B> &nbsp;<A
+HREF="elequ1.html">elequ1</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D15200">2209</SPAN> &nbsp;<A
+HREF="elequ2.html">elequ2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D15200">2210</SPAN> &nbsp;<A
+HREF="cleljust.html">cleljust</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D15200">2211</SPAN> &nbsp;<A
+HREF="elsb1.html">elsb1</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D15200">2212</SPAN> &nbsp;<A
+HREF="elsb2.html">elsb2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D15200">2213</SPAN> &nbsp;<A
+HREF="dveel1.html">dveel1</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D15200">2214</SPAN> &nbsp;<A
+HREF="dveel2.html">dveel2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D15200">2215</SPAN> &nbsp;<A
+HREF="axext3.html">axext3</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D15200">2217</SPAN> &nbsp;<A
+HREF="axext4.html">axext4</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D15200">2218</SPAN> &nbsp;<A
+HREF="bm1.1.html">bm1.1</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D15200">2219</SPAN> &nbsp;<A
+HREF="ru.html">ru</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#B16C00">3044</SPAN> &nbsp;<A
+HREF="nfuni.html">nfuni</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#8D7E00">3925</SPAN> &nbsp;<A
+HREF="nfunid.html">nfunid</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#8D7E00">3926</SPAN> &nbsp;<A
+HREF="unieq.html">unieq</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#8D7E00">3928</SPAN> &nbsp;<A
+HREF="inteq.html">inteq</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#8C7E00">3957</SPAN> &nbsp;<A
+HREF="nfint.html">nfint</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#8B7E00">3964</SPAN> &nbsp;<A
+HREF="uniiun.html">uniiun</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#878000">4050</SPAN> &nbsp;<A
+HREF="intiin.html">intiin</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#878000">4051</SPAN> &nbsp;<A
+HREF="trint.html">trint</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7F8200">4228</SPAN> &nbsp;<A
+HREF="axsep2.html">axsep2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7F8200">4234</SPAN> &nbsp;<A
+HREF="bm1.3ii.html">bm1.3ii</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7F8200">4236</SPAN> &nbsp;<A
+HREF="zfnuleu.html">zfnuleu</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7F8200">4239</SPAN> &nbsp;<A
+HREF="0ex.html">0ex</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7F8200">4242</SPAN> &nbsp;<A
+HREF="nalset.html">nalset</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7F8200">4245</SPAN> &nbsp;<A
+HREF="vnex.html">vnex</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7F8200">4246</SPAN> &nbsp;<A
+HREF="repizf2.html">repizf2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7E8300">4280</SPAN> &nbsp;<A
+HREF="axpweq.html">axpweq</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7D8300">4289</SPAN> &nbsp;<A
+HREF="zfpow.html">zfpow</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7D8300">4293</SPAN> &nbsp;<A
+HREF="axpow2.html">axpow2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7D8300">4294</SPAN> &nbsp;<A
+HREF="axpow3.html">axpow3</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7D8300">4295</SPAN> &nbsp;<A
+HREF="el.html">el</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7D8300">4296</SPAN> &nbsp;<A
+HREF="vpwex.html">vpwex</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7D8300">4297</SPAN> &nbsp;<A
+HREF="dtruarb.html">dtruarb</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7D8300">4309</SPAN> &nbsp;<A
+HREF="exmidn0m.html">exmidn0m</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7D8300">4319</SPAN> &nbsp;<A
+HREF="exmidsssn.html">exmidsssn</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7D8300">4320</SPAN> &nbsp;<A
+HREF="fr0.html">fr0</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#788400">4477</SPAN> &nbsp;<A
+HREF="wetrep.html">wetrep</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#788400">4486</SPAN> &nbsp;<A
+HREF="zfun.html">zfun</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#768500">4560</SPAN> &nbsp;<A
+HREF="axun2.html">axun2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#768500">4561</SPAN> &nbsp;<A
+HREF="uniuni.html">uniuni</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#758500">4577</SPAN> &nbsp;<A
+HREF="regexmid.html">regexmid</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#738600">4662</SPAN> &nbsp;<A
+HREF="zfregfr.html">zfregfr</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#728600">4701</SPAN> &nbsp;<A
+HREF="ordwe.html">ordwe</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#728600">4703</SPAN> &nbsp;<A
+HREF="wessep.html">wessep</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#728600">4705</SPAN> &nbsp;<A
+HREF="nnregexmid.html">nnregexmid</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#718700">4748</SPAN> &nbsp;<A
+HREF="rele.html">rele</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#6C8800">4890</SPAN> &nbsp;<A
+HREF="funimaexglem.html">funimaexglem</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#568C00">5444</SPAN> &nbsp;<A
+HREF="acexmidlem2.html">acexmidlem2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#3C8F00">6055</SPAN> &nbsp;<A
+HREF="acexmid.html">acexmid</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#3C8F00">6057</SPAN> &nbsp;<A
+HREF="dfsmo2.html">dfsmo2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#259200">6531</SPAN> &nbsp;<A
+HREF="smores2.html">smores2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#249200">6538</SPAN> &nbsp;<A
+HREF="tfrcllemsucaccv.html">tfrcllemsucaccv</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#219200">6598</SPAN> &nbsp;<A
+HREF="pw2f1odclem.html">pw2f1odclem</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#09930F">7100</SPAN> &nbsp;<A
+HREF="findcard2d.html">findcard2d</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#069311">7161</SPAN> &nbsp;<A
+HREF="sspw1or2.html">sspw1or2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#009224">7508</SPAN> &nbsp;<A
+HREF="exmidfodomr.html">exmidfodomr</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#009225">7520</SPAN> &nbsp;<A
+HREF="acfun.html">acfun</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#009225">7527</SPAN> &nbsp;<A
+HREF="exmidontriimlem3.html">exmidontriimlem3</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#009226">7543</SPAN> &nbsp;<A
+HREF="exmidontriimlem4.html">exmidontriimlem4</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#009226">7544</SPAN> &nbsp;<A
+HREF="exmidontriim.html">exmidontriim</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#009226">7545</SPAN> &nbsp;<A
+HREF="onntri13.html">onntri13</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#009227">7561</SPAN> &nbsp;<A
+HREF="exmidontri.html">exmidontri</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#009227">7562</SPAN> &nbsp;<A
+HREF="onntri51.html">onntri51</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#009227">7563</SPAN> &nbsp;<A
+HREF="onntri3or.html">onntri3or</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#009228">7568</SPAN> &nbsp;<A
+HREF="exmidmotap.html">exmidmotap</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#009229">7591</SPAN> &nbsp;<A
+HREF="ccfunen.html">ccfunen</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#009229">7594</SPAN> &nbsp;<A
+HREF="cc1.html">cc1</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#009229">7595</SPAN> &nbsp;<A
+HREF="ltsopi.html">ltsopi</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#00922D">7651</SPAN> &nbsp;<A
+HREF="fnn0nninf.html">fnn0nninf</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#0280F8">10824</SPAN> &nbsp;<A
+HREF="hashfibclem.html">hashfibclem</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#257AFF">11231</SPAN> &nbsp;<A
+HREF="fsum2dlemstep.html">fsum2dlemstep</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#6E6CFF">12145</SPAN> &nbsp;<A
+HREF="fprod2dlemstep.html">fprod2dlemstep</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#7669FF">12333</SPAN> &nbsp;<A
+HREF="exmidunben.html">exmidunben</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#A451FF">13261</SPAN> &nbsp;<A
+HREF="prdsex.html">prdsex</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#BE32FD">14114</SPAN> &nbsp;<A
+HREF="isbasis3g.html">isbasis3g</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D213EE">15037</SPAN> &nbsp;<A
+HREF="tgcl.html">tgcl</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D313ED">15055</SPAN> &nbsp;<A
+HREF="tgss2.html">tgss2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D312ED">15070</SPAN> &nbsp;<A
+HREF="blbas.html">blbas</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D809E5">15424</SPAN> &nbsp;<A
+HREF="metrest.html">metrest</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#D907E4">15497</SPAN> &nbsp;<A
+HREF="dvmptfsum.html">dvmptfsum</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#DC01DF">15716</SPAN> &nbsp;<A
+HREF="uhgrfm.html">uhgrfm</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#E500BC">16194</SPAN> &nbsp;<A
+HREF="ushgrfm.html">ushgrfm</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#E500BC">16195</SPAN> &nbsp;<A
+HREF="uhgrss.html">uhgrss</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#E500BB">16196</SPAN> &nbsp;<A
+HREF="uhgreq12g.html">uhgreq12g</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#E500BB">16197</SPAN> &nbsp;<A
+HREF="uhgrfun.html">uhgrfun</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#E500BB">16198</SPAN> &nbsp;<A
+HREF="ushgruhgr.html">ushgruhgr</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#E500BB">16201</SPAN> &nbsp;<A
+HREF="isuhgropm.html">isuhgropm</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#E500BB">16202</SPAN> &nbsp;<A
+HREF="uhgr0e.html">uhgr0e</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#E500BB">16203</SPAN> &nbsp;<A
+HREF="uhgr0vb.html">uhgr0vb</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#E500BB">16205</SPAN> &nbsp;<A
+HREF="uhgr0.html">uhgr0</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#E500BB">16206</SPAN> &nbsp;<A
+HREF="uhgrun.html">uhgrun</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#E500BB">16207</SPAN> &nbsp;<A
+HREF="bdcuni.html">bdcuni</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0092">16772</SPAN> &nbsp;<A
+HREF="bdcint.html">bdcint</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0092">16773</SPAN> &nbsp;<A
+HREF="bdcriota.html">bdcriota</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0092">16779</SPAN> &nbsp;<A
+HREF="bdsep1.html">bdsep1</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0092">16781</SPAN> &nbsp;<A
+HREF="bdsep2.html">bdsep2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0092">16782</SPAN> &nbsp;<A
+HREF="bdsepnft.html">bdsepnft</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0092">16783</SPAN> &nbsp;<A
+HREF="bdsepnf.html">bdsepnf</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0092">16784</SPAN> &nbsp;<A
+HREF="bdsepnfALT.html">bdsepnfALT</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0091">16785</SPAN> &nbsp;<A
+HREF="bdzfauscl.html">bdzfauscl</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0091">16786</SPAN> &nbsp;<A
+HREF="bdbm1.3ii.html">bdbm1.3ii</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0091">16787</SPAN> &nbsp;<A
+HREF="bj-axemptylem.html">bj-axemptylem</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0091">16788</SPAN> &nbsp;<A
+HREF="bj-axempty.html">bj-axempty</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0091">16789</SPAN> &nbsp;<A
+HREF="bj-axempty2.html">bj-axempty2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0091">16790</SPAN> &nbsp;<A
+HREF="bj-nalset.html">bj-nalset</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EC0091">16791</SPAN> &nbsp;<A
+HREF="bdinex1.html">bdinex1</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#ED0091">16795</SPAN> &nbsp;<A
+HREF="bj-zfpair2.html">bj-zfpair2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#ED0090">16806</SPAN> &nbsp;<A
+HREF="bj-axun2.html">bj-axun2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#ED0090">16811</SPAN> &nbsp;<A
+HREF="bj-uniex2.html">bj-uniex2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#ED0090">16812</SPAN> &nbsp;<A
+HREF="bj-d0clsepcl.html">bj-d0clsepcl</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#ED008F">16821</SPAN> &nbsp;<A
+HREF="bj-nn0suc0.html">bj-nn0suc0</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#ED008D">16846</SPAN> &nbsp;<A
+HREF="bj-nntrans.html">bj-nntrans</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#ED008D">16847</SPAN> &nbsp;<A
+HREF="bj-omex2.html">bj-omex2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#ED008C">16873</SPAN> &nbsp;<A
+HREF="strcollnft.html">strcollnft</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#ED008B">16880</SPAN> &nbsp;<A
+HREF="sscoll2.html">sscoll2</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#ED008B">16884</SPAN> &nbsp;<A
+HREF="nninfsellemcl.html">nninfsellemcl</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EE0089">16915</SPAN> &nbsp;<A
+HREF="nninfsellemsuc.html">nninfsellemsuc</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EE0089">16916</SPAN> &nbsp;<A
+HREF="nninfsellemqall.html">nninfsellemqall</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EE0089">16919</SPAN> &nbsp;<A
+HREF="nninfomni.html">nninfomni</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EE0088">16923</SPAN> &nbsp;<A
+HREF="exmidsbthrlem.html">exmidsbthrlem</A>
+&nbsp;<SPAN CLASS=r STYLE="color:#EE0088">16928</SPAN></FONT></TD></TR>
+</TABLE></CENTER>
+<TABLE BORDER=0 WIDTH="100%">
+<TR><TD WIDTH="25%">&nbsp;</TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM>
+<FONT SIZE=-2 FACE=sans-serif>
+Copyright terms:
+<A HREF="../copyright.html#pd">Public domain</A>
+</FONT></TD><TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="25%">
+<FONT SIZE=-2 FACE=sans-serif>
+<A HREF="http://validator.w3.org/check?uri=referer">
+W3C validator</A>
+</FONT></TD></TR></TABLE>
+</BODY></HTML>

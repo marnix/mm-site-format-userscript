@@ -6,3 +6,6 @@ export const HIGHLIGHT_COLOR = "#ffe066";
 /** A lighter shade of HIGHLIGHT_COLOR, used to mark the *other* occurrences of
  *  the hovered sub-expression elsewhere on the page. */
 export const HIGHLIGHT_MATCH_COLOR = "#fff3bf";
+
+/** Colour used to highlight the changed sub-expressions on `<==` hover. */
+export const DIFF_COLOR = "#ffd0d0";

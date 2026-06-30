@@ -9,10 +9,26 @@
 // is cloned, so the table is left intact.
 
 import type { Calculation, Given, Step } from "./calculation";
+import {
+  cachedDiff,
+  changedLocationSpans,
+  commonSubtreeDiff,
+  type DiffAlgorithm,
+} from "./diff";
+import type { Painter, PaintItem } from "./highlight";
+import type { ParsedExpression } from "./page";
 import { attachTooltip } from "./tooltip";
 
 export interface RenderOptions {
   fetchRuleTooltip?: (href: string) => Promise<Node | null>;
+  /** Maps a cloned expression span (as rendered in the calc table) to its
+   *  parsed expression, for diff highlighting. Populated after the second
+   *  parse pass; called only on hover so it is always ready in time. */
+  exprFor?: (span: HTMLElement) => ParsedExpression | null;
+  /** Diff algorithm to use; defaults to commonSubtreeDiff. */
+  diffAlgorithm?: DiffAlgorithm;
+  /** Painter for the diff highlight. No diff hover when absent. */
+  diffPainter?: Painter;
 }
 
 const OPERATOR = "\u21d0"; // the `<==` of the calculation
@@ -70,11 +86,51 @@ function row(
   return tr;
 }
 
+// Installs diff hover on the `<==` operator cell: highlights the changed
+// token spans in both adjacent expression clones when the operator is hovered.
+function installDiffHover(
+  opCell: HTMLElement,
+  aboveExpr: HTMLElement,
+  belowExpr: HTMLElement,
+  options: RenderOptions,
+): void {
+  const painter = options.diffPainter!;
+  const algo = options.diffAlgorithm ?? commonSubtreeDiff;
+  const exprFor = options.exprFor;
+
+  opCell.style.cursor = "crosshair";
+  opCell.addEventListener("mouseenter", () => {
+    if (!exprFor) return;
+    const above = exprFor(aboveExpr);
+    const below = exprFor(belowExpr);
+    if (!above?.proof || !below?.proof) return;
+    const { unchangedInA, unchangedInB } = cachedDiff(
+      algo,
+      above.proof,
+      below.proof,
+    );
+    const items: PaintItem[] = [
+      ...changedLocationSpans(
+        above.proof,
+        above.locations.length,
+        unchangedInA,
+      ).map((span) => ({ locations: above.locations, span })),
+      ...changedLocationSpans(
+        below.proof,
+        below.locations.length,
+        unchangedInB,
+      ).map((span) => ({ locations: below.locations, span })),
+    ];
+    painter.paint(items);
+  });
+  opCell.addEventListener("mouseleave", () => painter.clear());
+}
+
 function appendStep(
   step: Step,
   tbody: HTMLElement,
   options?: RenderOptions,
-): void {
+): HTMLElement {
   const expr = clone(step.expressionHtml);
   tbody.appendChild(row("", expr, "expr"));
 
@@ -146,7 +202,8 @@ function appendStep(
   hint.append(" }");
 
   const ended = effectiveSpine === null;
-  tbody.appendChild(row(ended ? TERMINAL : OPERATOR, hint, "hint"));
+  const hintRow = row(ended ? TERMINAL : OPERATOR, hint, "hint");
+  tbody.appendChild(hintRow);
 
   // Non-spine step sub-calculations: indented sub-derivations, in order.
   step.subcalculations.forEach((sub, i) => {
@@ -159,13 +216,21 @@ function appendStep(
 
   if (ended) {
     tbody.appendChild(row("", document.createTextNode("TRUE"), "expr"));
-    return;
+    return expr;
   }
 
+  let spineExpr: HTMLElement | null = null;
   if (effectiveSpine?.kind === "given")
-    appendGiven(effectiveSpine, tbody, options);
+    spineExpr = appendGiven(effectiveSpine, tbody, options);
   else if (effectiveSpine?.kind === "step")
-    appendStep(effectiveSpine, tbody, options);
+    spineExpr = appendStep(effectiveSpine, tbody, options);
+
+  if (options?.diffPainter && spineExpr) {
+    const opCell = hintRow.firstElementChild as HTMLElement;
+    installDiffHover(opCell, expr, spineExpr, options);
+  }
+
+  return expr;
 }
 
 /**
@@ -177,7 +242,7 @@ function appendGiven(
   given: Given,
   tbody: HTMLElement,
   options?: RenderOptions,
-): void {
+): HTMLElement {
   const ref = document.createElement("span");
   ref.append("(", clone(given.hypothesisRefHtml), ")");
   const expr = clone(given.expressionHtml);
@@ -191,6 +256,7 @@ function appendGiven(
       : () => expr.cloneNode(true) as Node,
   );
   tbody.appendChild(row(ref, expr, "expr"));
+  return expr;
 }
 
 // While a calculation is being built, each collapsible sub-calculation registers

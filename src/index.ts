@@ -5,7 +5,8 @@ import { proofTreeToCalculation, type ProofTree } from "./calculation";
 import { findMathSpans } from "./expression";
 import { GRAMMAR_CACHE_VERSION, missingSyntaxHints } from "./grammar";
 import { indentProofExpressions } from "./indent";
-import { createHighlighter, installHover } from "./highlight";
+import { createHighlighter, createPainter, installHover } from "./highlight";
+import { DIFF_COLOR } from "./config";
 import { extractSyntaxHintUrls } from "./loader";
 import { canvasSampler } from "./kind";
 import {
@@ -169,6 +170,24 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     box.style.display = display;
   };
 
+  // Diff painter and lazy exprFor lookup. calcExprs is populated by the second
+  // parse pass (async) but always ready before the user can hover.
+  const calcExprs: ParsedExpression[] = [];
+  const diffPainter = createPainter(
+    "mm-site-format-diff",
+    "mm-site-format-diff-hl",
+    DIFF_COLOR,
+  );
+  const exprFor = diffPainter
+    ? (span: HTMLElement): ParsedExpression | null => {
+        for (const r of calcExprs) {
+          const at = r.locations[0]?.node;
+          if (at && span.contains(at)) return r;
+        }
+        return null;
+      }
+    : undefined;
+
   const showCalculation = (results: ParsedExpression[]): HTMLElement | null => {
     if (!proofTree || !proofTable) return null;
     const { spineFor, smallFor, tokensOf: tokensOf_ } = choosers(results);
@@ -178,7 +197,11 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       smallFor,
       tokensOf_,
     );
-    const rendered = renderCalculation(calc, { fetchRuleTooltip });
+    const rendered = renderCalculation(calc, {
+      fetchRuleTooltip,
+      diffPainter: diffPainter ?? undefined,
+      exprFor,
+    });
     // Into the caption, below the "Proof of Theorem" heading -- so the heading
     // stays in place whichever view is shown.
     const caption = proofTable.querySelector("caption");
@@ -260,6 +283,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
           parseUniExpressions(document, pageUrl, fetcher, calc, cache).then(
             (calcResults) => {
               allExprs.push(...calcResults);
+              calcExprs.push(...calcResults);
               installHover(calcResults, allExprs, highlighter);
               sizeToExpandedWidth(calc); // after spacers are inserted
             },
@@ -304,6 +328,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
             )
             .then((calcResults) => {
               allExprs.push(...calcResults);
+              calcExprs.push(...calcResults);
               installHover(calcResults, allExprs, highlighter);
               sizeToExpandedWidth(calc); // after spacers are inserted
             });
