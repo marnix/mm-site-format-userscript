@@ -39,6 +39,12 @@ hints" links, so an expression is only highlighted once it has been fully
 parsed; anything it cannot parse is left untouched, and a ⚠ indicator in the
 page banner reports how many expressions failed to parse (if any).
 
+Hovering the `⇐` operator between two consecutive steps in a calculation
+**highlights the changed sub-expressions** in both: the tokens that differ
+between the two steps are highlighted in red, while unchanged sub-expressions
+stay uncoloured. This makes it easy to see at a glance what each step actually
+changes.
+
 It also adds **parse-tree-guided whitespace**: extra space around the larger
 operators in an expression (more for outer/bigger sub-expressions, tight around
 the innermost ones and around brackets), so the structure is readable even

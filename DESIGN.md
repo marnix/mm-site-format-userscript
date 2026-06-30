@@ -146,6 +146,17 @@ would need transitive syntax loading (see TODO — "Correctness").
   differs from its own expression (`isSmallStep`, `spine.ts`) is marked
   `smallSpine`; `render.ts` folds it into its parent's hint (`; using rule`) and
   omits its intermediate expression entirely.
+- **Diff hover** — `diff.ts` + `render.ts` (`installDiffHover`). Hovering `⇐`
+  highlights the changed token spans in both adjacent expressions. The current
+  algorithm is `commonSubtreeDiff`: collect the concluded-expression key
+  (substituted token sequence) of every node in each tree, then mark as
+  "unchanged" the maximal subtrees of A whose key appears anywhere in B, and
+  vice versa. O(n+m) with hashing. _Structural-alignment_ (walk both trees in
+  lock-step; same rule → recurse into paired children; different rule →
+  divergence) was tried and rejected: it marks too much as "changed" when
+  consecutive steps have different top-level structure (common in practice),
+  leaving the entire expression highlighted. Tree Edit Distance (TED, e.g.
+  Zhang-Shasha) is the next candidate to try.
 
 ## Deferred directions
 
