@@ -72,4 +72,26 @@ describe("findGifRuns + extractGifText (mpegif)", () => {
     );
     expect(exprs).toContain("class Rels");
   });
+
+  it("does not flush a run on an imageless inline element mid-run (e.g. <small>DECID</small> in ilegif)", () => {
+    // ilegif pages render the decidability predicate DECID as <small>DECID</small>
+    // inline within an expression row, splitting the img run.  The full expression
+    // should still be returned as one run.
+    const td = document.createElement("td");
+    td.innerHTML =
+      '<img alt=" |-">' +
+      '<img alt=" (">' +
+      '<img alt=" z">' +
+      '<img alt=" e.">' +
+      '<img alt=" ZZ">' +
+      '<img alt=" ->">' +
+      "<small>DECID</small>" +
+      '<img alt=" z">' +
+      '<img alt=" =">' +
+      '<img alt=" 1">' +
+      '<img alt=" )">';
+    const runs = findGifRuns(td);
+    expect(runs).toHaveLength(1);
+    expect(extractGifText(runs[0])).toBe("|- ( z e. ZZ -> DECID z = 1 )");
+  });
 });

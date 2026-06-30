@@ -34,6 +34,21 @@ export function extractMathText(span: Element): string {
   return tokens.join(" ");
 }
 
+// Inline presentational tags that may wrap a text token inside a GIF expression
+// (e.g. <small>DECID</small> on ilegif pages).  Distinct from semantic/interactive
+// tags like <a> or generic containers like <span>.
+const INLINE_FORMATTING_TAGS = new Set([
+  "B",
+  "SMALL",
+  "I",
+  "EM",
+  "STRONG",
+  "TT",
+  "SUP",
+  "SUB",
+  "FONT",
+]);
+
 /**
  * mpegif mode: an expression is any run of >=2 consecutive img[alt] siblings
  * Some tokens are plain text rather than images (e.g. defined class-constants
@@ -66,6 +81,25 @@ export function findGifRuns(root: Node): Node[][] {
           run.push(el);
           images++;
           tokens++;
+        } else if (
+          run.length > 0 &&
+          INLINE_FORMATTING_TAGS.has(el.tagName) &&
+          !el.querySelector("img[alt]")
+        ) {
+          // Inline formatting tag wrapping a text token mid-expression
+          // (e.g. <small>DECID</small> in ilegif): absorb its text children
+          // rather than flushing the run.
+          for (const child of el.childNodes) {
+            if (child.nodeType === Node.TEXT_NODE) {
+              const words = ((child as Text).nodeValue ?? "")
+                .split(/\s+/)
+                .filter(Boolean);
+              if (words.length) {
+                run.push(child);
+                tokens += words.length;
+              }
+            }
+          }
         } else {
           flush();
           scan(el);
