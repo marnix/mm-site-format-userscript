@@ -78,6 +78,19 @@
 
 ## Calculational proof rendering
 
+- **Mark the changed sub-expressions between consecutive steps**: below each
+  expression in a calculation draw a horizontal bracket (`|___|`) under the
+  sub-expression that changes, and an upside-down one above the corresponding
+  sub-expression in the next line — like EWD1300 p.6. Algorithm: walk both parse
+  trees from the root simultaneously; where both nodes share the same rule,
+  recurse into paired children; at the first divergence mark those two subtrees
+  as the "changed" region. Multiple change sites yield multiple bracket pairs in
+  left-to-right tree order (they correspond by index, so no reordering needed).
+  Skip marking when the roots differ (whole expression changed) or when more
+  than N sites are found (complex step). Visual form TBD: start with a colored
+  underline/overline per changed span (simpler than full EWD brackets, which
+  need first/last-token detection and break across line-wraps).
+
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.
 - **Sub-expression calculations**: instead of relating whole `|- …` statements
