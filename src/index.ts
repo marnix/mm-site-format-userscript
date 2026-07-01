@@ -26,6 +26,7 @@ import {
 } from "./page";
 import type { Proof } from "./proof";
 import { renderCalcTable, renderCalculation, setCalcCollapsed } from "./render";
+import { attachTooltip } from "./tooltip";
 import {
   attachRuleTooltipsToPage,
   makeRuleTooltipFetcher,
@@ -41,6 +42,17 @@ declare const __USERSCRIPT_VERSION__: string;
 declare const __USERSCRIPT_BUILD_TIME__: string;
 
 const LOG = "[mm-site-format]";
+
+/** Creates a synthetic ref element: a span containing an <a> link to #mm-site-format-proof-N. */
+function makeProofRef(n: number): HTMLElement {
+  const synth = document.createElement("span");
+  const link = document.createElement("a");
+  link.href = `#mm-site-format-proof-${n}`;
+  link.textContent = `(${n})`;
+  link.className = "mm-site-format-proof-ref";
+  synth.appendChild(link);
+  return synth;
+}
 
 // On any matching page, before deciding whether this is a proof page: make every
 // metamath.org link agree with the current view (carry the table choice, or
@@ -218,13 +230,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       const n = stepOf.get(node);
       if (n !== undefined) {
         savedRefs.set(node, node.refHtml);
-        const synth = document.createElement("span");
-        const link = document.createElement("a");
-        link.href = `#mm-site-format-proof-${n}`;
-        link.textContent = `(${n})`;
-        link.className = "mm-site-format-proof-ref";
-        synth.appendChild(link);
-        node.refHtml = synth;
+        node.refHtml = makeProofRef(n);
       }
     }
 
@@ -306,11 +312,15 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       const row = exprSpan?.closest("tr");
       if (row) {
         row.id = `mm-site-format-proof-${n}`;
-        // Put "(N)" in the left (operator) column, like a given's ref label.
+        // Put "(N)" in the left (operator) column, like a given's ref label,
+        // with a tooltip showing the expression.
         const opCell = row.firstElementChild as HTMLElement | null;
-        if (opCell) {
-          opCell.textContent = `(${n})`;
+        if (opCell && exprSpan) {
+          opCell.textContent = "";
+          const ref = makeProofRef(n);
+          opCell.appendChild(ref);
           opCell.style.textAlign = "left";
+          attachTooltip(ref, () => exprSpan.cloneNode(true) as Node);
         }
       }
     }
@@ -335,13 +345,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
           const m = stepOf.get(other);
           if (m !== undefined) {
             nestedSaved.set(other, other.refHtml);
-            const synth = document.createElement("span");
-            const link = document.createElement("a");
-            link.href = `#mm-site-format-proof-${m}`;
-            link.textContent = `(${m})`;
-            link.className = "mm-site-format-proof-ref";
-            synth.appendChild(link);
-            other.refHtml = synth;
+            other.refHtml = makeProofRef(m);
           }
         }
         const miniCalc = proofTreeToCalculation(
