@@ -9,7 +9,13 @@ import {
 import { findMathSpans } from "./expression";
 import { GRAMMAR_CACHE_VERSION, missingSyntaxHints } from "./grammar";
 import { indentProofExpressions } from "./indent";
-import { createHighlighter, createPainter, installHover } from "./highlight";
+import {
+  buildOccurrenceIndex,
+  createHighlighter,
+  createPainter,
+  installHover,
+  type OccurrenceIndex,
+} from "./highlight";
 import { DIFF_COLOR } from "./config";
 import { extractSyntaxHintUrls } from "./loader";
 import { canvasSampler } from "./kind";
@@ -435,21 +441,29 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   // matching occurrences in the other.
   if (findMathSpans(document).length > 0) {
     // Unicode page: kinds come from span classes, no image sampling needed.
-    const allExprs: ParsedExpression[] = [];
+    const occIndex: OccurrenceIndex = new Map();
+    const addToIndex = (exprs: ParsedExpression[]) => {
+      const partial = buildOccurrenceIndex(exprs);
+      for (const [key, occs] of partial) {
+        const existing = occIndex.get(key);
+        if (existing) existing.push(...occs);
+        else occIndex.set(key, [...occs]);
+      }
+    };
     const highlighter = createHighlighter();
     parseUniExpressions(document, pageUrl, fetcher, document, cache)
       .then((results) => {
-        allExprs.push(...results);
-        finish((r) => installHover(r, allExprs, highlighter))(results);
+        addToIndex(results);
+        finish((r) => installHover(r, occIndex, highlighter))(results);
         // The calculation clones expressions; give those clones the same
         // parsing, whitespace and hover by running the pass again, scoped to it.
         const calc = showCalculation(results);
         if (calc)
           parseUniExpressions(document, pageUrl, fetcher, calc, cache).then(
             (calcResults) => {
-              allExprs.push(...calcResults);
+              addToIndex(calcResults);
               calcExprs.push(...calcResults);
-              installHover(calcResults, allExprs, highlighter);
+              installHover(calcResults, occIndex, highlighter);
               sizeToExpandedWidth(calc); // after spacers are inserted
             },
           );
@@ -458,7 +472,15 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   } else {
     // GIF page: colour sampling needs the variable images decoded, so let the
     // browser signal readiness via img.decode() before parsing.
-    const allExprs: ParsedExpression[] = [];
+    const occIndex: OccurrenceIndex = new Map();
+    const addToIndex = (exprs: ParsedExpression[]) => {
+      const partial = buildOccurrenceIndex(exprs);
+      for (const [key, occs] of partial) {
+        const existing = occIndex.get(key);
+        if (existing) existing.push(...occs);
+        else occIndex.set(key, [...occs]);
+      }
+    };
     const highlighter = createHighlighter();
     const decoded = (imgs: HTMLImageElement[]) =>
       Promise.all(imgs.map((img) => img.decode().catch(() => {})));
@@ -476,8 +498,8 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         ),
       )
       .then((results) => {
-        allExprs.push(...results);
-        finish((r) => installHover(r, allExprs, highlighter))(results);
+        addToIndex(results);
+        finish((r) => installHover(r, occIndex, highlighter))(results);
         const calc = showCalculation(results);
         if (calc)
           decoded(gifImages(calc))
@@ -492,9 +514,9 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
               ),
             )
             .then((calcResults) => {
-              allExprs.push(...calcResults);
+              addToIndex(calcResults);
               calcExprs.push(...calcResults);
-              installHover(calcResults, allExprs, highlighter);
+              installHover(calcResults, occIndex, highlighter);
               sizeToExpandedWidth(calc); // after spacers are inserted
             });
       })

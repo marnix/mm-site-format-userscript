@@ -1,12 +1,14 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  buildOccurrenceIndex,
   createPainter,
   findTokenAt,
   installHover,
   spanToHighlight,
   tokenAtPoint,
   type Highlighter,
+  type OccurrenceIndex,
 } from "../src/highlight";
 import { SPACE_CLASS } from "../src/space";
 import { parseUniExpressions, type ParsedExpression } from "../src/page";
@@ -139,10 +141,10 @@ describe("tokenAtPoint (spacer: highlights the expression containing it)", () =>
 });
 
 describe("installHover cross-view matching", () => {
-  // installHover must pass allExpressions (not just localExpressions) to the
-  // highlighter, so hovering in the calc view finds matches in the table and
-  // vice versa.
-  it("calls highlighter.highlight with allExpressions, not just localExpressions", () => {
+  // installHover must pass the occurrence index (not just localExpressions) to
+  // the highlighter, so hovering in the calc view finds matches in the table
+  // and vice versa.
+  it("calls highlighter.highlight with the occurrence index", () => {
     const span = document.createElement("span");
     span.textContent = "x";
     document.body.appendChild(span);
@@ -165,12 +167,12 @@ describe("installHover cross-view matching", () => {
       locations: [],
       proof: null,
     };
-    const allExprs = [localExpr, remoteExpr];
+    const index = buildOccurrenceIndex([localExpr, remoteExpr]);
 
-    let capturedAll: ParsedExpression[] | null = null;
+    let capturedIndex: OccurrenceIndex | null = null;
     const mockHighlighter: Highlighter = {
-      highlight(all) {
-        capturedAll = all;
+      highlight(idx) {
+        capturedIndex = idx;
       },
       clear() {},
     };
@@ -178,14 +180,14 @@ describe("installHover cross-view matching", () => {
     (document as unknown as { elementFromPoint: unknown }).elementFromPoint =
       () => span;
 
-    installHover([localExpr], allExprs, mockHighlighter);
+    installHover([localExpr], index, mockHighlighter);
 
     // The container is span.parentElement = document.body; dispatch there.
     document.body.dispatchEvent(
       new MouseEvent("mousemove", { bubbles: true, clientX: 0, clientY: 0 }),
     );
 
-    expect(capturedAll).toBe(allExprs);
+    expect(capturedIndex).toBe(index);
   });
 });
 

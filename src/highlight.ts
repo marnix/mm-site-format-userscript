@@ -51,6 +51,35 @@ export interface Occurrence {
 }
 
 /**
+ * Pre-built index mapping token-sequence keys to their occurrences across all
+ * expressions. Built once at parse time; hover lookup is O(1) by key.
+ */
+export type OccurrenceIndex = Map<string, Occurrence[]>;
+
+/** Builds the occurrence index for a set of parsed expressions. */
+export function buildOccurrenceIndex(
+  expressions: ParsedExpression[],
+): OccurrenceIndex {
+  const index: OccurrenceIndex = new Map();
+  for (const expr of expressions) {
+    if (!expr.proof) continue;
+    for (const span of nodeLocationSpans(expr.proof, expr.locations.length)) {
+      const key = expr.tokens
+        .slice(span[0], span[1])
+        .map((t) => t.text)
+        .join(" ");
+      let list = index.get(key);
+      if (!list) {
+        list = [];
+        index.set(key, list);
+      }
+      list.push({ expr, span });
+    }
+  }
+  return index;
+}
+
+/**
  * Every sub-expression node, across all `expressions`, whose token sequence
  * equals `tokens`. The token sequence determines the parse tree (the grammar is
  * unambiguous), so equal tokens means the same sub-expression; rendered spacing
@@ -204,7 +233,7 @@ export function createPainter(
  * colour, plus its other occurrences across the same expressions in a lighter
  * shade. Null where the Highlight API is unavailable. */
 export interface Highlighter {
-  highlight(all: ParsedExpression[], expr: ParsedExpression, span: Span): void;
+  highlight(index: OccurrenceIndex, expr: ParsedExpression, span: Span): void;
   clear(): void;
 }
 
@@ -221,10 +250,14 @@ export function createHighlighter(): Highlighter | null {
       primary.clear();
       secondary.clear();
     },
-    highlight(all, expr, span) {
+    highlight(index, expr, span) {
       const [start, end] = span;
-      const tokens = expr.tokens.slice(start, end).map((t) => t.text);
-      const others = matchingOccurrences(all, tokens).filter(
+      const key = expr.tokens
+        .slice(start, end)
+        .map((t) => t.text)
+        .join(" ");
+      const all = index.get(key) ?? [];
+      const others = all.filter(
         (o) => o.expr !== expr || o.span[0] !== start || o.span[1] !== end,
       );
       secondary.paint(
@@ -323,7 +356,7 @@ export function tokenAtPoint(
  */
 export function installHover(
   localExpressions: ParsedExpression[],
-  allExpressions: ParsedExpression[],
+  index: OccurrenceIndex,
   highlighter: Highlighter | null,
 ): void {
   if (!highlighter) return;
@@ -335,7 +368,7 @@ export function installHover(
       const i = tokenAtPoint(expr.locations, event.clientX, event.clientY);
       const span =
         i === null ? null : spanToHighlight(proof, expr.locations.length, i);
-      if (span) highlighter.highlight(allExpressions, expr, span);
+      if (span) highlighter.highlight(index, expr, span);
       else highlighter.clear();
     });
     container.addEventListener("mouseleave", () => highlighter.clear());
