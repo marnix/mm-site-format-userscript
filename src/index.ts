@@ -432,13 +432,16 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       });
 
       // Label each "(N)" link with "below" or "above" based on DOM order
-      // relative to its target mini-calc.
+      // relative to its target mini-calc or spine row.
       for (const link of box.querySelectorAll("a.mm-site-format-proof-ref")) {
         const id = link.getAttribute("href")?.slice(1);
         if (!id) continue;
         const target =
           box.querySelector(`#${id}`) ?? document.getElementById(id);
         if (!target) continue;
+        // Skip labels that are inside their own target (the on-spine label IS
+        // the anchor, not a reference to it).
+        if (target.contains(link)) continue;
         // Node.DOCUMENT_POSITION_FOLLOWING = 4: target is after link
         const pos = link.compareDocumentPosition(target);
         const dir = pos & Node.DOCUMENT_POSITION_FOLLOWING ? "below" : "above";

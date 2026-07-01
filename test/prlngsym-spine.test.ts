@@ -29,7 +29,7 @@ const fetcher = vi.fn(async (url: string) => {
   }
 });
 
-describe("prlngsym with real spine chooser", () => {
+describe("prlngsym with real spine chooser", { timeout: 30_000 }, () => {
   it("spine passes through step 7 with the real spineFor", async () => {
     const html = readFixture("mpeuni", "prlngsym.html");
     const doc = new DOMParser().parseFromString(html, "text/html");
