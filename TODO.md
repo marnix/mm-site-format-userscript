@@ -91,6 +91,19 @@
   underline/overline per changed span (simpler than full EWD brackets, which
   need first/last-token detection and break across line-wraps).
 
+- **Deduplicate shared sub-derivations**: when a proof step is cited multiple
+  times (e.g. `sgnrn.html` step 6, `|- sgn Fn RR*`, used 4 times), its
+  sub-calculation currently appears 4 times in the expanded view. Options: (a)
+  show the derivation in full at its first occurrence and replace subsequent
+  occurrences with a back-reference ("proved above" + clickable anchor); (b)
+  extract it into a separate named sub-calculation ("Lemma:" or "where:" block)
+  shown once before/after the main calculation, referenced by name at each use
+  site; (c) render it once inline at the first use and collapse it to a
+  single-line reference at later uses. Approach (a) keeps the reading flow
+  linear and seems simplest. Needs: detect multiply-referenced proof nodes in
+  `calculation.ts`/`render.ts`, assign anchors, render first occurrence normally
+  and subsequent ones as a link.
+
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.
 - **Sub-expression calculations**: instead of relating whole `|- …` statements
