@@ -1,19 +1,5 @@
 # TODO
 
-## Correctness / completeness
-
-- **Transitive syntax loading** (further workaround for the incomplete-syntax-
-  hints upstream issue below): currently only the syntax hints of the main page
-  and one level of Ref links are loaded. A fully general parse requires
-  following transitive dependencies (syntax hints of syntax hints, etc.) until a
-  fixed point. Add depth-limited or full transitive loading. This would close
-  the residual gap where a displayed expression that is not a proof step (e.g. a
-  definitional cross-reference) fails to parse. Note: the systematic primitive
-  omissions (`cv`/`wcel`/`wceq`) are already handled by always-loading them
-  (`database-assumptions.ts`); transitive loading cannot help with a constructor
-  listed on _no_ reachable page (a categorical omission), so it is only for the
-  _sporadic_ remaining cases.
-
 ## Upstream issues to report
 
 - **Incomplete "Syntax hints"**: a theorem page's "Syntax hints" row can omit a
@@ -62,19 +48,6 @@
   <https://github.com/metamath/metamath-website-seed>.
 
 ## Calculational proof rendering
-
-- **Mark the changed sub-expressions between consecutive steps**: below each
-  expression in a calculation draw a horizontal bracket (`|___|`) under the
-  sub-expression that changes, and an upside-down one above the corresponding
-  sub-expression in the next line — like EWD1300 p.6. Algorithm: walk both parse
-  trees from the root simultaneously; where both nodes share the same rule,
-  recurse into paired children; at the first divergence mark those two subtrees
-  as the "changed" region. Multiple change sites yield multiple bracket pairs in
-  left-to-right tree order (they correspond by index, so no reordering needed).
-  Skip marking when the roots differ (whole expression changed) or when more
-  than N sites are found (complex step). Visual form TBD: start with a colored
-  underline/overline per changed span (simpler than full EWD brackets, which
-  need first/last-token detection and break across line-wraps).
 
 - **Deduplicate shared sub-derivations**: when a proof step is cited multiple
   times (e.g. `sgnrn.html` step 6, `|- sgn Fn RR*`, used 4 times), its

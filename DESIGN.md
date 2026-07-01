@@ -169,6 +169,14 @@ would need transitive syntax loading (see TODO — "Correctness").
   sides of `=` exchanging places). A hybrid or unordered-TED variant is the next
   candidate.
 
+  _Static bracket annotations_ (underlining changed sub-expressions permanently,
+  as in section 2 of Back, Grundy & von Wright, "Structured Calculational
+  Proof", TR-CS-96-09, November 1996;
+  [PDF](https://openresearch-repository.anu.edu.au/server/api/core/bitstreams/bce3031f-37f0-4b59-ba2b-ea01c749e7c8/content))
+  were considered and rejected: the interactive hover is less visually noisy and
+  better suited to Metamath's dense expressions, where static brackets would
+  clutter every step.
+
 ## Deferred directions
 
 Larger ideas not yet built — notably **sub-expression calculations** (relating
