@@ -12,7 +12,12 @@ export type Span = [start: number, end: number];
  * consumed: each literal in its rule's pattern is one token, each hole consumes
  * its sub-proof's span (in pattern order -- rules are linear).
  */
+const nodeSpansCache = new WeakMap<Proof, Span[]>();
+
 export function nodeSpans(proof: Proof): Span[] {
+  const cached = nodeSpansCache.get(proof);
+  if (cached) return cached;
+
   const spans: Span[] = [];
 
   function walk(p: Proof, start: number): number {
@@ -30,6 +35,7 @@ export function nodeSpans(proof: Proof): Span[] {
   }
 
   walk(proof, 0);
+  nodeSpansCache.set(proof, spans);
   return spans;
 }
 
