@@ -2,6 +2,24 @@
 
 ## Performance
 
+- **Pre-built occurrence index for hover** (highest impact):
+  `matchingOccurrences` currently scans ALL expressions on the page
+  (O(expressions x nodes_per_tree)) on every hover to find sub-expressions with
+  the same token sequence. For a 1000-step proof (~20 nodes each) that's ~20,000
+  string comparisons per mousemove. Fix: build a `Map<string, {expr, span}[]>`
+  (keyed by token-sequence string) once at parse time; hover lookup becomes O(1)
+  hash lookup.
+
+- **Memoize `nodeSpans`** per proof node: `spanToHighlight` calls
+  `nodeLocationSpans` which calls `nodeSpans`, rebuilding the spans array on
+  every hover. These are deterministic given a proof tree -- cache with a
+  `WeakMap<Proof, Span[]>`.
+
+- **Delegated hover listener**: `installHover` attaches one `mousemove` listener
+  per expression container. With 1000 steps that's 1000 event handlers. A single
+  delegated listener on the proof table that identifies which expression the
+  cursor is in reduces handler count from O(steps) to O(1).
+
 - **Longer-lived cache**: processing results are cached in `sessionStorage` (see
   `cache.ts`), so they survive navigation within a tab session but not a fresh
   tab. Consider `localStorage` for cross-session reuse — weigh against staleness
@@ -14,6 +32,18 @@
   fetch, or a hash of the relevant extracted markup) so a changed page misses
   rather than serving stale extraction. Lower urgency for `sessionStorage`
   (per-tab, short-lived) than it would be for a `localStorage` move.
+
+## Code structure
+
+- **Avoid redundant array joins in `matchPattern`**: the check
+  `existing.join(" ") !== consumed.join(" ")` joins arrays just for equality.
+  Compare element-by-element instead, or cache the joined key.
+
+- **Merge `kindOf` registry build with parsing**: `parseLocated` iterates
+  `located` once to build the kind registry, then once to parse. The registry
+  could be built during tokenization and passed in, avoiding the second pass.
+  Also: the `kindOf` map is rebuilt on every call to `parseLocated` even though
+  the grammar is the same.
 
 ## Correctness / completeness
 
