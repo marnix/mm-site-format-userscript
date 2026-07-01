@@ -296,18 +296,18 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         box.appendChild(wrapper);
       }
 
-      // Delegated click handler: any link to #mm-site-format-proof-N scrolls
-      // to the target mini-calculation.
+      // Delegated click handler: ensure the target mini-calc is visible before
+      // the browser navigates to the fragment (which pushes a history entry and
+      // scrolls). Browser Back then returns to the previous position.
       box.addEventListener("click", (e) => {
         const link = (e.target as HTMLElement).closest?.(
           'a[href^="#mm-site-format-proof-"]',
         );
         if (!link) return;
-        e.preventDefault();
         const id = link.getAttribute("href")!.slice(1);
         const target = document.getElementById(id);
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        if (target && target.style.display === "none") {
+          target.style.display = "";
         }
       });
 
