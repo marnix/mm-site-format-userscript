@@ -51,15 +51,20 @@ export function parseProofTable(doc: Document): ProofTree | null {
   }
   if (rows.size === 0) return null;
 
+  const memo = new Map<number, ProofTree>();
   const build = (step: number): ProofTree => {
+    const cached = memo.get(step);
+    if (cached) return cached;
     const row = rows.get(step);
     if (!row) throw new Error(`proof table references missing step ${step}`);
-    return {
+    const node: ProofTree = {
       refHtml: row.ref,
       expressionHtml: row.expression,
       expressionCell: row.cell,
       subproofs: row.hyps.map(build),
     };
+    memo.set(step, node);
+    return node;
   };
   return build(lastStep);
 }

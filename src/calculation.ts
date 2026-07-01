@@ -63,11 +63,33 @@ export function evaluateCalculation(calc: Calculation): ProofTree {
 }
 
 /**
+ * Finds nodes in the proof DAG that are referenced by more than one parent.
+ * These are candidates for extraction as separate mini-calculations.
+ */
+export function findSharedNodes(root: ProofTree): Set<ProofTree> {
+  const seen = new Set<ProofTree>();
+  const shared = new Set<ProofTree>();
+  function walk(node: ProofTree): void {
+    if (seen.has(node)) {
+      shared.add(node);
+      return; // don't recurse again
+    }
+    seen.add(node);
+    for (const child of node.subproofs) walk(child);
+  }
+  walk(root);
+  return shared;
+}
+
+/**
  * Converts a proof tree to a calculation: a leaf (no subproofs) becomes a given;
  * any other node becomes a `<==` step over its subproofs, in order. `spineFor`
  * picks each step's spine sub-proof (defaulting to the first, `0`); `null` ends
  * the spine. `smallFor` marks a step whose transition adds little (deemphasized);
  * the flag is only attached when true.
+ *
+ * Nodes in the `shared` set are treated as givens (leaf references) rather than
+ * being expanded inline -- their derivation is rendered separately.
  */
 export function proofTreeToCalculation(
   tree: ProofTree,
@@ -76,8 +98,9 @@ export function proofTreeToCalculation(
   smallFor: (node: ProofTree) => boolean = () => false,
   tokensFor: (node: ProofTree) => string[] | null = () => null,
   anchor: string[] | null = null,
+  shared: Set<ProofTree> = new Set(),
 ): Calculation {
-  if (tree.subproofs.length === 0)
+  if (tree.subproofs.length === 0 || shared.has(tree))
     return {
       kind: "given",
       hypothesisRefHtml: tree.refHtml,
@@ -96,6 +119,7 @@ export function proofTreeToCalculation(
         smallFor,
         tokensFor,
         i === spineIndex ? nextAnchor : null,
+        shared,
       ),
     ),
     spine: spineIndex,
