@@ -7,7 +7,13 @@ const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "fixtures");
 
 /** Reads a fixture HTML file, e.g. readFixture("mpeuni", "bitrdi.html"). */
 export function readFixture(variant: string, name: string): string {
-  return readFileSync(join(fixturesDir, variant, name), "utf-8");
+  // Strip <link rel="stylesheet"> tags to avoid happy-dom DOMException noise
+  // when DOMParser.parseFromString creates independent documents that don't
+  // inherit the environment's disableCSSFileLoading setting.
+  return readFileSync(join(fixturesDir, variant, name), "utf-8").replace(
+    /<link\b[^>]*\brel=["']?stylesheet["']?[^>]*>/gi,
+    "",
+  );
 }
 
 /** Reads a binary fixture (e.g. a GIF image) as bytes. */
