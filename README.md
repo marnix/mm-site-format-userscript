@@ -19,6 +19,14 @@ Where a step combines two symmetric premises with no clear main line, the
 calculation ends that branch at `⇔ TRUE`. The calculation's expressions get the
 same whitespace and hover-highlighting as the table below.
 
+When a proof step is used by multiple other steps, its sub-derivation is
+extracted into a separate "Proof of (N):" mini-calculation shown below the main
+one, rather than duplicating it at each use site. The main calculation
+references it as "(N) below" — a clickable link that scrolls to the
+mini-calculation. A mini-calculation only appears once at least one reference to
+it is visible (i.e. not inside a collapsed sub-derivation); expanding a
+sub-derivation that cites the shared step reveals its proof.
+
 A **Calculation version / Table version** switch — added to the page's top-right
 "… version" links — shows one and hides the other, with the calculation shown by
 default. (Add `?view=table` to a proof URL to start in the table view.) Choosing
