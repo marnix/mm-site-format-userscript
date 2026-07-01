@@ -4,9 +4,9 @@ import type { InferenceRule } from "../src/proof";
 import {
   changedLocationSpans,
   commonSubtreeDiff,
-  zhangShashaDiff,
   cachedDiff,
 } from "../src/diff";
+import { zhangShashaDiff } from "../src/zhang-shasha";
 
 const wi: InferenceRule = {
   assumptions: [

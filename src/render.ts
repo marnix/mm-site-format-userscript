@@ -12,7 +12,7 @@ import type { Calculation, Given, Step } from "./calculation";
 import {
   cachedDiff,
   changedLocationSpans,
-  zhangShashaDiff,
+  commonSubtreeDiff,
   type DiffAlgorithm,
 } from "./diff";
 import type { Painter, PaintItem } from "./highlight";
@@ -25,7 +25,7 @@ export interface RenderOptions {
    *  parsed expression, for diff highlighting. Populated after the second
    *  parse pass; called only on hover so it is always ready in time. */
   exprFor?: (span: HTMLElement) => ParsedExpression | null;
-  /** Diff algorithm to use; defaults to zhangShashaDiff. */
+  /** Diff algorithm to use; defaults to commonSubtreeDiff. */
   diffAlgorithm?: DiffAlgorithm;
   /** Painter for the diff highlight. No diff hover when absent. */
   diffPainter?: Painter;
@@ -95,7 +95,7 @@ function installDiffHover(
   options: RenderOptions,
 ): void {
   const painter = options.diffPainter!;
-  const algo = options.diffAlgorithm ?? zhangShashaDiff;
+  const algo = options.diffAlgorithm ?? commonSubtreeDiff;
   const exprFor = options.exprFor;
 
   opCell.style.cursor = "crosshair";

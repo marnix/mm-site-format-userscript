@@ -148,17 +148,18 @@ would need transitive syntax loading (see TODO — "Correctness").
   omits its intermediate expression entirely.
 - **Diff hover** — `diff.ts` + `render.ts` (`installDiffHover`). Hovering `⇐`
   highlights the changed token spans in both adjacent expressions. The default
-  algorithm is `zhangShashaDiff`: Zhang-Shasha tree edit distance computes the
-  minimum-cost mapping between two ordered labelled trees (delete = insert = 1,
-  relabel = 0 if same label else 1). Nodes are labelled by grammar-rule label at
-  internal positions and by variable token at leaves; this gives positional
-  awareness — a subtree that moved elsewhere in the tree is not matched, unlike
-  the purely content-based predecessor. The optimal matching identifies which
-  nodes correspond; "unchanged" means the maximal subtrees where every node in
-  the subtree is matched to the corresponding node in the partner's subtree
-  (same size, same mapping). O(n²) for tree size n, which is fine for the small
-  parse trees in practice. The legacy `commonSubtreeDiff` (O(n+m)
-  content-hash-based) is retained as a named export for comparison.
+  algorithm is `commonSubtreeDiff`: collect the concluded-expression key
+  (substituted token sequence) of every node in each tree, then mark as
+  "unchanged" the maximal subtrees of A whose key appears anywhere in B, and
+  vice versa. O(n+m) with hashing. _Structural-alignment_ (walk both trees in
+  lock-step; same rule → recurse into paired children; different rule →
+  divergence) was tried and rejected: it marks too much as "changed" when
+  consecutive steps have different top-level structure (common in practice),
+  leaving the entire expression highlighted. A Zhang-Shasha Tree Edit Distance
+  (TED) implementation exists in `zhang-shasha.ts` (tested, not bundled); it
+  gives positional awareness but over-highlights commutative swaps (e.g. both
+  sides of `=` exchanging places). A hybrid or unordered-TED variant is the next
+  candidate.
 
 ## Deferred directions
 
