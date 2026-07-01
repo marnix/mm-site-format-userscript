@@ -4,6 +4,7 @@ import type { InferenceRule } from "../src/proof";
 import {
   changedLocationSpans,
   commonSubtreeDiff,
+  zhangShashaDiff,
   cachedDiff,
 } from "../src/diff";
 
@@ -97,6 +98,60 @@ describe("commonSubtreeDiff", () => {
       .sort();
     expect(unchangedLeafTokensA).toContain("ph");
     expect(unchangedLeafTokensA).toContain("ch");
+  });
+});
+
+describe("zhangShashaDiff", () => {
+  it("identical proofs: root is unchanged in both", () => {
+    const { unchangedInA, unchangedInB } = zhangShashaDiff(proofA, proofA);
+    expect(unchangedInA.has(proofA)).toBe(true);
+    expect(unchangedInB.has(proofA)).toBe(true);
+    expect(unchangedInA.size).toBe(1);
+    expect(unchangedInB.size).toBe(1);
+  });
+
+  it("one leaf differs: shared subtrees are unchanged", () => {
+    // A = |- ( ph -> ( ps <-> th ) ), B = |- ( ph -> ( ps <-> ch ) )
+    // TED should match: top->top, wi->wi, ph->ph, wb->wb, ps->ps, th!=ch (relabel)
+    // The wi subtree is fully matched (ph matches, wb differs only in one leaf).
+    // Actually wb subtree: ps matches but th->ch is a relabel, so wb is NOT fully matched.
+    // So unchanged should be: ph and ps (fully matched leaves).
+    // But also wi is partially matched (not fully, since its wb child isn't fully matched).
+    // So maximal fully-matched subtrees in A: ph, ps.
+    const { unchangedInA, unchangedInB } = zhangShashaDiff(proofA, proofB);
+
+    const unchangedLeafTokensA = [...unchangedInA]
+      .map((n) =>
+        n.subproofs.length === 0
+          ? n.rule.conclusion.slice(1).join(" ")
+          : "non-leaf",
+      )
+      .sort();
+    const unchangedLeafTokensB = [...unchangedInB]
+      .map((n) =>
+        n.subproofs.length === 0
+          ? n.rule.conclusion.slice(1).join(" ")
+          : "non-leaf",
+      )
+      .sort();
+
+    expect(unchangedLeafTokensA).toEqual(["ph", "ps"]);
+    expect(unchangedLeafTokensB).toEqual(["ph", "ps"]);
+  });
+
+  it("position matters: moved subtree is not matched", () => {
+    // proofB = |- ( ph -> ( ps <-> ch ) ), proofC = |- ( ph -> ( ch <-> th ) )
+    // ch appears in both but at different positions (2nd vs 1st child of wb).
+    // TED with positional matching: ph matches (same position), ps->ch relabel,
+    // ch->th relabel. So only ph is unchanged.
+    const { unchangedInA, unchangedInB } = zhangShashaDiff(proofB, proofC);
+
+    const unchangedTokensA = [...unchangedInA]
+      .map((n) => n.rule.conclusion.slice(1).join(" "))
+      .sort();
+    expect(unchangedTokensA).toContain("ph");
+    // ch should NOT be matched because it's at a different position
+    expect(unchangedTokensA).not.toContain("ch");
   });
 });
 
