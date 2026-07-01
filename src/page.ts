@@ -33,16 +33,14 @@ export interface ParsedExpression {
 }
 
 /**
- * Builds the kind registry and parses each located expression. The registry is
- * the union of the page's own variable kinds and the grammar rules' variable
- * typings. A statement beginning with the turnstile (the $TOP rule's first
- * pattern token) is parsed at the synthetic $TOP type; any other expression
- * starts with its own typecode.
+ * Builds the kind registry from grammar rules and located tokens. The registry
+ * maps variable tokens to their type (e.g. "ph" -> "wff"). Built once per
+ * grammar, reused across multiple parseLocated calls.
  */
-function parseLocated(
+function buildKindRegistry(
   located: LocatedToken[][],
   rules: InferenceRule[],
-): ParsedExpression[] {
+): KindOf {
   const registry = new Map<string, string>();
   for (const lts of located) {
     for (const { token } of lts)
@@ -53,7 +51,20 @@ function parseLocated(
       if (a.length === 2) registry.set(a[1], a[0]);
     }
   }
-  const kindOf: KindOf = (token) => registry.get(token);
+  return (token) => registry.get(token);
+}
+
+/**
+ * Parses each located expression. A statement beginning with the turnstile (the
+ * $TOP rule's first pattern token) is parsed at the synthetic $TOP type; any
+ * other expression starts with its own typecode.
+ */
+function parseLocated(
+  located: LocatedToken[][],
+  rules: InferenceRule[],
+  kindOf?: KindOf,
+): ParsedExpression[] {
+  const resolve = kindOf ?? buildKindRegistry(located, rules);
   const turnstile = rules[0]?.conclusion[1];
 
   return located.map((lts) => {
@@ -62,8 +73,8 @@ function parseLocated(
     const expr = tokens.map((t) => t.text);
     const proof =
       expr[0] === turnstile
-        ? parseExpression(expr, TOP_TYPE, rules, kindOf)
-        : parseExpression(expr.slice(1), expr[0] ?? "", rules, kindOf);
+        ? parseExpression(expr, TOP_TYPE, rules, resolve)
+        : parseExpression(expr.slice(1), expr[0] ?? "", rules, resolve);
     return { tokens, locations, proof };
   });
 }
