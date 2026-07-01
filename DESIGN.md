@@ -58,7 +58,15 @@ The parsing kernel and grammar:
   below).
 - **`expression.ts`** / **`loader.ts`** — find expressions / linked-page URLs.
 - **`cache.ts`** — caches the _result_ of processing a linked page (rules, hint
-  URLs) per URL: in-memory + an optional `sessionStorage` layer.
+  URLs) per URL: in-memory + an optional `sessionStorage` layer. Only data from
+  _other_ pages (fetched syntax-definition and Ref pages) is cached; the current
+  page is always re-parsed from the live DOM. `sessionStorage` is chosen over
+  `localStorage` deliberately: its per-tab lifetime means stale entries are
+  impossible to observe in practice (a tab must stay open while set.mm is
+  regenerated upstream, which is rare and short-lived). `localStorage` would
+  require ETag-based invalidation (a HEAD request per cached entry on reuse),
+  adding latency and complexity for negligible performance gain — the linked
+  pages change extremely rarely.
 - **`page.ts`** — orchestrates: assemble grammar, parse every expression.
 
 Interaction and rendering:

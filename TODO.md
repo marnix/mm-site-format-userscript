@@ -1,20 +1,5 @@
 # TODO
 
-## Performance
-
-- **Longer-lived cache**: processing results are cached in `sessionStorage` (see
-  `cache.ts`), so they survive navigation within a tab session but not a fresh
-  tab. Consider `localStorage` for cross-session reuse — weigh against staleness
-  when set.mm is regenerated (the `GRAMMAR_CACHE_VERSION` bump only covers our
-  own format changes, not upstream content changes).
-- **Invalidate the cache when a page's contents change** (low priority): nothing
-  currently detects that a linked page changed upstream (e.g. after a set.mm
-  regeneration) — a stale cached rule would simply be reused. Investigate keying
-  entries on something content-derived (an `ETag` / `Last-Modified` from the
-  fetch, or a hash of the relevant extracted markup) so a changed page misses
-  rather than serving stale extraction. Lower urgency for `sessionStorage`
-  (per-tab, short-lived) than it would be for a `localStorage` move.
-
 ## Correctness / completeness
 
 - **Transitive syntax loading** (further workaround for the incomplete-syntax-
