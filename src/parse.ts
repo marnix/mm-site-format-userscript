@@ -90,7 +90,11 @@ function makeParser(
       const existing = subst.get(patternToken);
       if (existing) {
         // Repeated variable: both occurrences must consume the same expression.
-        if (existing.join(" ") !== consumed.join(" ")) return null;
+        if (
+          existing.length !== consumed.length ||
+          existing.some((t, j) => t !== consumed[j])
+        )
+          return null;
       } else {
         subst.set(patternToken, consumed);
         subproofs.push(sub.proof);
