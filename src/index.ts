@@ -302,6 +302,52 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
           target.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
       });
+
+      // Mini-calc visibility: show a mini-calc only if at least one reference
+      // to it is visible (not inside a collapsed sub-calculation).
+      const miniCalcIds = ordered
+        .map((node) => stepOf.get(node))
+        .filter((n): n is number => n !== undefined)
+        .map((n) => `mm-site-format-proof-${n}`);
+
+      const updateMiniCalcVisibility = () => {
+        for (const id of miniCalcIds) {
+          const wrapper = document.getElementById(id);
+          if (!wrapper) continue;
+          // Check if any link referencing this id is visible (not inside a
+          // hidden row).
+          const links = box.querySelectorAll(`a[href="#${id}"]`);
+          let anyVisible = false;
+          for (const link of links) {
+            let el: HTMLElement | null = link as HTMLElement;
+            let hidden = false;
+            while (el && el !== box) {
+              if (el.style.display === "none") {
+                hidden = true;
+                break;
+              }
+              el = el.parentElement;
+            }
+            if (!hidden) {
+              anyVisible = true;
+              break;
+            }
+          }
+          const desired = anyVisible ? "" : "none";
+          if (wrapper.style.display !== desired)
+            wrapper.style.display = desired;
+        }
+      };
+      updateMiniCalcVisibility();
+
+      // Re-check visibility whenever a sub-calc is expanded/collapsed (style
+      // attribute changes on rows).
+      const observer = new MutationObserver(updateMiniCalcVisibility);
+      observer.observe(box, {
+        attributes: true,
+        attributeFilter: ["style"],
+        subtree: true,
+      });
     }
 
     // Into the caption, below the "Proof of Theorem" heading -- so the heading
