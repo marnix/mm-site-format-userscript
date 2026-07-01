@@ -93,16 +93,18 @@
 
 - **Deduplicate shared sub-derivations**: when a proof step is cited multiple
   times (e.g. `sgnrn.html` step 6, `|- sgn Fn RR*`, used 4 times), its
-  sub-calculation currently appears 4 times in the expanded view. Options: (a)
-  show the derivation in full at its first occurrence and replace subsequent
-  occurrences with a back-reference ("proved above" + clickable anchor); (b)
-  extract it into a separate named sub-calculation ("Lemma:" or "where:" block)
-  shown once before/after the main calculation, referenced by name at each use
-  site; (c) render it once inline at the first use and collapse it to a
-  single-line reference at later uses. Approach (a) keeps the reading flow
-  linear and seems simplest. Needs: detect multiply-referenced proof nodes in
-  `calculation.ts`/`render.ts`, assign anchors, render first occurrence normally
-  and subsequent ones as a link.
+  sub-calculation currently appears 4 times in the expanded view. The root cause
+  is that `table.ts` builds a tree (not a DAG): `build(step)` is called fresh
+  for each reference, duplicating the entire sub-derivation. Not every reused
+  step needs extraction -- only those that would otherwise appear in **multiple
+  distinct sub-calculations** (the collapsed `▶` blocks). A step on the spine
+  (main line) already appears once. The fix: (a) memoize `build` in `table.ts`
+  so the proof graph is a DAG with shared nodes; (b) in
+  `proofTreeToCalculation`, detect nodes with multiple parents; (c) render
+  multiply-referenced sub-derivations as a separate "Proof of step N:"
+  mini-calculation shown once (before or after the main calculation), and cite
+  them by label at each use site (like citing a hypothesis). `nmulprop.html`
+  (step 71 used 16x, step 69 used 14x) is the stress-test fixture.
 
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.
