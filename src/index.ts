@@ -203,9 +203,9 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     // Only extract internal nodes (leaves are just hypotheses cited twice).
     const extracted = [...shared].filter((n) => n.subproofs.length > 0);
 
-    // Give shared nodes a synthetic refHtml with a hyperlink "(N) below" so the
-    // main calculation's hints reference them by step number. Clicking reveals
-    // and scrolls to the corresponding mini-calculation (via delegated handler).
+    // Give shared nodes a synthetic refHtml with a hyperlink "(N)" so the
+    // main calculation's hints reference them by step number. The directional
+    // word "below"/"above" is added after rendering, once DOM order is known.
     const savedRefs = new Map<ProofTree, Element>();
     for (const node of extracted) {
       const n = stepOf.get(node);
@@ -214,7 +214,8 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         const synth = document.createElement("span");
         const link = document.createElement("a");
         link.href = `#mm-site-format-proof-${n}`;
-        link.textContent = `(${n}) below`;
+        link.textContent = `(${n})`;
+        link.className = "mm-site-format-proof-ref";
         synth.appendChild(link);
         node.refHtml = synth;
       }
@@ -262,6 +263,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
             const link = document.createElement("a");
             link.href = `#mm-site-format-proof-${m}`;
             link.textContent = `(${m})`;
+            link.className = "mm-site-format-proof-ref";
             synth.appendChild(link);
             other.refHtml = synth;
           }
@@ -348,6 +350,21 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         attributeFilter: ["style"],
         subtree: true,
       });
+
+      // Label each "(N)" link with "below" or "above" based on DOM order
+      // relative to its target mini-calc.
+      for (const link of box.querySelectorAll("a.mm-site-format-proof-ref")) {
+        const id = link.getAttribute("href")?.slice(1);
+        if (!id) continue;
+        const target =
+          box.querySelector(`#${id}`) ?? document.getElementById(id);
+        if (!target) continue;
+        // Node.DOCUMENT_POSITION_FOLLOWING = 4: target is after link
+        const pos = link.compareDocumentPosition(target);
+        const dir = pos & Node.DOCUMENT_POSITION_FOLLOWING ? "below" : "above";
+        const n = id.replace("mm-site-format-proof-", "");
+        link.textContent = `(${n}) ${dir}`;
+      }
     }
 
     // Into the caption, below the "Proof of Theorem" heading -- so the heading
