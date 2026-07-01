@@ -510,7 +510,6 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         );
       installParseWarning(banner, failures.length);
       install(results);
-      console.log(`${LOG} finished`);
     };
 
   // A single Highlighter and a single growing expression list shared by both the
@@ -542,8 +541,10 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
               calcExprs.push(...calcResults);
               installHover(calcResults, occIndex, highlighter);
               sizeToExpandedWidth(calc); // after spacers are inserted
+              console.log(`${LOG} finished`);
             },
           );
+        else console.log(`${LOG} finished`);
       })
       .catch(restoreGrid);
   } else {
@@ -595,7 +596,9 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
               calcExprs.push(...calcResults);
               installHover(calcResults, occIndex, highlighter);
               sizeToExpandedWidth(calc); // after spacers are inserted
+              console.log(`${LOG} finished`);
             });
+        else console.log(`${LOG} finished`);
       })
       .catch(restoreGrid);
   }
