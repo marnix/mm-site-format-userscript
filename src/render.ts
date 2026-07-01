@@ -315,7 +315,7 @@ function makeCollapsible(table: HTMLTableElement): void {
   });
 }
 
-function renderCalcTable(
+export function renderCalcTable(
   calc: Calculation,
   options?: RenderOptions,
 ): HTMLTableElement {

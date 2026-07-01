@@ -17,7 +17,7 @@ describe("parseProofTable", () => {
       "text/html",
     );
     const tree = parseProofTable(doc);
-    expect(tree && shape(tree)).toEqual({
+    expect(tree && shape(tree.tree)).toEqual({
       ref: "bitrd 280", // step 4 (the conclusion)
       subproofs: [
         { ref: "bitrdi.1", subproofs: [] }, // step 1 (hypothesis)
@@ -34,7 +34,7 @@ describe("parseProofTable", () => {
       readFixture("mpeuni", "bitrdi.html"),
       "text/html",
     );
-    const tree = parseProofTable(doc)!;
+    const tree = parseProofTable(doc)!.tree;
     // The indentation marker (span.i, e.g. ". 2") is gone; the expression stays.
     expect(tree.expressionHtml.querySelector("span.i")).toBeNull();
     expect(tree.expressionHtml.querySelector("span.math")).not.toBeNull();

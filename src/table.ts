@@ -24,9 +24,12 @@ function expressionHtml(cell: Element): Element {
 
 /**
  * Builds the proof tree from the page's proof table, rooted at the final step
- * (the conclusion). Returns null if the page has no proof table.
+ * (the conclusion). Returns null if the page has no proof table. Also returns
+ * a map from ProofTree node to its step number.
  */
-export function parseProofTable(doc: Document): ProofTree | null {
+export function parseProofTable(
+  doc: Document,
+): { tree: ProofTree; stepOf: Map<ProofTree, number> } | null {
   const table = doc.querySelector('table[summary="Proof of theorem"]');
   if (!table) return null;
 
@@ -66,5 +69,8 @@ export function parseProofTable(doc: Document): ProofTree | null {
     memo.set(step, node);
     return node;
   };
-  return build(lastStep);
+  const tree = build(lastStep);
+  const stepOf = new Map<ProofTree, number>();
+  for (const [step, node] of memo) stepOf.set(node, step);
+  return { tree, stepOf };
 }

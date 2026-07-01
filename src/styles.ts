@@ -30,6 +30,7 @@ const CSS = `
 .mm-site-format-calc-subcalc { padding-left:2em }
 .mm-site-format-calc-row--hint > td { padding-top:0.3em; padding-bottom:0.3em }
 .mm-site-format-calc-row--subcalc > td { padding-top:0.5em; padding-bottom:0.5em }
+.mm-site-format-calc-label { font-size:0.9em; font-style:italic; color:#555; margin:0.8em 0 0.2em; border-top:1px solid #ddd; padding-top:0.4em }
 .mm-site-format-fold { cursor:pointer; user-select:none; opacity:0.6 }
 .mm-site-format-banner { position:fixed; bottom:0; right:0; background:#333; color:#fff; padding:4px 8px; font-size:12px; opacity:0.8; z-index:9999 }
 .mm-site-format-parse-warn { color:#f90 }

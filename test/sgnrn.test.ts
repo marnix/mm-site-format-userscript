@@ -17,9 +17,9 @@ import { readFixture } from "./helpers";
 function loadSgnrn(): ProofTree {
   const html = readFixture("mpeuni", "sgnrn.html");
   const doc = new DOMParser().parseFromString(html, "text/html");
-  const tree = parseProofTable(doc);
-  expect(tree).not.toBeNull();
-  return tree!;
+  const result = parseProofTable(doc);
+  expect(result).not.toBeNull();
+  return result!.tree;
 }
 
 describe("shared sub-derivation detection (sgnrn)", () => {

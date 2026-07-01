@@ -1,7 +1,11 @@
 import "./config";
 import "./database-assumptions"; // hoist the MM database assumptions below config
 import { createCache, type KeyValueStore } from "./cache";
-import { proofTreeToCalculation, type ProofTree } from "./calculation";
+import {
+  findSharedNodes,
+  proofTreeToCalculation,
+  type ProofTree,
+} from "./calculation";
 import { findMathSpans } from "./expression";
 import { GRAMMAR_CACHE_VERSION, missingSyntaxHints } from "./grammar";
 import { indentProofExpressions } from "./indent";
@@ -15,7 +19,7 @@ import {
   type ParsedExpression,
 } from "./page";
 import type { Proof } from "./proof";
-import { renderCalculation, setCalcCollapsed } from "./render";
+import { renderCalcTable, renderCalculation, setCalcCollapsed } from "./render";
 import {
   attachRuleTooltipsToPage,
   makeRuleTooltipFetcher,
@@ -57,7 +61,9 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   const proofTable = document.querySelector<HTMLTableElement>(
     'table[summary="Proof of theorem"]',
   );
-  const proofTree = parseProofTable(document);
+  const proofResult = parseProofTable(document);
+  const proofTree = proofResult?.tree ?? null;
+  const stepOf = proofResult?.stepOf ?? new Map<ProofTree, number>();
 
   // Hang-indent the proof table's wrapped Expression lines. Do it now, while the
   // table is still laid out and visible (before the early grid hide below).
@@ -191,17 +197,113 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   const showCalculation = (results: ParsedExpression[]): HTMLElement | null => {
     if (!proofTree || !proofTable) return null;
     const { spineFor, smallFor, tokensOf: tokensOf_ } = choosers(results);
+
+    // Detect shared sub-derivations and extract them as separate blocks.
+    const shared = findSharedNodes(proofTree);
+    // Only extract internal nodes (leaves are just hypotheses cited twice).
+    const extracted = [...shared].filter((n) => n.subproofs.length > 0);
+
+    // Give shared nodes a synthetic refHtml with a hyperlink "(N) below" so the
+    // main calculation's hints reference them by step number. Clicking reveals
+    // and scrolls to the corresponding mini-calculation (via delegated handler).
+    const savedRefs = new Map<ProofTree, Element>();
+    for (const node of extracted) {
+      const n = stepOf.get(node);
+      if (n !== undefined) {
+        savedRefs.set(node, node.refHtml);
+        const synth = document.createElement("span");
+        const link = document.createElement("a");
+        link.href = `#mm-site-format-proof-${n}`;
+        link.textContent = `(${n}) below`;
+        synth.appendChild(link);
+        node.refHtml = synth;
+      }
+    }
+
     const calc = proofTreeToCalculation(
       proofTree,
       spineFor,
       smallFor,
       tokensOf_,
+      null,
+      shared,
     );
-    const rendered = renderCalculation(calc, {
+
+    // Restore original refHtml for the extracted mini-calculations.
+    for (const [node, ref] of savedRefs) node.refHtml = ref;
+
+    const renderOpts = {
       fetchRuleTooltip,
       diffPainter: diffPainter ?? undefined,
       exprFor,
-    });
+    };
+    const rendered = renderCalculation(calc, renderOpts);
+
+    // Append mini-calculations for extracted shared steps below the main one,
+    // ordered highest step number first, hidden until their link is clicked.
+    if (extracted.length > 0) {
+      const box = rendered; // the .mm-site-format-calc div
+      const ordered = [...extracted].sort(
+        (a, b) => (stepOf.get(b) ?? 0) - (stepOf.get(a) ?? 0),
+      );
+      for (const node of ordered) {
+        // Pass the shared set (excluding this node itself) so nested shared
+        // nodes are also cut short and referenced by label.
+        const others = new Set(shared);
+        others.delete(node);
+        // Set up synthetic "(N)" hyperlink refs for nested shared nodes.
+        const nestedSaved = new Map<ProofTree, Element>();
+        for (const other of extracted) {
+          if (other === node) continue;
+          const m = stepOf.get(other);
+          if (m !== undefined) {
+            nestedSaved.set(other, other.refHtml);
+            const synth = document.createElement("span");
+            const link = document.createElement("a");
+            link.href = `#mm-site-format-proof-${m}`;
+            link.textContent = `(${m})`;
+            synth.appendChild(link);
+            other.refHtml = synth;
+          }
+        }
+        const miniCalc = proofTreeToCalculation(
+          node,
+          spineFor,
+          smallFor,
+          tokensOf_,
+          null,
+          others,
+        );
+        // Restore refs.
+        for (const [other, ref] of nestedSaved) other.refHtml = ref;
+
+        const n = stepOf.get(node);
+        const wrapper = document.createElement("div");
+        wrapper.id = n !== undefined ? `mm-site-format-proof-${n}` : "";
+        const label = document.createElement("div");
+        label.className = "mm-site-format-calc-label";
+        label.textContent = n !== undefined ? `Proof of (${n}):` : "Proof:";
+        wrapper.appendChild(label);
+        wrapper.appendChild(renderCalcTable(miniCalc, renderOpts));
+        box.appendChild(wrapper);
+      }
+
+      // Delegated click handler: any link to #mm-site-format-proof-N scrolls
+      // to the target mini-calculation.
+      box.addEventListener("click", (e) => {
+        const link = (e.target as HTMLElement).closest?.(
+          'a[href^="#mm-site-format-proof-"]',
+        );
+        if (!link) return;
+        e.preventDefault();
+        const id = link.getAttribute("href")!.slice(1);
+        const target = document.getElementById(id);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      });
+    }
+
     // Into the caption, below the "Proof of Theorem" heading -- so the heading
     // stays in place whichever view is shown.
     const caption = proofTable.querySelector("caption");
