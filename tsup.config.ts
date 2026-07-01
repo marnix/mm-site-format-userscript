@@ -30,7 +30,7 @@ const header = `\
 // @version      ${version}
 // @description  Formatting improvements for metamath.org proof pages
 // @author       Marnix Klooster
-// @license      Unlicense (public domain; https://unlicense.org/)
+// @license      Unlicense; https://unlicense.org/
 // @match        *://us.metamath.org/*
 // @match        *://metamath.org/*
 // @downloadURL  https://github.com/marnix/mm-site-format-userscript/releases/latest/download/mm-site-format.user.js
