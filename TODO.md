@@ -97,14 +97,27 @@
   is that `table.ts` builds a tree (not a DAG): `build(step)` is called fresh
   for each reference, duplicating the entire sub-derivation. Not every reused
   step needs extraction -- only those that would otherwise appear in **multiple
-  distinct sub-calculations** (the collapsed `▶` blocks). A step on the spine
-  (main line) already appears once. The fix: (a) memoize `build` in `table.ts`
-  so the proof graph is a DAG with shared nodes; (b) in
-  `proofTreeToCalculation`, detect nodes with multiple parents; (c) render
-  multiply-referenced sub-derivations as a separate "Proof of step N:"
-  mini-calculation shown once (before or after the main calculation), and cite
-  them by label at each use site (like citing a hypothesis). `nmulprop.html`
-  (step 71 used 16x, step 69 used 14x) is the stress-test fixture.
+  distinct sub-calculations** (the collapsed `▶` blocks). The fix depends on
+  where the shared step appears:
+
+  - **On the spine** (option 2): label the step `(b)` where it appears on the
+    spine, and forward-reference it from earlier hints with "using (b) below".
+    This is safe for reading order: the spine goes from conclusion toward
+    premises (top-down), so a prerequisite step is always further _down_ -- the
+    reader will reach its derivation by continuing to read. No separate block
+    needed; the label just deduplicates the collapsed `▶` blocks that would
+    otherwise re-derive it.
+
+  - **Only in sub-calculations** (option 1): if the shared step never appears on
+    any spine (only inside collapsed `▶` blocks), extract it as a separate
+    "Proof of (b):" mini-calculation shown before the main calculation. Each use
+    site cites `(b)` like a hypothesis/given, ending its branch there.
+
+  Implementation: (a) memoize `build` in `table.ts` so the proof graph is a DAG
+  with shared nodes; (b) in `proofTreeToCalculation`, detect nodes with multiple
+  parents; (c) apply option 2 or option 1 depending on whether the node is on
+  the spine. `nmulprop.html` (step 71 used 16x, step 69 used 14x) is the
+  stress-test fixture.
 
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.
