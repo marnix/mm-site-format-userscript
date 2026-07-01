@@ -90,6 +90,9 @@ export function findSharedNodes(root: ProofTree): Set<ProofTree> {
  *
  * Nodes in the `shared` set are treated as givens (leaf references) rather than
  * being expanded inline -- their derivation is rendered separately.
+ *
+ * Nodes in `spineShared` are treated as givens only in non-spine branches; on
+ * the spine itself they expand normally (with their full sub-derivation).
  */
 export function proofTreeToCalculation(
   tree: ProofTree,
@@ -99,6 +102,7 @@ export function proofTreeToCalculation(
   tokensFor: (node: ProofTree) => string[] | null = () => null,
   anchor: string[] | null = null,
   shared: Set<ProofTree> = new Set(),
+  spineShared: Set<ProofTree> = new Set(),
 ): Calculation {
   if (tree.subproofs.length === 0 || shared.has(tree))
     return {
@@ -112,16 +116,21 @@ export function proofTreeToCalculation(
     kind: "step",
     inferenceRuleRefHtml: tree.refHtml,
     expressionHtml: tree.expressionHtml,
-    subcalculations: tree.subproofs.map((s, i) =>
-      proofTreeToCalculation(
+    subcalculations: tree.subproofs.map((s, i) => {
+      // On the spine: spineShared nodes expand normally.
+      // Off the spine: spineShared nodes are treated as givens (like shared).
+      const effectiveShared =
+        i === spineIndex ? shared : new Set([...shared, ...spineShared]);
+      return proofTreeToCalculation(
         s,
         spineFor,
         smallFor,
         tokensFor,
         i === spineIndex ? nextAnchor : null,
-        shared,
-      ),
-    ),
+        effectiveShared,
+        spineShared,
+      );
+    }),
     spine: spineIndex,
   };
   if (smallFor(tree)) step.smallSpine = true;

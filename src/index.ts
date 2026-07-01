@@ -209,9 +209,10 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     // Only extract internal nodes (leaves are just hypotheses cited twice).
     const extracted = [...shared].filter((n) => n.subproofs.length > 0);
 
-    // Give shared nodes a synthetic refHtml with a hyperlink "(N)" so the
-    // main calculation's hints reference them by step number. The directional
-    // word "below"/"above" is added after rendering, once DOM order is known.
+    // Give shared nodes a synthetic refHtml with a hyperlink "(N)" so that
+    // when they appear as givens, the hint shows "(N) below/above". On-spine
+    // nodes also get this (for their off-spine given appearances), but their
+    // step's inferenceRuleRefHtml is patched back to the original after building.
     const savedRefs = new Map<ProofTree, Element>();
     for (const node of extracted) {
       const n = stepOf.get(node);
@@ -227,14 +228,60 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       }
     }
 
+    // Internal shared nodes go into spineShared (expand on spine, given
+    // off-spine). Leaf shared nodes stay in shared (always given).
+    const leafShared = new Set(
+      [...shared].filter((n) => n.subproofs.length === 0),
+    );
+    // Mark expressionHtml elements with a child marker so we can find their
+    // clones after rendering (clone() copies children, not the element itself).
+    for (const node of extracted) {
+      const n = stepOf.get(node);
+      if (n !== undefined) {
+        const marker = document.createElement("span");
+        marker.dataset.proofAnchor = String(n);
+        marker.style.display = "none";
+        node.expressionHtml.prepend(marker);
+      }
+    }
     const calc = proofTreeToCalculation(
       proofTree,
       spineFor,
       smallFor,
       tokensOf_,
       null,
-      shared,
+      leafShared,
+      new Set(extracted),
     );
+
+    // Determine which extracted nodes ended up on the spine (expanded inline)
+    // so we don't render a redundant mini-calc for them.
+    const onSpine = new Set<ProofTree>();
+    {
+      let c = calc;
+      let t = proofTree;
+      while (c.kind === "step") {
+        if (c.spine === null) break;
+        t = t.subproofs[c.spine];
+        onSpine.add(t);
+        c = c.subcalculations[c.spine];
+      }
+    }
+    const offSpineExtracted = extracted.filter((n) => !onSpine.has(n));
+
+    // Patch on-spine steps: their inferenceRuleRefHtml captured the synthetic
+    // "(N)" ref, but they need their original rule name in their own hint.
+    {
+      let c = calc;
+      let t = proofTree;
+      while (c.kind === "step") {
+        const origRef = savedRefs.get(t);
+        if (origRef) c.inferenceRuleRefHtml = origRef;
+        if (c.spine === null) break;
+        t = t.subproofs[c.spine];
+        c = c.subcalculations[c.spine];
+      }
+    }
 
     // Restore original refHtml for the extracted mini-calculations.
     for (const [node, ref] of savedRefs) node.refHtml = ref;
@@ -246,11 +293,33 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     };
     const rendered = renderCalculation(calc, renderOpts);
 
+    // Give on-spine shared expressions an anchor id so "(N)" links can target
+    // them. Find them by matching expressionHtml via data attributes set before
+    // the calc was built.
+    for (const node of extracted) {
+      if (!onSpine.has(node)) continue;
+      const n = stepOf.get(node);
+      if (n === undefined) continue;
+      // Find the rendered clone by the child marker we inserted
+      const marker = rendered.querySelector(`[data-proof-anchor="${n}"]`);
+      const exprSpan = marker?.parentElement;
+      const row = exprSpan?.closest("tr");
+      if (row) {
+        row.id = `mm-site-format-proof-${n}`;
+        // Put "(N)" in the left (operator) column, like a given's ref label.
+        const opCell = row.firstElementChild as HTMLElement | null;
+        if (opCell) {
+          opCell.textContent = `(${n})`;
+          opCell.style.textAlign = "left";
+        }
+      }
+    }
+
     // Append mini-calculations for extracted shared steps below the main one,
     // ordered highest step number first, hidden until their link is clicked.
-    if (extracted.length > 0) {
+    if (offSpineExtracted.length > 0) {
       const box = rendered; // the .mm-site-format-calc div
-      const ordered = [...extracted].sort(
+      const ordered = [...offSpineExtracted].sort(
         (a, b) => (stepOf.get(b) ?? 0) - (stepOf.get(a) ?? 0),
       );
       for (const node of ordered) {
@@ -258,7 +327,8 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         // nodes are also cut short and referenced by label.
         const others = new Set(shared);
         others.delete(node);
-        // Set up synthetic "(N)" hyperlink refs for nested shared nodes.
+        // Set up synthetic "(N)" hyperlink refs for nested shared nodes
+        // (both on-spine and off-spine may appear as givens in mini-calcs).
         const nestedSaved = new Map<ProofTree, Element>();
         for (const other of extracted) {
           if (other === node) continue;

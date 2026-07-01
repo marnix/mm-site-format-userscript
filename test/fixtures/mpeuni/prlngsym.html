@@ -1,0 +1,648 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML LANG="EN-US">
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<STYLE TYPE="text/css">
+<!--
+img { margin-bottom: -4px }
+.r { font-family: "Arial Narrow";
+     font-size: x-small;
+   }
+.i { font-family: "Arial Narrow";
+     font-size: x-small;
+     color: gray;
+   }
+-->
+</STYLE>
+<STYLE TYPE="text/css">
+<!--
+  .setvar { color: red; }
+  .wff { color: blue; }
+  .class { color: #C3C; }
+  .symvar { border-bottom:1px dotted;color:#C3C}
+  .typecode { color: gray }
+  .hidden { color: gray }
+  @font-face {
+    font-family: XITSMath-Regular;
+    src: url(xits-math.woff);
+  }
+  .math { font-family: XITSMath-Regular }
+-->
+</STYLE>
+<LINK href="mmset.css" title="mmset"
+    rel="stylesheet" type="text/css">
+<LINK href="mmsetalt.css" title="mmsetalt"
+    rel="alternate stylesheet" type="text/css">
+<TITLE>prlngsym - Metamath Proof Explorer</TITLE>
+<LINK REL="shortcut icon" HREF="favicon.ico" TYPE="image/x-icon">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
+  <TR>
+    <TD ALIGN=LEFT VALIGN=TOP WIDTH="25%"><A HREF=
+    "mmset.html"><IMG SRC="mm.gif"
+      BORDER=0
+      ALT="MPE Home"
+      TITLE="MPE Home"
+      HEIGHT=32 WIDTH=32 ALIGN=TOP STYLE="margin-bottom:0px"></A>
+    </TD>
+    <TD ALIGN=CENTER COLSPAN=2 VALIGN=TOP><FONT SIZE="+3" COLOR="#006633"><B>
+Metamath Proof Explorer
+      </B></FONT></TD>
+    <TD ALIGN=RIGHT VALIGN=TOP WIDTH="25%">
+      <FONT SIZE=-1 FACE=sans-serif>
+      <A HREF="prlngref.html">
+      &lt; Previous</A>&nbsp;&nbsp;
+      <A HREF="f1otrgds.html">Next &gt;</A>
+      </FONT><FONT FACE=sans-serif SIZE=-2>
+      <BR><A HREF="mmtheorems291.html#prlngsym">Nearby theorems</A>
+      </FONT>
+    </TD>
+  </TR>
+  <TR>
+    <TD COLSPAN=2 ALIGN=LEFT VALIGN=TOP><FONT SIZE=-2
+      FACE=sans-serif>
+      <A HREF="../mm.html">Mirrors</A>&nbsp; &gt;
+      &nbsp;<A HREF="../index.html">Home</A>&nbsp; &gt;
+      &nbsp;<A HREF="mmset.html">MPE Home</A>&nbsp; &gt;
+      &nbsp;<A HREF="mmtheorems.html">Th. List</A>&nbsp; &gt;
+      &nbsp;prlngsym
+      </FONT>
+    </TD>
+    <TD COLSPAN=2 ALIGN=RIGHT VALIGN=TOP>
+      <FONT SIZE=-2 FACE=sans-serif>
+<A HREF="http://metamath.tirix.org/mpests/prlngsym.html">Structured
+version</A>&nbsp;&nbsp; <A
+HREF="https://expln.github.io/metamath/asrt/prlngsym.html">Visualization
+version</A>&nbsp;&nbsp; 
+      <A HREF="../mpegif/prlngsym.html">GIF version</A>
+      </FONT>
+    </TD>
+  </TR>
+</TABLE>
+<HR NOSHADE SIZE=1>
+<CENTER><B><FONT SIZE="+1">Theorem <FONT
+COLOR="#006633">prlngsym</FONT></FONT></B>&nbsp;<SPAN CLASS=r
+STYLE="color:#008BAB">29070</SPAN></CENTER>
+<CENTER><TABLE><TR><TD ALIGN=LEFT><B>Description: </B>Parallelism is symmetric.
+Theorem 12.5 of [<A HREF="mmset.html#Schwabhauser">Schwabhauser</A>] p. 122.
+         (Contributed by Thierry Arnoux,
+18-Jun-2026.)</TD></TR></TABLE></CENTER>
+
+<CENTER><TABLE BORDER CELLSPACING=0 BGCOLOR="#EEFFFA"
+SUMMARY="Hypotheses">
+<CAPTION><B>Hypotheses</B></CAPTION>
+<TR><TH>Ref
+</TH><TH>Expression</TH></TR>
+<TR ALIGN=LEFT><TD>brprlng.l</TD><TD>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN><SPAN
+CLASS=class STYLE="color:#C3C">&#x1D43F;</SPAN> = (LineG&lsquo;<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D43A;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>brprlng.e</TD><TD>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN><SPAN
+CLASS=class STYLE="color:#C3C">&#x1D438;</SPAN> = (hlG&lsquo;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>brprlng.p</TD><TD>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN> <SPAN
+CLASS=symvar STYLE="border-bottom:1px dotted;color:#C3C">&#8741;</SPAN> =
+(parlnG&lsquo;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>brprlng.g</TD><TD>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN> &isin; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D449;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>prlngsym.1</TD><TD>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> <SPAN CLASS=symvar
+STYLE="border-bottom:1px dotted;color:#C3C">&#8741;</SPAN> <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>)</SPAN></TD></TR>
+</TABLE></CENTER>
+<CENTER><TABLE BORDER CELLSPACING=0 BGCOLOR="#EEFFFA"
+SUMMARY="Assertion">
+<CAPTION><B>Assertion</B></CAPTION>
+<TR><TH>Ref
+</TH><TH>Expression</TH></TR>
+<TR ALIGN=LEFT><TD><FONT COLOR="#006633"><B>prlngsym</B></FONT></TD><TD>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> <SPAN CLASS=symvar
+STYLE="border-bottom:1px dotted;color:#C3C">&#8741;</SPAN> <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>)</SPAN></TD></TR>
+</TABLE></CENTER>
+
+
+<HR NOSHADE SIZE=1>
+<CENTER><B>Proof of Theorem <FONT
+   COLOR="#006633">prlngsym</FONT></B></CENTER>
+<CENTER><A HREF="mmset.html#dvnote1">Dummy variable</A> <SPAN CLASS=math> <SPAN
+CLASS=setvar STYLE="color:red">&#x210E;</SPAN></SPAN> is distinct from all
+other variables.</CENTER>
+<CENTER><TABLE BORDER CELLSPACING=0 BGCOLOR="#EEFFFA"
+SUMMARY="Proof of theorem">
+<TR><TH>Step</TH><TH>Hyp</TH><TH>Ref
+</TH><TH>Expression</TH></TR>
+<TR ALIGN=LEFT><TD>1</TD><TD>&nbsp;</TD><TD>prlngsym.1</TD><TD><A NAME="1"></A>
+<SPAN CLASS=i>. . . . . 6</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> <SPAN CLASS=symvar
+STYLE="border-bottom:1px dotted;color:#C3C">&#8741;</SPAN> <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>2</TD><TD>&nbsp;</TD><TD>brprlng.l</TD><TD><A NAME="2"></A>
+<SPAN CLASS=i>. . . . . . 7</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN><SPAN
+CLASS=class STYLE="color:#C3C">&#x1D43F;</SPAN> = (LineG&lsquo;<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D43A;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>3</TD><TD>&nbsp;</TD><TD>brprlng.e</TD><TD><A NAME="3"></A>
+<SPAN CLASS=i>. . . . . . 7</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN><SPAN
+CLASS=class STYLE="color:#C3C">&#x1D438;</SPAN> = (hlG&lsquo;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>4</TD><TD>&nbsp;</TD><TD>brprlng.p</TD><TD><A NAME="4"></A>
+<SPAN CLASS=i>. . . . . . 7</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN> <SPAN
+CLASS=symvar STYLE="border-bottom:1px dotted;color:#C3C">&#8741;</SPAN> =
+(parlnG&lsquo;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>5</TD><TD>&nbsp;</TD><TD>brprlng.g</TD><TD><A NAME="5"></A>
+<SPAN CLASS=i>. . . . . . 7</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43A;</SPAN> &isin; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D449;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>6</TD><TD><A HREF="#2">2</A>, <A HREF="#3">3</A>, <A
+HREF="#4">4</A>, <A HREF="#5">5</A></TD><TD><A HREF="brprlng.html"
+TITLE="Property of two lines ` A ` and ` B ` to be parallel. (Contributed by Thierry...">brprlng</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#008BAB">29067</SPAN></TD><TD><A NAME="6"></A>
+<SPAN CLASS=i>. . . . . 6</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> <SPAN CLASS=symvar
+STYLE="border-bottom:1px dotted;color:#C3C">&#8741;</SPAN> <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &harr; ((<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43F;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43F;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &or; (&exist;<SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D438;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) = &empty;)))))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>7</TD><TD><A HREF="#1">1</A>, <A HREF="#6">6</A></TD><TD><A
+HREF="mpbid.html"
+TITLE="A deduction from a biconditional, related to modus ponens. (Contributed by NM,...">mpbid</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0100">234</SPAN></TD><TD><A NAME="7"></A>
+<SPAN CLASS=i>. . . . 5</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; ((<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43F;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43F;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &or; (&exist;<SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D438;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) = &empty;))))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>8</TD><TD><A HREF="#7">7</A></TD><TD><A HREF="simpld.html"
+TITLE="Deduction eliminating a conjunct. A translation of natural deduction rule ` /\ ` EL...">simpld</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F90300">498</SPAN></TD><TD><A NAME="8"></A>
+<SPAN CLASS=i>. . . 4</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43F;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43F;</SPAN>))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>9</TD><TD><A HREF="#8">8</A></TD><TD><A HREF="simprd.html"
+TITLE="Deduction eliminating a conjunct. (Contributed by NM, 14-May-1993.) A translation of...">simprd</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F90300">499</SPAN></TD><TD><A NAME="9"></A>
+<SPAN CLASS=i>. . 3</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43F;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>10</TD><TD><A HREF="#8">8</A></TD><TD><A HREF="simpld.html"
+TITLE="Deduction eliminating a conjunct. A translation of natural deduction rule ` /\ ` EL...">simpld</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F90300">498</SPAN></TD><TD><A NAME="10"></A>
+<SPAN CLASS=i>. . 3</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43F;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>11</TD><TD>&nbsp;</TD><TD><A HREF="eqcom.html"
+TITLE="Commutative law for class equality. Theorem 6.5 of [Quine] p. 41. (Contributed by...">eqcom</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F21D00">2771</SPAN></TD><TD><A NAME="11"></A>
+<SPAN CLASS=i>. . . . 5</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &harr; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>12</TD><TD><A HREF="#11">11</A></TD><TD><A
+HREF="bilani.html"
+TITLE="Inference adding a conjunct to the left-hand side of a biconditional. (Contributed...">bilani</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F90300">508</SPAN></TD><TD><A NAME="12"></A>
+<SPAN CLASS=i>. . . 4</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) &rarr; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>13</TD><TD>&nbsp;</TD><TD><A HREF="ancom.html"
+TITLE="Commutative law for conjunction. Theorem *4.3 of [WhiteheadRussell] p. 118....">ancom</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F90300">464</SPAN></TD><TD><A NAME="13"></A>
+<SPAN CLASS=i>. . . . . . . 8</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>) &harr; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>14</TD><TD><A HREF="#13">13</A></TD><TD><A HREF="a1i.html"
+TITLE="Inference introducing an antecedent. Inference associated with ~ ax-1 . Its...">a1i</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0000">11</SPAN></TD><TD><A NAME="14"></A>
+<SPAN CLASS=i>. . . . . . 7</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; ((<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>) &harr; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>)))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>15</TD><TD><A HREF="#14">14</A></TD><TD><A
+HREF="rexbidv.html"
+TITLE="Formula-building rule for restricted existential quantifier (deduction form)....">rexbidv</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F02400">3188</SPAN></TD><TD><A NAME="15"></A>
+<SPAN CLASS=i>. . . . . 6</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; (&exist;<SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D438;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>) &harr; &exist;<SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D438;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>)))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>16</TD><TD>&nbsp;</TD><TD><A HREF="incom.html"
+TITLE="Commutative law for intersection of classes. Exercise 7 of [TakeutiZaring] p. 17....">incom</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#E93400">4163</SPAN></TD><TD><A NAME="16"></A>
+<SPAN CLASS=i>. . . . . . . 8</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D434;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) = (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>17</TD><TD><A HREF="#16">16</A></TD><TD><A HREF="a1i.html"
+TITLE="Inference introducing an antecedent. Inference associated with ~ ax-1 . Its...">a1i</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0000">11</SPAN></TD><TD><A NAME="17"></A>
+<SPAN CLASS=i>. . . . . . 7</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) = (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>18</TD><TD><A HREF="#17">17</A></TD><TD><A
+HREF="eqeq1d.html"
+TITLE="Deduction from equality to equivalence of equalities. (Contributed by NM,...">eqeq1d</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F21D00">2766</SPAN></TD><TD><A NAME="18"></A>
+<SPAN CLASS=i>. . . . . 6</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; ((<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) = &empty; &harr; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>) = &empty;))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>19</TD><TD><A HREF="#15">15</A>, <A
+HREF="#18">18</A></TD><TD><A HREF="anbi12d.html"
+TITLE="Deduction joining two equivalences to form equivalence of conjunctions. (Contributed...">anbi12d</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F90400">641</SPAN></TD><TD><A NAME="19"></A>
+<SPAN CLASS=i>. . . . 5</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; ((&exist;<SPAN
+CLASS=setvar STYLE="color:red">&#x210E;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D438;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) = &empty;) &harr; (&exist;<SPAN
+CLASS=setvar STYLE="color:red">&#x210E;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D438;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>) = &empty;)))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>20</TD><TD><A HREF="#19">19</A></TD><TD><A
+HREF="biimpa.html"
+TITLE="Importation inference from a logical equivalence. (Contributed by NM, 3-May-1994.)">biimpa</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F90300">480</SPAN></TD><TD><A NAME="20"></A>
+<SPAN CLASS=i>. . . 4</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>((<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &and; (&exist;<SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D438;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) = &empty;)) &rarr; (&exist;<SPAN
+CLASS=setvar STYLE="color:red">&#x210E;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D438;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>) = &empty;))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>21</TD><TD><A HREF="#7">7</A></TD><TD><A HREF="simprd.html"
+TITLE="Deduction eliminating a conjunct. (Contributed by NM, 14-May-1993.) A translation of...">simprd</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F90300">499</SPAN></TD><TD><A NAME="21"></A>
+<SPAN CLASS=i>. . . 4</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &or; (&exist;<SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D438;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>) = &empty;)))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>22</TD><TD><A HREF="#12">12</A>, <A HREF="#20">20</A>, <A
+HREF="#21">21</A></TD><TD><A HREF="orim12da.html"
+TITLE="Deduce a disjunction from another one. Variation on ~ orim12d . (Contributed by...">orim12da</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F80600">978</SPAN></TD><TD><A NAME="22"></A>
+<SPAN CLASS=i>. . 3</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &or; (&exist;<SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D438;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>) = &empty;)))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>23</TD><TD><A HREF="#9">9</A>, <A HREF="#10">10</A>, <A
+HREF="#22">22</A></TD><TD><A HREF="jca31.html"
+TITLE="Join three consequents. (Contributed by Jeff Hankins, 1-Aug-2009.)">jca31</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F90300">522</SPAN></TD><TD><A NAME="23"></A>
+<SPAN CLASS=i>. 2</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; ((<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43F;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43F;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &or; (&exist;<SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D438;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>) = &empty;))))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>24</TD><TD><A HREF="#2">2</A>, <A HREF="#3">3</A>, <A
+HREF="#4">4</A>, <A HREF="#5">5</A></TD><TD><A HREF="brprlng.html"
+TITLE="Property of two lines ` A ` and ` B ` to be parallel. (Contributed by Thierry...">brprlng</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#008BAB">29067</SPAN></TD><TD><A NAME="24"></A>
+<SPAN CLASS=i>. 2</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> <SPAN CLASS=symvar
+STYLE="border-bottom:1px dotted;color:#C3C">&#8741;</SPAN> <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &harr; ((<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43F;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D43F;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> = <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &or; (&exist;<SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &isin; ran <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D438;</SPAN>(<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN> &and; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN> &#8838; <SPAN CLASS=setvar
+STYLE="color:red">&#x210E;</SPAN>) &and; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> &cap; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>) = &empty;)))))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>25</TD><TD><A HREF="#23">23</A>, <A
+HREF="#24">24</A></TD><TD><A HREF="mpbird.html"
+TITLE="A deduction from a biconditional, related to modus ponens. (Contributed by NM,...">mpbird</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0100">259</SPAN></TD><TD><A NAME="25"></A>
+<SPAN CLASS=i>1</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=wff STYLE="color:blue">&#x1D711;</SPAN> &rarr; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN> <SPAN CLASS=symvar
+STYLE="border-bottom:1px dotted;color:#C3C">&#8741;</SPAN> <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D434;</SPAN>)</SPAN></TD></TR>
+</TABLE></CENTER>
+<CENTER><TABLE CELLSPACING=5><TR><TD ALIGN=LEFT><FONT SIZE=-1><B>Colors of
+variables:</B>  <SPAN CLASS=wff STYLE="color:blue;font-style:normal">wff</SPAN>
+<SPAN CLASS=setvar STYLE="color:red;font-style:normal">setvar</SPAN> <SPAN
+CLASS=class STYLE="color:#C3C;font-style:normal">class</SPAN></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>Syntax hints:</B>  &nbsp;<SPAN CLASS=math>
+&rarr; </SPAN><A HREF="wi.html">wi</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#FA0000">4</SPAN> &nbsp;<SPAN CLASS=math> &harr; </SPAN><A
+HREF="wb.html">wb</A>&nbsp;<SPAN CLASS=r STYLE="color:#FA0100">208</SPAN>
+&nbsp;<SPAN CLASS=math> &and; </SPAN><A HREF="wa.html">wa</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0200">399</SPAN> &nbsp;<SPAN CLASS=math> &or; </SPAN><A
+HREF="wo.html">wo</A>&nbsp;<SPAN CLASS=r STYLE="color:#F90500">858</SPAN>
+&nbsp;<SPAN CLASS=math> = </SPAN><A HREF="wceq.html">wceq</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F70A00">1562</SPAN> &nbsp;<SPAN CLASS=math> &isin;
+</SPAN><A HREF="wcel.html">wcel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51200">2144</SPAN> &nbsp;<SPAN CLASS=math>&exist;</SPAN><A
+HREF="wrex.html">wrex</A>&nbsp;<SPAN CLASS=r STYLE="color:#F02200">3088</SPAN>
+&nbsp;<SPAN CLASS=math> &cap; </SPAN><A HREF="cin.html">cin</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#EB3000">3905</SPAN> &nbsp;<SPAN CLASS=math> &#8838;
+</SPAN><A HREF="wss.html">wss</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3906</SPAN> &nbsp;<SPAN CLASS=math>&empty;</SPAN><A
+HREF="c0.html">c0</A>&nbsp;<SPAN CLASS=r STYLE="color:#E73600">4287</SPAN>
+&nbsp;<i> class class class </i><A HREF="wbr.html">wbr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E04200">5102</SPAN> &nbsp;<SPAN CLASS=math>ran </SPAN><A
+HREF="crn.html">crn</A>&nbsp;<SPAN CLASS=r STYLE="color:#DB4900">5650</SPAN>
+&nbsp;<SPAN CLASS=math>&lsquo;</SPAN><A HREF="cfv.html">cfv</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#D25200">6523</SPAN> &nbsp;<SPAN CLASS=math>LineG</SPAN><A
+HREF="clng.html">clng</A>&nbsp;<SPAN CLASS=r STYLE="color:#008C9F">28605</SPAN>
+&nbsp;<SPAN CLASS=math>hlG</SPAN><A HREF="cplng.html">cplng</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#008BA8">28982</SPAN> &nbsp;<SPAN
+CLASS=math>parlnG</SPAN><A HREF="cprlng.html">cprlng</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#008BAB">29065</SPAN></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>This theorem was proved from axioms:</B>
+&nbsp;<A HREF="ax-mp.html">ax-mp</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#FA0000">5</SPAN> &nbsp;<A HREF="ax-1.html">ax-1</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0000">6</SPAN> &nbsp;<A
+HREF="ax-2.html">ax-2</A>&nbsp;<SPAN CLASS=r STYLE="color:#FA0000">7</SPAN>
+&nbsp;<A HREF="ax-3.html">ax-3</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#FA0000">8</SPAN> &nbsp;<A
+HREF="ax-gen.html">ax-gen</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F60C00">1817</SPAN> &nbsp;<A HREF="ax-4.html">ax-4</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F60C00">1831</SPAN> &nbsp;<A
+HREF="ax-5.html">ax-5</A>&nbsp;<SPAN CLASS=r STYLE="color:#F60E00">1932</SPAN>
+&nbsp;<A HREF="ax-6.html">ax-6</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F60F00">1989</SPAN> &nbsp;<A HREF="ax-7.html">ax-7</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F51000">2030</SPAN> &nbsp;<A
+HREF="ax-8.html">ax-8</A>&nbsp;<SPAN CLASS=r STYLE="color:#F51200">2146</SPAN>
+&nbsp;<A HREF="ax-9.html">ax-9</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51200">2154</SPAN> &nbsp;<A
+HREF="ax-10.html">ax-10</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51200">2177</SPAN> &nbsp;<A
+HREF="ax-11.html">ax-11</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51200">2193</SPAN> &nbsp;<A
+HREF="ax-12.html">ax-12</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F41300">2214</SPAN> &nbsp;<A
+HREF="ax-ext.html">ax-ext</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F21C00">2736</SPAN> &nbsp;<A
+HREF="ax-sep.html">ax-sep</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DF4400">5248</SPAN> &nbsp;<A
+HREF="ax-nul.html">ax-nul</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DF4400">5258</SPAN> &nbsp;<A
+HREF="ax-pow.html">ax-pow</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DE4500">5324</SPAN> &nbsp;<A
+HREF="ax-pr.html">ax-pr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DE4600">5392</SPAN> &nbsp;<A
+HREF="ax-un.html">ax-un</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#C35E00">7720</SPAN></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>This theorem depends on definitions:</B>
+&nbsp;<A HREF="df-bi.html">df-bi</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#FA0100">209</SPAN> &nbsp;<A
+HREF="df-an.html">df-an</A>&nbsp;<SPAN CLASS=r STYLE="color:#FA0200">400</SPAN>
+&nbsp;<A HREF="df-or.html">df-or</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F90500">859</SPAN> &nbsp;<A
+HREF="df-3an.html">df-3an</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F80700">1101</SPAN> &nbsp;<A
+HREF="df-tru.html">df-tru</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F70A00">1565</SPAN> &nbsp;<A
+HREF="df-fal.html">df-fal</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F70A00">1575</SPAN> &nbsp;<A
+HREF="df-ex.html">df-ex</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F70B00">1802</SPAN> &nbsp;<A
+HREF="df-nf.html">df-nf</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F60C00">1806</SPAN> &nbsp;<A
+HREF="df-sb.html">df-sb</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51100">2093</SPAN> &nbsp;<A
+HREF="df-mo.html">df-mo</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F31900">2568</SPAN> &nbsp;<A
+HREF="df-eu.html">df-eu</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F31A00">2598</SPAN> &nbsp;<A
+HREF="df-clab.html">df-clab</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F21C00">2743</SPAN> &nbsp;<A
+HREF="df-cleq.html">df-cleq</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F21C00">2756</SPAN> &nbsp;<A
+HREF="df-clel.html">df-clel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F11E00">2839</SPAN> &nbsp;<A
+HREF="df-nfc.html">df-nfc</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F11F00">2913</SPAN> &nbsp;<A
+HREF="df-ne.html">df-ne</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F12000">2960</SPAN> &nbsp;<A
+HREF="df-ral.html">df-ral</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F02200">3079</SPAN> &nbsp;<A
+HREF="df-rex.html">df-rex</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F02200">3089</SPAN> &nbsp;<A
+HREF="df-rab.html">df-rab</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EE2800">3417</SPAN> &nbsp;<A HREF="df-v.html">df-v</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#EE2900">3458</SPAN> &nbsp;<A
+HREF="df-dif.html">df-dif</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3909</SPAN> &nbsp;<A
+HREF="df-un.html">df-un</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3911</SPAN> &nbsp;<A
+HREF="df-in.html">df-in</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3913</SPAN> &nbsp;<A
+HREF="df-ss.html">df-ss</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3923</SPAN> &nbsp;<A
+HREF="df-nul.html">df-nul</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E73600">4288</SPAN> &nbsp;<A
+HREF="df-if.html">df-if</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E63900">4483</SPAN> &nbsp;<A
+HREF="df-pw.html">df-pw</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E53A00">4559</SPAN> &nbsp;<A
+HREF="df-sn.html">df-sn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E53A00">4585</SPAN> &nbsp;<A
+HREF="df-pr.html">df-pr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E53A00">4587</SPAN> &nbsp;<A
+HREF="df-op.html">df-op</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E53A00">4591</SPAN> &nbsp;<A
+HREF="df-uni.html">df-uni</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E23E00">4868</SPAN> &nbsp;<A
+HREF="df-br.html">df-br</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E04200">5103</SPAN> &nbsp;<A
+HREF="df-opab.html">df-opab</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E04300">5165</SPAN> &nbsp;<A
+HREF="df-mpt.html">df-mpt</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DF4300">5184</SPAN> &nbsp;<A
+HREF="df-id.html">df-id</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DC4800">5544</SPAN> &nbsp;<A
+HREF="df-xp.html">df-xp</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5655</SPAN> &nbsp;<A
+HREF="df-rel.html">df-rel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5656</SPAN> &nbsp;<A
+HREF="df-cnv.html">df-cnv</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5657</SPAN> &nbsp;<A
+HREF="df-co.html">df-co</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5658</SPAN> &nbsp;<A
+HREF="df-dm.html">df-dm</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5659</SPAN> &nbsp;<A
+HREF="df-rn.html">df-rn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5660</SPAN> &nbsp;<A
+HREF="df-iota.html">df-iota</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25100">6479</SPAN> &nbsp;<A
+HREF="df-fun.html">df-fun</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6525</SPAN> &nbsp;<A
+HREF="df-fv.html">df-fv</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6531</SPAN> &nbsp;<A
+HREF="df-prlng.html">df-prlng</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#008BAB">29066</SPAN></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>This theorem is referenced by:</B>
+(None)</FONT></TD></TR>
+</TABLE></CENTER>
+<TABLE BORDER=0 WIDTH="100%">
+<TR><TD WIDTH="25%">&nbsp;</TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM>
+<FONT SIZE=-2 FACE=sans-serif>
+Copyright terms:
+<A HREF="../copyright.html#pd">Public domain</A>
+</FONT></TD><TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="25%">
+<FONT SIZE=-2 FACE=sans-serif>
+<A HREF="http://validator.w3.org/check?uri=referer">
+W3C validator</A>
+</FONT></TD></TR></TABLE>
+</BODY></HTML>
