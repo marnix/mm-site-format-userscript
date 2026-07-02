@@ -108,10 +108,9 @@ export type ImageSampler = (img: Element) => Uint8ClampedArray;
  * null if the colour is not a variable colour (i.e. it is a constant token
  * such as an operator or parenthesis, drawn in black/gray).
  *
- * The lookup is exact colour equality -- no nearest-colour tolerance. Confirmed
- * empirically: each variable GIF's dominant ink pixel matches a legend colour
- * exactly (`_varphi.gif`->(0,0,255), `_x.gif`->(255,0,0), `_ca.gif`->(204,51,204)),
- * because both the glyphs and the legend are generated from the same palette.
+ * Uses a small tolerance (+-2 per channel) when comparing the dominant ink
+ * colour against the legend colours, because browser canvas rendering can
+ * introduce off-by-one deviations from the palette colours in the source GIF.
  */
 export function variableKindOfImg(
   img: Element,
@@ -119,7 +118,21 @@ export function variableKindOfImg(
   sample: ImageSampler,
 ): VariableKind | null {
   const ink = dominantInk(sample(img));
-  return ink ? (colors.get(rgbKey(ink)) ?? null) : null;
+  if (!ink) return null;
+  // Exact match first (fast path).
+  const exact = colors.get(rgbKey(ink));
+  if (exact) return exact;
+  // Fuzzy match: allow +-2 per channel for canvas rendering artifacts.
+  for (const [key, kind] of colors) {
+    const [r, g, b] = key.split(",").map(Number) as [number, number, number];
+    if (
+      Math.abs(ink[0] - r) <= 2 &&
+      Math.abs(ink[1] - g) <= 2 &&
+      Math.abs(ink[2] - b) <= 2
+    )
+      return kind;
+  }
+  return null;
 }
 
 /** Browser sampler: draws the already-loaded <img> to a canvas and reads it. */
