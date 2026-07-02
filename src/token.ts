@@ -88,7 +88,8 @@ function isSubscript(el: Element): boolean {
 
 /** Inline presentational tags that may wrap a constant token mid-expression
  *  (e.g. `<B>&middot;</B>` in mpeuni `\u00B7` scalar-mult operator). Their text
- *  content is absorbed into the current run so subscript folding still works. */
+ *  content is absorbed into the current run so subscript folding still works.
+ *  SUB is included: its text is folded with `sub` tagging for location tracking. */
 const INLINE_FORMATTING_TAGS = new Set([
   "B",
   "SMALL",
@@ -97,6 +98,7 @@ const INLINE_FORMATTING_TAGS = new Set([
   "STRONG",
   "TT",
   "FONT",
+  "SUB",
 ]);
 
 // A character of a constant run, tagged with its source text-node position.
@@ -184,26 +186,25 @@ export function locateMathSpan(
               location: { type: "element", node: el },
             });
         }
-      } else if (isSubscript(el) && run.length > 0) {
-        // Fold the subscript into the preceding token (e.g. `~` + `R` = `~R`),
-        // reusing the base character's position so the token stays located there.
+      } else if (INLINE_FORMATTING_TAGS.has(el.tagName) && run.length > 0) {
+        // Inline formatting or subscript: absorb text into the current run.
+        // Subscript characters are tagged with `sub: el` so the token location
+        // spans from the base character through the subscript element.
         // Push per UTF-16 code unit (not per code point), so run indices stay
-        // aligned with the joined run text's offsets -- a surrogate-pair subscript
-        // (e.g. `\u{1d45f}` (math-italic r) in `\u2191\u{1d45f}` (up-arrow + math-italic r)) would otherwise desync them and the munch's offsets
-        // would run off the end of `run`.
+        // aligned with the joined run text's offsets.
         const base = run[run.length - 1];
-        const subText = el.textContent ?? "";
-        for (let k = 0; k < subText.length; k++)
+        const isSub = isSubscript(el);
+        const chars = el.textContent ?? "";
+        for (let k = 0; k < chars.length; k++)
           run.push({
-            ch: subText[k],
+            ch: chars[k],
             node: base.node,
             offset: base.offset,
-            sub: el,
+            ...(isSub && { sub: el }),
           });
       } else if (INLINE_FORMATTING_TAGS.has(el.tagName)) {
-        // Inline formatting (e.g. <B>, <I>) wrapping a constant token: absorb
-        // its text into the current run so subsequent subscripts can fold into
-        // it (e.g. <B>&middot;</B><SUB>s</SUB> -> token `\u00B7s`).
+        // Same tags but at the START of a run (run.length === 0): no base to
+        // inherit position from, so use the element itself as position anchor.
         const chars = el.textContent ?? "";
         for (let k = 0; k < chars.length; k++)
           run.push({ ch: chars[k], node: node as unknown as Text, offset: k });
