@@ -72,3 +72,20 @@ All `.ts` source files and the generated `dist/mm-site-format.user.js` must be
 character as a `\uXXXX` (or `\u{XXXXX}`) escape in string and regex literals,
 and as an ASCII description in comments. The CI step enforces this with
 `scripts/check-ascii.mjs`.
+
+## Grammar cache version
+
+The userscript caches grammar rules in `localStorage` (keyed by
+`GRAMMAR_CACHE_VERSION` in `src/grammar.ts`). **Bump the version** whenever a
+change alters what `uniAssertionRule` or `gifAssertionRule` would extract from a
+syntax-definition page — otherwise users with stale cached rules will hit parse
+failures that a fresh install would not. Examples that require a bump:
+
+- Changes to tokenization in `locateMathSpan` or `locateGifRun` (affects how
+  rule conclusions/assumptions are read from fetched pages).
+- Changes to `findGifRuns` or `extractGifText` that alter which runs qualify or
+  how their text is joined.
+- Structural changes to `gifAssertionRule` / `uniAssertionRule` themselves.
+
+Changes that do NOT require a bump: parser logic (`parse.ts`), rendering, hover
+behaviour, or anything that only affects how already-extracted rules are used.

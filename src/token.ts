@@ -86,6 +86,19 @@ function isSubscript(el: Element): boolean {
   return el.tagName === "SUB" || el.querySelector("sub") !== null;
 }
 
+/** Inline presentational tags that may wrap a constant token mid-expression
+ *  (e.g. `<B>&middot;</B>` in mpeuni `\u00B7` scalar-mult operator). Their text
+ *  content is absorbed into the current run so subscript folding still works. */
+const INLINE_FORMATTING_TAGS = new Set([
+  "B",
+  "SMALL",
+  "I",
+  "EM",
+  "STRONG",
+  "TT",
+  "FONT",
+]);
+
 // A character of a constant run, tagged with its source text-node position.
 // Folded subscript characters reuse the position of the character they follow
 // and carry the subscript element they came from, so a folded token (e.g. `~R`)
@@ -187,6 +200,13 @@ export function locateMathSpan(
             offset: base.offset,
             sub: el,
           });
+      } else if (INLINE_FORMATTING_TAGS.has(el.tagName)) {
+        // Inline formatting (e.g. <B>, <I>) wrapping a constant token: absorb
+        // its text into the current run so subsequent subscripts can fold into
+        // it (e.g. <B>&middot;</B><SUB>s</SUB> -> token `\u00B7s`).
+        const chars = el.textContent ?? "";
+        for (let k = 0; k < chars.length; k++)
+          run.push({ ch: chars[k], node: node as unknown as Text, offset: k });
       } else {
         // Non-kind element (turnstile, typecode, or a stray subscript): its text
         // is constant tokens, located at the element itself.
