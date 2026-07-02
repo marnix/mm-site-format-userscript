@@ -71,11 +71,14 @@ Unicode and GIF pages.
 1. Install a userscript manager such as
    [Tampermonkey](https://www.tampermonkey.net/) or
    [Violentmonkey](https://violentmonkey.github.io/).
-2. Open this URL — your userscript manager will offer to install the script:
+2. Install the script from
+   [Greasy Fork](https://greasyfork.org/scripts/584794-mm-site-format).
 
-   <https://github.com/marnix/mm-site-format-userscript/releases/latest/download/mm-site-format.user.js>
+Greasy Fork picks up new versions automatically from the
+[GitHub releases](https://github.com/marnix/mm-site-format-userscript/releases).
+As an alternative you can install directly from GitHub:
 
-It tracks the latest release and updates itself from that URL.
+<https://github.com/marnix/mm-site-format-userscript/releases/latest/download/mm-site-format.user.js>
 
 (To build from source instead, see [CONTRIBUTING.md](CONTRIBUTING.md).)
 
