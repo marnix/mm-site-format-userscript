@@ -34,6 +34,9 @@ export function expressionParts(
  * spacers, so it can run before the parse pass.
  */
 export function indentProofExpressions(table: Element): void {
+  // Batch all layout reads first (avoid interleaving reads/writes which forces
+  // reflow on every iteration -- "layout thrashing").
+  const measurements: { cell: HTMLElement; indent: number }[] = [];
   for (const tr of table.querySelectorAll("tr")) {
     const tds = tr.querySelectorAll("td");
     if (tds.length < 4) continue; // header rows / non-step rows
@@ -43,9 +46,11 @@ export function indentProofExpressions(table: Element): void {
     const indent =
       parts.turnstile.getBoundingClientRect().right -
       parts.leader.getBoundingClientRect().left;
-    if (indent > 0) {
-      cell.style.paddingLeft = `${indent}px`;
-      cell.style.textIndent = `${-indent}px`;
-    }
+    if (indent > 0) measurements.push({ cell, indent });
+  }
+  // Apply all writes in one pass (single reflow).
+  for (const { cell, indent } of measurements) {
+    cell.style.paddingLeft = `${indent}px`;
+    cell.style.textIndent = `${-indent}px`;
   }
 }
