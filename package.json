@@ -14,10 +14,10 @@
     "postci": "node scripts/check-ascii.mjs dist"
   },
   "devDependencies": {
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.1.0",
     "concurrently": "^10.0.3",
     "happy-dom": "^20.10.3",
-    "prettier": "^3.8.4",
+    "prettier": "^3.9.4",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.8"
