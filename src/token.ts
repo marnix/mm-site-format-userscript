@@ -41,66 +41,10 @@ export interface LocatedToken {
 function* splitConstants(
   text: string,
 ): Iterable<{ text: string; start: number; end: number }> {
-  // Splits on whitespace, and separates standalone parens/braces from adjacent
-  // non-paren tokens. However, preserves paren-containing constants like `(,)`
-  // and `(/)` where non-delimiter content sits between matched delimiters.
-  // Strategy: split non-whitespace runs, then within each run separate leading/
-  // trailing parens-only segments from an interior that contains non-delimiters.
-  const wordRe = /\S+/g;
-  let wm: RegExpExecArray | null;
-  while ((wm = wordRe.exec(text))) {
-    const word = wm[0];
-    const base = wm.index;
-    // Split off runs of pure delimiters at the start
-    const leading = /^[(){}]+/.exec(word);
-    let i = 0;
-    if (leading) {
-      // Check: is the ENTIRE word delimiters? If not, and there's interior
-      // content between parens (like "(,)"), keep it as one token.
-      const interior = word.slice(leading[0].length);
-      if (interior.length > 0 && /[^(){}\s]/.test(interior)) {
-        // Has non-delimiter content after leading delimiters -- check if it
-        // looks like a balanced paren-wrapped constant (e.g. "(,)", "(/)").
-        const balanced = /^\([^(){}\s]+\)/.exec(word);
-        if (balanced) {
-          yield {
-            text: balanced[0],
-            start: base,
-            end: base + balanced[0].length,
-          };
-          i = balanced[0].length;
-        } else {
-          // Emit each leading delimiter individually
-          for (const ch of leading[0]) {
-            yield { text: ch, start: base + i, end: base + i + 1 };
-            i++;
-          }
-        }
-      } else {
-        // All delimiters, or delimiters only at start with no interior
-        for (const ch of leading[0]) {
-          yield { text: ch, start: base + i, end: base + i + 1 };
-          i++;
-        }
-      }
-    }
-    // Remaining: non-delimiter text possibly followed by trailing delimiters
-    if (i < word.length) {
-      const rest = word.slice(i);
-      const trailing = /[(){}]+$/.exec(rest);
-      const core = trailing ? rest.slice(0, -trailing[0].length) : rest;
-      if (core)
-        yield { text: core, start: base + i, end: base + i + core.length };
-      if (trailing) {
-        const tStart = base + i + core.length;
-        for (let j = 0; j < trailing[0].length; j++)
-          yield {
-            text: trailing[0][j],
-            start: tStart + j,
-            end: tStart + j + 1,
-          };
-      }
-    }
+  const re = /[(){}]|[^(){}\s]+/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text))) {
+    yield { text: m[0], start: m.index, end: m.index + m[0].length };
   }
 }
 
