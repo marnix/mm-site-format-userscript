@@ -5,6 +5,14 @@
 // themselves; this caches the DOM-parse + extraction on top. Results must be
 // JSON-serialisable; `version` namespaces entries so a format change drops them.
 
+/**
+ * When true, the cache bypasses all storage (both in-memory memo and
+ * sessionStorage): every `get()` recomputes from scratch and nothing is
+ * persisted. Flip to `true` during development to always observe cold-cache
+ * behaviour without manually clearing sessionStorage.
+ */
+export const BYPASS_CACHE = false;
+
 /** The subset of Storage (e.g. sessionStorage) the cache uses. */
 export interface KeyValueStore {
   getItem(key: string): string | null;
@@ -21,6 +29,11 @@ export function createCache(
   store: KeyValueStore | null,
   version: string,
 ): Cache {
+  if (BYPASS_CACHE) {
+    // No memoisation, no storage: every get() recomputes fresh.
+    return { get: <T>(_key: string, compute: () => Promise<T>) => compute() };
+  }
+
   const memo = new Map<string, Promise<unknown>>();
   const fullKey = (key: string) => `mmsf:${version}:${key}`;
 
