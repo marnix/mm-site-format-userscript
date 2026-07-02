@@ -115,3 +115,14 @@
   symmetry criterion that doesn't require deep tree comparison (e.g. check if
   both hypotheses use the same set of the rule's variables relative to the
   conclusion).
+
+  Also affects `3eqtr*` transitivity chains (e.g. ballotfilemth step 153): all
+  three hypotheses are equivalent chain links, but one wins by size. Proposed
+  tiebreaker: count how many of the _inference rule's_ conclusion variables
+  appear in each hypothesis (from the rule's general form, not the ground
+  instance). A hypothesis sharing fewer conclusion variables is purely auxiliary
+  (e.g. the middle link `C = B` in `3eqtr2i` proving `A = D`); prefer those with
+  the most, and return null when they tie. This requires passing the inference
+  rule's assumption patterns into `chooseSpine` -- currently it only receives
+  grammar-level parse trees of the expressions, not the theorem's hypothesis
+  structure.
