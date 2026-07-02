@@ -18,7 +18,7 @@ import { gifAssertionRule, uniAssertionRule } from "./rule";
 
 /** Bump when the cached extraction format (grammar rules / URL lists) changes,
  *  so stale entries from an older build are ignored. */
-export const GRAMMAR_CACHE_VERSION = "5";
+export const GRAMMAR_CACHE_VERSION = "6";
 
 type RuleExtractor = (doc: Document) => InferenceRule | null;
 
@@ -122,8 +122,18 @@ async function assembleGrammar(
   // prefix of the other: e.g. cuni (union A, len 3) vs ciun (union x in A B, len 6).
   // The packrat parser takes the first matching rule; without this sort, cuni
   // greedily wins and leaves the indexed-union body unconsumed.
+  // Secondary sort: total character length of constant tokens in the conclusion
+  // (descending). This ensures that cn0 ("NN0", 2 chars) is tried before cn ("NN",
+  // 1 char) when both have the same token count -- critical for the chunk parser
+  // which matches literal constants by startsWith rather than exact token equality.
   const filtered = rules.filter((r): r is InferenceRule => r !== null);
-  filtered.sort((a, b) => b.conclusion.length - a.conclusion.length);
+  const patternCharLen = (r: InferenceRule): number =>
+    r.conclusion.reduce((sum, t) => sum + t.length, 0);
+  filtered.sort(
+    (a, b) =>
+      b.conclusion.length - a.conclusion.length ||
+      patternCharLen(b) - patternCharLen(a),
+  );
   return [topRule, ...filtered];
 }
 

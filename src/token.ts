@@ -20,6 +20,9 @@ export type Token =
   | { kind: null; text: string } // constant: operator, parenthesis, turnstile
   | { kind: VariableKind; text: string }; // typed variable
 
+/** A chunk for the chunk-based parser: same shape as Token. */
+export type Chunk = Token;
+
 /** Where a token was rendered, enough to build a DOM Range for highlighting. */
 export type TokenLocation =
   | { type: "element"; node: Element } // whole element (img / variable span)
@@ -274,6 +277,85 @@ export function tokenizeMathSpan(
   colors?: KindColors,
 ): Token[] {
   return locateMathSpan(span, kinds, vocab, colors).map((lt) => lt.token);
+}
+
+/**
+ * Produces raw chunks from a Unicode <span class=math> for the chunk-based
+ * parser. Variable spans become typed chunks; all constant text (including
+ * concatenated parens/operators) becomes a single text chunk per run. No
+ * splitting of text runs is performed -- the chunk parser handles tokenization
+ * boundaries directly.
+ */
+export function chunkifyMathSpan(
+  span: Element,
+  kinds: Set<string>,
+  colors?: KindColors,
+): { chunks: Chunk[]; locations: TokenLocation[] } {
+  // Walk the DOM directly (like locateMathSpan) but collect raw text content
+  // (preserving whitespace) into text chunks. Variable spans flush the current
+  // text accumulator and emit a variable chunk.
+  const chunks: Chunk[] = [];
+  const locations: TokenLocation[] = [];
+  let textAccum = "";
+  let firstLoc: TokenLocation | null = null;
+
+  const flushText = () => {
+    if (textAccum) {
+      chunks.push({ kind: null, text: textAccum });
+      locations.push(firstLoc!);
+      textAccum = "";
+      firstLoc = null;
+    }
+  };
+
+  const addText = (text: string, loc: TokenLocation) => {
+    if (!text) return;
+    if (!firstLoc) firstLoc = loc;
+    textAccum += text;
+  };
+
+  for (const node of span.childNodes) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as Element;
+      const cls = (el.getAttribute("class") ?? "").trim();
+      if (kinds.has(cls)) {
+        flushText();
+        const text = el.textContent?.trim() ?? "";
+        if (text) {
+          chunks.push({ kind: cls, text });
+          locations.push({ type: "element", node: el });
+        }
+      } else if (cls === "symvar" && colors) {
+        const style = el.getAttribute("style") ?? "";
+        const m = style.match(/color\s*:\s*([^;]+)/i);
+        const rgb = m ? parseCssColor(m[1]) : null;
+        const kind = rgb ? (colors.get(rgbKey(rgb)) ?? null) : null;
+        if (kind) {
+          flushText();
+          const text = el.textContent?.trim() ?? "";
+          if (text) {
+            chunks.push({ kind, text });
+            locations.push({ type: "element", node: el });
+          }
+        }
+      } else if (INLINE_FORMATTING_TAGS.has(el.tagName)) {
+        // Inline formatting (including SUB): absorb text content into the run.
+        const text = el.textContent ?? "";
+        addText(text, { type: "element", node: el });
+      } else {
+        // Non-kind element (turnstile, typecode): absorb its text content.
+        const text = el.textContent ?? "";
+        addText(text, { type: "element", node: el });
+      }
+    } else if (node.nodeType === Node.TEXT_NODE) {
+      const tn = node as Text;
+      const value = tn.nodeValue ?? "";
+      if (value)
+        addText(value, { type: "text", node: tn, start: 0, end: value.length });
+    }
+  }
+  flushText();
+  return { chunks, locations };
 }
 
 /** Tokenizes a GIF run (tokens only). */

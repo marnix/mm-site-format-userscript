@@ -14,13 +14,15 @@ import { findGifRuns, findMathSpans } from "./expression";
 import { parseKindColors, type ImageSampler } from "./kind";
 import type { Fetcher } from "./loader";
 import { TOP_TYPE } from "./database-assumptions";
-import { parseExpression, type KindOf } from "./parse";
+import { parseChunks, parseExpression, type KindOf } from "./parse";
 import type { InferenceRule, Proof } from "./proof";
 import { insertSpacers } from "./space";
 import { gapUnits } from "./spans";
 import {
+  chunkifyMathSpan,
   locateGifRun,
   locateMathSpan,
+  type Chunk,
   type LocatedToken,
   type Token,
   type TokenLocation,
@@ -45,6 +47,27 @@ function buildKindRegistry(
   for (const lts of located) {
     for (const { token } of lts)
       if (token.kind) registry.set(token.text, token.kind);
+  }
+  for (const rule of rules) {
+    for (const a of rule.assumptions) {
+      if (a.length === 2) registry.set(a[1], a[0]);
+    }
+  }
+  return (token) => registry.get(token);
+}
+
+/**
+ * Builds the kind registry from chunks (for the chunk-based parser). Same logic
+ * as buildKindRegistry but takes Chunk[][] instead of LocatedToken[][].
+ */
+function buildChunkKindRegistry(
+  allChunks: Chunk[][],
+  rules: InferenceRule[],
+): KindOf {
+  const registry = new Map<string, string>();
+  for (const chunks of allChunks) {
+    for (const chunk of chunks)
+      if (chunk.kind) registry.set(chunk.text, chunk.kind);
   }
   for (const rule of rules) {
     for (const a of rule.assumptions) {
@@ -136,20 +159,61 @@ export async function parseUniExpressions(
   const colors = parseKindColors(doc);
   const kinds = new Set(colors.values());
   const rules = await assembleUniGrammar(doc, pageUrl, fetcher, cache);
-  // Split dense runs of concatenated constants against the grammar's tokens.
   const constants = collectConstants(rules);
   const spans = findMathSpans(root);
-  const located = spans.map((span) =>
-    locateMathSpan(span, kinds, constants, colors),
-  );
-  const parsed = parseLocated(located, rules);
 
-  return parsed.map((expr, i) => {
-    if (!expr.proof) return expr;
-    insertSpacers(located[i], gapUnits(expr.proof));
-    return withLocations(
-      expr,
-      locateMathSpan(spans[i], kinds, constants, colors),
-    );
+  // Build kindOf from chunks (variables from spans + rule assumptions).
+  const chunked = spans.map((span) => chunkifyMathSpan(span, kinds, colors));
+  const chunkKindOf = buildChunkKindRegistry(
+    chunked.map((c) => c.chunks),
+    rules,
+  );
+
+  // Parse using chunk-based parser (handles concatenated constants like (,)).
+  const turnstile = rules[0]?.conclusion[1];
+  const proofs = chunked.map(({ chunks }) => {
+    // Determine type and select the chunk sub-array to parse.
+    let parseChunksArr = chunks;
+    let type = TOP_TYPE;
+    if (
+      chunks.length > 0 &&
+      chunks[0].kind === null &&
+      chunks[0].text.trimStart().startsWith(turnstile ?? "\0")
+    ) {
+      // Starts with turnstile: parse the full expression as $TOP (the turnstile
+      // is a literal in the $TOP rule's pattern, so the parser matches it).
+      type = TOP_TYPE;
+      parseChunksArr = chunks;
+    } else if (chunks.length > 0 && chunks[0].kind === null) {
+      // First word is a typecode (e.g. "wff" on a syntax-definition page).
+      // Extract it and produce a chunk array starting after the typecode.
+      const text = chunks[0].text;
+      const stripped = text.trimStart();
+      const wordEnd = stripped.search(/\s|$/);
+      type = stripped.slice(0, wordEnd || stripped.length);
+      const afterWord = stripped.slice(wordEnd || stripped.length);
+      if (afterWord.trimStart()) {
+        // Remainder in this chunk after the typecode -- keep it.
+        parseChunksArr = [{ kind: null, text: afterWord }, ...chunks.slice(1)];
+      } else {
+        parseChunksArr = chunks.slice(1);
+      }
+    }
+    return parseChunks(parseChunksArr, type, rules, chunkKindOf);
+  });
+
+  // Re-tokenize with vocab-based splitting for spacing and hover highlighting.
+  return proofs.map((proof, i) => {
+    const located = locateMathSpan(spans[i], kinds, constants, colors);
+    const tokens = located.map((lt) => lt.token);
+    const locations = located.map((lt) => lt.location);
+    if (!proof) return { tokens, locations, proof: null };
+    insertSpacers(located, gapUnits(proof));
+    const relocated = locateMathSpan(spans[i], kinds, constants, colors);
+    return {
+      tokens: relocated.map((lt) => lt.token),
+      locations: relocated.map((lt) => lt.location),
+      proof,
+    };
   });
 }

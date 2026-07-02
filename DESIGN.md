@@ -40,10 +40,15 @@ The parsing kernel and grammar:
   `Proof` (a parse tree _is_ a proof), and `evaluate` (a test-only verifier that
   tree-shakes out of the bundle).
 - **`parse.ts`** — recursive-descent proof search directed by target type,
-  memoised (packrat) with a left-recursion guard.
+  memoised (packrat) with a left-recursion guard. Two entry points: the
+  token-array parser (`parseExpression`, used by GIF) operates on pre-split
+  tokens; the chunk parser (`parseChunks`, used by Unicode) operates on raw text
+  chunks and matches literal constants directly via `startsWith` — no
+  pre-splitting needed (see "Chunk-based parsing" below).
 - **`token.ts`** — splits each rendering into located tokens; the Unicode side
-  munches run-together constants against the grammar vocabulary and folds
-  subscripts.
+  has two modes: `locateMathSpan` with vocab (longest-match `munchConstants`,
+  used for display tokenization) and `chunkifyMathSpan` (raw text chunks
+  preserving whitespace, used as input to the chunk parser).
 - **`kind.ts`** — a variable's kind (wff/setvar/class): from the span class
   (Unicode) or sampled image colour (GIF), via the legend.
 - **`rule.ts`** — one grammar rule from a syntax-definition page.
@@ -128,7 +133,20 @@ would need transitive syntax loading (see TODO — "Correctness").
   search is memoised so dense/nested expressions don't blow up.
 - **Tokenizing the dense Unicode rendering** — `token.ts`: longest-match against
   the constant vocabulary, plus subscript folding (UTF-16-aware for surrogate
-  pairs).
+  pairs). Used for the display layer (hover spans, whitespace insertion).
+- **Chunk-based parsing** — `parse.ts` (`parseChunks`): the Unicode parser
+  operates on raw text chunks (from `chunkifyMathSpan`) rather than pre-split
+  tokens. This avoids the chicken-and-egg problem where tokenization needs to
+  know token boundaries but those boundaries depend on parsing: e.g. `(,)` is a
+  single three-character constant from `cioo`, not three separate parens. The
+  chunk parser matches each rule's literal constants via `startsWith` at the
+  current offset, so it resolves ambiguous boundaries as a by-product of
+  parsing. Memoisation key is `(chunkIndex, charOffset, type)`. The grammar sort
+  uses total constant-char length as a tiebreaker so that longer literals (like
+  `ℕ0`) are tried before shorter prefixes (`ℕ`). Each rule's `matchPattern`
+  determines holes from that rule's own assumptions (not a global registry),
+  preventing cross-rule variable-name collisions (e.g. `+` is a variable in
+  `cseq` but a constant in `crp`).
 - **Choosing the spine** — `spine.ts`: structural overlap of parse trees, then a
   chain of tiebreakers. `structuralOverlap` counts matching positions at the top
   level and one level of children (same rule or both leaves), without recursing
