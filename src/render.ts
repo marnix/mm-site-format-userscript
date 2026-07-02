@@ -29,6 +29,9 @@ export interface RenderOptions {
   diffAlgorithm?: DiffAlgorithm;
   /** Painter for the diff highlight. No diff hover when absent. */
   diffPainter?: Painter;
+  /** Called after a lazily-rendered section is materialised (e.g. subcalc
+   *  expand), so the caller can label proof-ref links in the new content. */
+  onLazyRender?: (root: ParentNode) => void;
 }
 
 const OPERATOR = "\u21d0"; // the `<==` of the calculation
@@ -206,11 +209,19 @@ function appendStep(
   tbody.appendChild(hintRow);
 
   // Non-spine step sub-calculations: indented sub-derivations, in order.
+  // Lazy: only build the full DOM when expanded (saves cloning hundreds of
+  // expression elements upfront on large pages like GIF fouriersw).
   step.subcalculations.forEach((sub, i) => {
     if (sub.kind === "step" && i !== step.spine) {
-      const table = renderCalcTable(sub, options);
-      makeCollapsible(table);
-      tbody.appendChild(row("", table, "subcalc"));
+      const placeholder = document.createElement("table");
+      const pTbody = document.createElement("tbody");
+      placeholder.appendChild(pTbody);
+      // Show just the conclusion row (the expression of the sub-derivation's
+      // root) and a collapse marker; render the rest on first expand.
+      const conclusionExpr = clone(sub.expressionHtml);
+      pTbody.appendChild(row("", conclusionExpr, "expr"));
+      makeLazyCollapsible(placeholder, sub, options);
+      tbody.appendChild(row("", placeholder, "subcalc"));
     }
   });
 
@@ -313,6 +324,77 @@ function makeCollapsible(table: HTMLTableElement): void {
     collapsed = c;
     refresh();
   });
+}
+
+/**
+ * Like makeCollapsible, but defers rendering the sub-calculation's body until
+ * the user first expands it. The table initially shows just a conclusion row
+ * with a collapse marker; on first expand, the full calc is rendered in place.
+ */
+function makeLazyCollapsible(
+  table: HTMLTableElement,
+  calc: Step,
+  options?: RenderOptions,
+): void {
+  const tbody = table.querySelector("tbody")!;
+  const conclusion = tbody.firstElementChild as HTMLElement;
+
+  const marker = document.createElement("span");
+  marker.className = "mm-site-format-fold";
+  const markerCell = (conclusion.firstElementChild ??
+    conclusion) as HTMLElement;
+  markerCell.style.textAlign = "left";
+  markerCell.appendChild(marker);
+
+  let collapsed = true;
+  let rendered = false;
+  let restRows: HTMLElement[] = [];
+
+  const expand = () => {
+    if (!rendered) {
+      // Render the full table and steal its rows (except the first conclusion
+      // row which we already have).
+      const full = renderCalcTable(calc, options);
+      const fullTbody = full.querySelector("tbody")!;
+      const fullRows = [...fullTbody.children] as HTMLElement[];
+      // Skip the first row (conclusion) -- we already show ours.
+      restRows = fullRows.slice(1);
+      for (const r of restRows) tbody.appendChild(r);
+      // The first non-conclusion row (the hint) is clickable for collapsing.
+      if (restRows.length > 0) {
+        restRows[0].style.cursor = "pointer";
+        restRows[0].addEventListener("click", toggle);
+      }
+      rendered = true;
+      options?.onLazyRender?.(tbody);
+    }
+    for (const r of restRows) r.style.display = "";
+    marker.textContent = "\u25bc";
+  };
+
+  const refresh = () => {
+    if (collapsed) {
+      for (const r of restRows) r.style.display = "none";
+      marker.textContent = "\u25b6";
+    } else {
+      expand();
+    }
+  };
+  const toggle = () => {
+    collapsed = !collapsed;
+    refresh();
+  };
+  marker.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggle();
+  });
+  // The conclusion row itself is clickable (no separate hint row yet).
+  conclusion.style.cursor = "pointer";
+  conclusion.addEventListener("click", toggle);
+  refresh();
+  // Note: lazy subcalcs are NOT registered in pendingSetters, so
+  // setCalcCollapsed (used by sizeToExpandedWidth) does not force-render them.
+  // Their content only materialises on user interaction.
 }
 
 export function renderCalcTable(

@@ -63,20 +63,23 @@ describe("renderCalculation", () => {
   it("collapses sub-calculations by default; a marker (or the hint) toggles them", () => {
     const box = renderCalculation(sample());
     const nested = box.querySelectorAll("table")[1]; // the a1i sub-calc
-    const rows = [...nested.querySelector("tbody")!.children] as HTMLElement[];
+    const tbody = nested.querySelector("tbody")!;
+    let rows = [...tbody.children] as HTMLElement[];
 
-    // Conclusion (STEP3) stays; the hint and the rest are hidden.
+    // In collapsed (lazy) state, only the conclusion row is present.
     expect(rows[0].style.display).not.toBe("none");
     expect(rows[0].textContent).toContain("STEP3");
-    expect(rows[1].style.display).toBe("none"); // \u21d0 (<==) { a1i }
-    expect(rows[2].style.display).toBe("none"); // HYP2
+    // Remaining rows are not yet rendered (lazy).
+    expect(rows).toHaveLength(1);
 
-    // A disclosure marker on the conclusion expands it on click.
+    // A disclosure marker on the conclusion expands it on click (renders rest).
     const marker = nested.querySelector(".mm-site-format-fold") as HTMLElement;
     expect(marker).not.toBeNull();
     marker.click();
-    expect(rows[1].style.display).toBe("");
-    expect(rows[2].style.display).toBe("");
+    rows = [...tbody.children] as HTMLElement[];
+    expect(rows.length).toBeGreaterThan(1);
+    expect(rows[1].style.display).toBe(""); // hint row now visible
+    expect(rows[2].style.display).toBe(""); // leaf row now visible
 
     // Clicking the hint collapses it again.
     rows[1].click();

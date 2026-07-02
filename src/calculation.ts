@@ -108,14 +108,18 @@ export function proofTreeToCalculation(
     return {
       kind: "given",
       hypothesisRefHtml: tree.refHtml,
-      expressionHtml: tree.expressionHtml,
+      get expressionHtml() {
+        return tree.expressionHtml;
+      },
     };
   const spineIndex = spineFor(tree, anchor);
   const nextAnchor = tokensFor(tree);
   const step: Step = {
     kind: "step",
     inferenceRuleRefHtml: tree.refHtml,
-    expressionHtml: tree.expressionHtml,
+    get expressionHtml() {
+      return tree.expressionHtml;
+    },
     subcalculations: tree.subproofs.map((s, i) => {
       // On the spine: spineShared nodes expand normally.
       // Off the spine: spineShared nodes are treated as givens (like shared).

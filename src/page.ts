@@ -126,16 +126,20 @@ export async function parseGifExpressions(
   root: Node = doc,
   cache: Cache = createCache(null, GRAMMAR_CACHE_VERSION),
 ): Promise<ParsedExpression[]> {
+  const t0 = PERF_LOG ? performance.now() : 0;
   const colors = parseKindColors(doc);
   const kindCache = new Map<string, string | null>();
   const runs = findGifRuns(root);
   const located = runs.map((run) =>
     locateGifRun(run, colors, sample, kindCache),
   );
+  const t1 = PERF_LOG ? performance.now() : 0;
   const rules = await assembleGifGrammar(doc, pageUrl, fetcher, cache);
+  const t2 = PERF_LOG ? performance.now() : 0;
   const parsed = parseLocated(located, rules);
+  const t3 = PERF_LOG ? performance.now() : 0;
 
-  return parsed.map((expr, i) => {
+  const result = parsed.map((expr, i) => {
     if (!expr.proof) return expr;
     const nodes = [...runs[i]]; // kept in sync as spacing splits text nodes
     insertSpacers(located[i], gapUnits(expr.proof), (oldNode, freshNode) => {
@@ -144,6 +148,21 @@ export async function parseGifExpressions(
     });
     return withLocations(expr, locateGifRun(nodes, colors, sample, kindCache));
   });
+
+  if (PERF_LOG) {
+    const t4 = performance.now();
+    const parsedCount = parsed.filter((e) => e.proof !== null).length;
+    console.log(
+      `[mm-site-format] PERF parseGifExpressions: ` +
+        `${runs.length} runs, ${parsedCount} parsed, ${rules.length} rules | ` +
+        `tokenize=${(t1 - t0).toFixed(0)}ms ` +
+        `grammar=${(t2 - t1).toFixed(0)}ms ` +
+        `parse=${(t3 - t2).toFixed(0)}ms ` +
+        `space=${(t4 - t3).toFixed(0)}ms ` +
+        `total=${(t4 - t0).toFixed(0)}ms`,
+    );
+  }
+  return result;
 }
 
 /** Parses every Unicode expression on the page (kinds via span class). The

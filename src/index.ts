@@ -33,7 +33,7 @@ import {
 } from "./rule-tooltip";
 import { anchorSpine, chooseSpine, isSmallStep } from "./spine";
 import { injectStyles } from "./styles";
-import { parseProofTable } from "./table";
+import { materializeExpressions, parseProofTableLazy } from "./table";
 import { formatTokens } from "./token";
 import { installParseWarning, isProofExpression } from "./parse-status";
 import { applyViewToLinks, installViewToggle, tableSelected } from "./view";
@@ -80,17 +80,26 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   const proofTable = document.querySelector<HTMLTableElement>(
     'table[summary="Proof of theorem"]',
   );
-  const proofResult = parseProofTable(document);
+  const proofResult = parseProofTableLazy(document);
   const proofTree = proofResult?.tree ?? null;
   const stepOf = proofResult?.stepOf ?? new Map<ProofTree, number>();
+  const _tParseTree = PERF_LOG ? performance.now() : 0;
 
   // Hang-indent the proof table's wrapped Expression lines. Do it now, while the
   // table is still laid out and visible (before the early grid hide below).
   if (proofTable) indentProofExpressions(proofTable);
+  const _tIndent = PERF_LOG ? performance.now() : 0;
+
+  // Deep-clone expression cells now, after indent has read the layout but before
+  // the spacer pass modifies them in-place.
+  if (proofTree) materializeExpressions(proofTree);
   if (PERF_LOG) {
     const t = performance.now();
     console.log(
-      `[mm-site-format] PERF setup: ${(t - _perfStart).toFixed(0)}ms`,
+      `[mm-site-format] PERF setup: ${(t - _perfStart).toFixed(0)}ms` +
+        ` (parseTable=${(_tParseTree - _perfStart).toFixed(0)}ms` +
+        ` indent=${(_tIndent - _tParseTree).toFixed(0)}ms` +
+        ` cloneExprs=${(t - _tIndent).toFixed(0)}ms)`,
     );
   }
 
@@ -221,7 +230,9 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
 
   const showCalculation = (results: ParsedExpression[]): HTMLElement | null => {
     if (!proofTree || !proofTable) return null;
+    const _t0 = PERF_LOG ? performance.now() : 0;
     const { spineFor, smallFor, tokensOf: tokensOf_ } = choosers(results);
+    const _t1 = PERF_LOG ? performance.now() : 0;
 
     // Detect shared sub-derivations and extract them as separate blocks.
     const shared = findSharedNodes(proofTree);
@@ -266,6 +277,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       leafShared,
       new Set(extracted),
     );
+    const _t2 = PERF_LOG ? performance.now() : 0;
 
     // Determine which extracted nodes ended up on the spine (expanded inline)
     // so we don't render a redundant mini-calc for them.
@@ -299,12 +311,19 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     // Restore original refHtml for the extracted mini-calculations.
     for (const [node, ref] of savedRefs) node.refHtml = ref;
 
+    // Mutable slot: filled after the mini-calc labeling infrastructure is ready,
+    // so lazy renders (subcalcs and mini-calcs) can label their proof-ref links.
+    let labelNewContent: ((root: ParentNode) => void) | null = null;
+
     const renderOpts = {
       fetchRuleTooltip,
       diffPainter: diffPainter ?? undefined,
       exprFor,
+      onLazyRender: (root: ParentNode) => labelNewContent?.(root),
     };
     const rendered = renderCalculation(calc, renderOpts);
+    const _t3 = PERF_LOG ? performance.now() : 0;
+    let _t4 = 0;
 
     // Give on-spine shared expressions an anchor id so "(N)" links can target
     // them. Find them by matching expressionHtml via data attributes set before
@@ -340,32 +359,6 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         (a, b) => (stepOf.get(b) ?? 0) - (stepOf.get(a) ?? 0),
       );
       for (const node of ordered) {
-        // Pass the shared set (excluding this node itself) so nested shared
-        // nodes are also cut short and referenced by label.
-        const others = new Set(shared);
-        others.delete(node);
-        // Set up synthetic "(N)" hyperlink refs for nested shared nodes
-        // (both on-spine and off-spine may appear as givens in mini-calcs).
-        const nestedSaved = new Map<ProofTree, Element>();
-        for (const other of extracted) {
-          if (other === node) continue;
-          const m = stepOf.get(other);
-          if (m !== undefined) {
-            nestedSaved.set(other, other.refHtml);
-            other.refHtml = makeProofRef(m);
-          }
-        }
-        const miniCalc = proofTreeToCalculation(
-          node,
-          spineFor,
-          smallFor,
-          tokensOf_,
-          null,
-          others,
-        );
-        // Restore refs.
-        for (const [other, ref] of nestedSaved) other.refHtml = ref;
-
         const n = stepOf.get(node);
         const wrapper = document.createElement("div");
         wrapper.id = n !== undefined ? `mm-site-format-proof-${n}` : "";
@@ -373,10 +366,42 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         label.className = "mm-site-format-calc-label";
         label.textContent = n !== undefined ? `Proof of (${n}):` : "Proof:";
         wrapper.appendChild(label);
-        wrapper.appendChild(renderCalcTable(miniCalc, renderOpts));
+        // Defer the expensive proofTreeToCalculation + renderCalcTable until
+        // the mini-calc is first made visible.
+        let rendered_ = false;
+        const renderMiniCalc = () => {
+          if (rendered_) return;
+          rendered_ = true;
+          const others = new Set(shared);
+          others.delete(node);
+          const nestedSaved = new Map<ProofTree, Element>();
+          for (const other of extracted) {
+            if (other === node) continue;
+            const m = stepOf.get(other);
+            if (m !== undefined) {
+              nestedSaved.set(other, other.refHtml);
+              other.refHtml = makeProofRef(m);
+            }
+          }
+          const miniCalc = proofTreeToCalculation(
+            node,
+            spineFor,
+            smallFor,
+            tokensOf_,
+            null,
+            others,
+          );
+          for (const [other, ref] of nestedSaved) other.refHtml = ref;
+          wrapper.appendChild(renderCalcTable(miniCalc, renderOpts));
+          labelNewContent?.(wrapper);
+        };
+        (
+          wrapper as HTMLElement & { __renderMiniCalc?: () => void }
+        ).__renderMiniCalc = renderMiniCalc;
+        wrapper.style.display = "none"; // start hidden; updateMiniCalcVisibility will show
         box.appendChild(wrapper);
       }
-
+      _t4 = PERF_LOG ? performance.now() : 0;
       // Delegated click handler: ensure the target mini-calc is visible before
       // the browser navigates to the fragment (which pushes a history entry and
       // scrolls). Browser Back then returns to the previous position.
@@ -388,6 +413,10 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         const id = link.getAttribute("href")!.slice(1);
         const target = document.getElementById(id);
         if (target && target.style.display === "none") {
+          const lazy = target as HTMLElement & {
+            __renderMiniCalc?: () => void;
+          };
+          lazy.__renderMiniCalc?.();
           target.style.display = "";
         }
       });
@@ -403,8 +432,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         for (const id of miniCalcIds) {
           const wrapper = document.getElementById(id);
           if (!wrapper) continue;
-          // Check if any link referencing this id is visible (not inside a
-          // hidden row).
+          // Query live DOM (handles lazily-rendered content).
           const links = box.querySelectorAll(`a[href="#${id}"]`);
           let anyVisible = false;
           for (const link of links) {
@@ -423,8 +451,16 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
             }
           }
           const desired = anyVisible ? "" : "none";
-          if (wrapper.style.display !== desired)
+          if (wrapper.style.display !== desired) {
+            if (desired === "") {
+              // Trigger lazy rendering on first show.
+              const lazy = wrapper as HTMLElement & {
+                __renderMiniCalc?: () => void;
+              };
+              lazy.__renderMiniCalc?.();
+            }
             wrapper.style.display = desired;
+          }
         }
       };
       updateMiniCalcVisibility();
@@ -440,21 +476,32 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
 
       // Label each "(N)" link with "below" or "above" based on DOM order
       // relative to its target mini-calc or spine row.
-      for (const link of box.querySelectorAll("a.mm-site-format-proof-ref")) {
-        const id = link.getAttribute("href")?.slice(1);
-        if (!id) continue;
-        const target =
-          box.querySelector(`#${id}`) ?? document.getElementById(id);
-        if (!target) continue;
-        // Skip labels that are inside their own target (the on-spine label IS
-        // the anchor, not a reference to it).
-        if (target.contains(link)) continue;
-        // Node.DOCUMENT_POSITION_FOLLOWING = 4: target is after link
-        const pos = link.compareDocumentPosition(target);
-        const dir = pos & Node.DOCUMENT_POSITION_FOLLOWING ? "below" : "above";
-        const n = id.replace("mm-site-format-proof-", "");
-        link.textContent = `(${n}) ${dir}`;
-      }
+      // Pre-build a map of anchor id -> element for O(1) lookups.
+      const anchorById = new Map<string, Element>();
+      for (const el of box.querySelectorAll("[id^='mm-site-format-proof-']"))
+        anchorById.set(el.id, el);
+
+      const labelProofRefs = (root: ParentNode) => {
+        for (const link of root.querySelectorAll(
+          "a.mm-site-format-proof-ref",
+        )) {
+          const id = link.getAttribute("href")?.slice(1);
+          if (!id) continue;
+          const target = anchorById.get(id) ?? document.getElementById(id);
+          if (!target) continue;
+          // Skip labels that are inside their own target (the on-spine label IS
+          // the anchor, not a reference to it).
+          if (target.contains(link)) continue;
+          // Node.DOCUMENT_POSITION_FOLLOWING = 4: target is after link
+          const pos = link.compareDocumentPosition(target);
+          const dir =
+            pos & Node.DOCUMENT_POSITION_FOLLOWING ? "below" : "above";
+          const n = id.replace("mm-site-format-proof-", "");
+          link.textContent = `(${n}) ${dir}`;
+        }
+      };
+      labelProofRefs(box);
+      labelNewContent = labelProofRefs;
     }
 
     // Into the caption, below the "Proof of Theorem" heading -- so the heading
@@ -463,6 +510,16 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     if (caption) caption.appendChild(rendered);
     else proofTable.parentNode?.insertBefore(rendered, proofTable);
     installViewToggle(rendered, proofTable);
+    if (PERF_LOG)
+      console.log(
+        `[mm-site-format] PERF showCalculation: ` +
+          `choosers=${(_t1 - _t0).toFixed(0)}ms ` +
+          `proofTreeToCalc=${(_t2 - _t1).toFixed(0)}ms ` +
+          `renderMain=${(_t3 - _t2).toFixed(0)}ms ` +
+          `miniCalcs=${((_t4 || _t3) - _t3).toFixed(0)}ms ` +
+          `postProcess=${(performance.now() - (_t4 || _t3)).toFixed(0)}ms ` +
+          `total=${(performance.now() - _t0).toFixed(0)}ms`,
+      );
     return rendered;
   };
 
@@ -538,10 +595,15 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       .then((results) => {
         const _tParsed = PERF_LOG ? performance.now() : 0;
         addToIndex(results);
+        if (PERF_LOG) console.log(`[mm-site-format] PERF addToIndex done`);
         finish((r) => installHover(r, occIndex, highlighter))(results);
+        if (PERF_LOG)
+          console.log(`[mm-site-format] PERF finish+installHover done`);
         const _tHover = PERF_LOG ? performance.now() : 0;
         // The calculation clones expressions; give those clones the same
         // parsing, whitespace and hover by running the pass again, scoped to it.
+        if (PERF_LOG)
+          console.log(`[mm-site-format] PERF calling showCalculation...`);
         const calc = showCalculation(results);
         if (PERF_LOG) {
           const t = performance.now();
@@ -570,8 +632,8 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       })
       .catch(restoreGrid);
   } else {
-    // GIF page: colour sampling needs the variable images decoded, so let the
-    // browser signal readiness via img.decode() before parsing.
+    // GIF page: colour sampling needs the variable images loaded, so let the
+    // browser signal readiness via load events before parsing.
     const occIndex: OccurrenceIndex = new Map();
     const addToIndex = (exprs: ParsedExpression[]) => {
       const partial = buildOccurrenceIndex(exprs);
@@ -582,11 +644,20 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       }
     };
     const highlighter = createHighlighter();
-    const decoded = (imgs: HTMLImageElement[]) =>
-      Promise.all(imgs.map((img) => img.decode().catch(() => {})));
+    const imagesReady = (imgs: HTMLImageElement[]) =>
+      Promise.all(
+        imgs.map((img) =>
+          img.complete
+            ? Promise.resolve() // already loaded (e.g. from cache)
+            : new Promise<void>((resolve) => {
+                img.addEventListener("load", () => resolve(), { once: true });
+                img.addEventListener("error", () => resolve(), { once: true });
+              }),
+        ),
+      );
     const gifImages = (root: ParentNode) =>
       [...root.querySelectorAll("img")] as HTMLImageElement[];
-    decoded(gifImages(document))
+    imagesReady(gifImages(document))
       .then(() =>
         parseGifExpressions(
           document,
@@ -598,11 +669,21 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         ),
       )
       .then((results) => {
+        const _tParsed = PERF_LOG ? performance.now() : 0;
         addToIndex(results);
         finish((r) => installHover(r, occIndex, highlighter))(results);
+        const _tHover = PERF_LOG ? performance.now() : 0;
         const calc = showCalculation(results);
+        if (PERF_LOG) {
+          const t = performance.now();
+          console.log(
+            `[mm-site-format] PERF post-parse (GIF): ` +
+              `index+hover=${(_tHover - _tParsed).toFixed(0)}ms ` +
+              `showCalculation=${(t - _tHover).toFixed(0)}ms`,
+          );
+        }
         if (calc)
-          decoded(gifImages(calc))
+          imagesReady(gifImages(calc))
             .then(() =>
               parseGifExpressions(
                 document,
@@ -614,10 +695,15 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
               ),
             )
             .then((calcResults) => {
+              const _tCalc = PERF_LOG ? performance.now() : 0;
               addToIndex(calcResults);
               calcExprs.push(...calcResults);
               installHover(calcResults, occIndex, highlighter);
               sizeToExpandedWidth(calc); // after spacers are inserted
+              if (PERF_LOG)
+                console.log(
+                  `[mm-site-format] PERF calc pass (GIF): ${(performance.now() - _tCalc).toFixed(0)}ms (total since parse: ${(performance.now() - _tParsed).toFixed(0)}ms)`,
+                );
               console.log(`${LOG} finished`);
             });
         else console.log(`${LOG} finished`);

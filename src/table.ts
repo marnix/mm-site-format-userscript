@@ -26,8 +26,25 @@ function expressionHtml(cell: Element): Element {
  * Builds the proof tree from the page's proof table, rooted at the final step
  * (the conclusion). Returns null if the page has no proof table. Also returns
  * a map from ProofTree node to its step number.
+ *
+ * Expression cells are deep-cloned eagerly (to capture state before the spacer
+ * pass modifies them). On large GIF pages this is the dominant cost; call
+ * `parseProofTableLazy` + `materializeExpressions` to defer cloning.
  */
 export function parseProofTable(
+  doc: Document,
+): { tree: ProofTree; stepOf: Map<ProofTree, number> } | null {
+  const result = parseProofTableLazy(doc);
+  if (!result) return null;
+  materializeExpressions(result.tree);
+  return result;
+}
+
+/**
+ * Like `parseProofTable`, but stores raw cell references instead of clones.
+ * Call `materializeExpressions` before the spacer pass modifies the cells.
+ */
+export function parseProofTableLazy(
   doc: Document,
 ): { tree: ProofTree; stepOf: Map<ProofTree, number> } | null {
   const table = doc.querySelector('table[summary="Proof of theorem"]');
@@ -36,7 +53,6 @@ export function parseProofTable(
   const rows = new Map<number, Row>();
   let lastStep = 0;
   for (const tr of table.querySelectorAll("tr")) {
-    // Header rows use <th>, so they have no <td> and are skipped.
     const tds = tr.querySelectorAll("td");
     if (tds.length < 4) continue;
     const step = Number(tds[0].textContent?.trim());
@@ -46,7 +62,7 @@ export function parseProofTable(
     );
     rows.set(step, {
       ref: tds[2],
-      expression: expressionHtml(tds[3]),
+      expression: tds[3], // raw cell -- clone deferred
       cell: tds[3],
       hyps,
     });
@@ -62,7 +78,7 @@ export function parseProofTable(
     if (!row) throw new Error(`proof table references missing step ${step}`);
     const node: ProofTree = {
       refHtml: row.ref,
-      expressionHtml: row.expression,
+      expressionHtml: row.expression, // still the raw cell
       expressionCell: row.cell,
       subproofs: row.hyps.map(build),
     };
@@ -73,4 +89,47 @@ export function parseProofTable(
   const stepOf = new Map<ProofTree, number>();
   for (const [step, node] of memo) stepOf.set(node, step);
   return { tree, stepOf };
+}
+
+/**
+ * Installs lazy expression cloning on every node in the proof tree. Each node's
+ * `expressionHtml` starts as the raw cell reference; on first property access it
+ * is reconstructed from a pre-captured HTML snapshot (taken NOW, before spacers
+ * modify the cells) and cached. This avoids upfront cost of constructing hundreds
+ * of DOM trees from image-heavy cells when only a subset (spine + visible
+ * subcalcs) are actually rendered.
+ *
+ * Must be called after `indentProofExpressions` (which reads leader widths from
+ * the original cells) but before the spacer/parse pass (which modifies cells
+ * in-place). Visits each unique node once (DAG-safe via identity check).
+ */
+export function materializeExpressions(tree: ProofTree): void {
+  const visited = new Set<ProofTree>();
+  const walk = (node: ProofTree) => {
+    if (visited.has(node)) return;
+    visited.add(node);
+    // Capture the cell's HTML now (string copy is cheap); build the DOM lazily.
+    const cell = node.expressionHtml;
+    const html = cell.innerHTML;
+    const ownerDoc = cell.ownerDocument;
+    let cached: Element | null = null;
+    Object.defineProperty(node, "expressionHtml", {
+      get() {
+        if (!cached) {
+          cached = ownerDoc.createElement("span");
+          cached.innerHTML = html;
+          for (const el of cached.querySelectorAll("span.i, a[name]"))
+            el.remove();
+        }
+        return cached;
+      },
+      set(v: Element) {
+        cached = v;
+      },
+      configurable: true,
+      enumerable: true,
+    });
+    for (const sub of node.subproofs) walk(sub);
+  };
+  walk(tree);
 }
