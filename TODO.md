@@ -104,3 +104,14 @@
   top/bottom edge currently moves up and down across a region, following
   subscripts/superscripts and differing image heights. See whether it can always
   be rendered as a single rectangle spanning the line's full height.
+- **Spine: symmetric case-split detection** (pm2.61dan on binomcxp): when two
+  hypotheses are logically symmetric (e.g. one has `psi` and the other `-.psi`),
+  the calculation should show both as sub-derivations (=> TRUE) rather than
+  picking one as spine. The current size tiebreaker picks the smaller one.
+  Attempted fix: unwrap $TOP + use commonSubtreeDiff/LCS as tiebreaker, but
+  `divergingSubtreeOverlap` (which calls `maxSubtreeOverlap` recursively) blows
+  up on large unwrapped trees (fouriersw hangs). A correct fix needs either: (a)
+  depth-bound `maxSubtreeOverlap` when using unwrapped trees, or (b) a different
+  symmetry criterion that doesn't require deep tree comparison (e.g. check if
+  both hypotheses use the same set of the rule's variables relative to the
+  conclusion).
