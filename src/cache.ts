@@ -13,6 +13,12 @@
  */
 export const BYPASS_CACHE = false;
 
+/**
+ * When true, performance timing is logged to console for each processing phase.
+ * Flip to `true` during development to profile hot-path performance.
+ */
+export const PERF_LOG = false;
+
 /** The subset of Storage (e.g. sessionStorage) the cache uses. */
 export interface KeyValueStore {
   getItem(key: string): string | null;

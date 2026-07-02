@@ -3,7 +3,7 @@
 // expression into a proof (= parse tree). Pure logic, independent of the
 // browser -- index.ts supplies the real fetch + canvas sampler.
 
-import { createCache, type Cache } from "./cache";
+import { createCache, PERF_LOG, type Cache } from "./cache";
 import {
   assembleGifGrammar,
   assembleUniGrammar,
@@ -156,9 +156,11 @@ export async function parseUniExpressions(
   root: ParentNode = doc,
   cache: Cache = createCache(null, GRAMMAR_CACHE_VERSION),
 ): Promise<ParsedExpression[]> {
+  const t0 = PERF_LOG ? performance.now() : 0;
   const colors = parseKindColors(doc);
   const kinds = new Set(colors.values());
   const rules = await assembleUniGrammar(doc, pageUrl, fetcher, cache);
+  const t1 = PERF_LOG ? performance.now() : 0;
   const constants = collectConstants(rules);
   const spans = findMathSpans(root);
 
@@ -168,6 +170,7 @@ export async function parseUniExpressions(
     chunked.map((c) => c.chunks),
     rules,
   );
+  const t2 = PERF_LOG ? performance.now() : 0;
 
   // Parse using chunk-based parser (handles concatenated constants like (,)).
   const turnstile = rules[0]?.conclusion[1];
@@ -201,9 +204,10 @@ export async function parseUniExpressions(
     }
     return parseChunks(parseChunksArr, type, rules, chunkKindOf);
   });
+  const t3 = PERF_LOG ? performance.now() : 0;
 
   // Re-tokenize with vocab-based splitting for spacing and hover highlighting.
-  return proofs.map((proof, i) => {
+  const result = proofs.map((proof, i) => {
     const located = locateMathSpan(spans[i], kinds, constants, colors);
     const tokens = located.map((lt) => lt.token);
     const locations = located.map((lt) => lt.location);
@@ -216,4 +220,19 @@ export async function parseUniExpressions(
       proof,
     };
   });
+
+  if (PERF_LOG) {
+    const t4 = performance.now();
+    const parsed = proofs.filter((p) => p !== null).length;
+    console.log(
+      `[mm-site-format] PERF parseUniExpressions: ` +
+        `${spans.length} spans, ${parsed} parsed, ${rules.length} rules | ` +
+        `grammar=${(t1 - t0).toFixed(0)}ms ` +
+        `chunkify=${(t2 - t1).toFixed(0)}ms ` +
+        `parse=${(t3 - t2).toFixed(0)}ms ` +
+        `retokenize+space=${(t4 - t3).toFixed(0)}ms ` +
+        `total=${(t4 - t0).toFixed(0)}ms`,
+    );
+  }
+  return result;
 }

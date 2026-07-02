@@ -1,6 +1,6 @@
 import "./config";
 import "./database-assumptions"; // hoist the MM database assumptions below config
-import { createCache, type KeyValueStore } from "./cache";
+import { createCache, PERF_LOG, type KeyValueStore } from "./cache";
 import {
   findSharedNodes,
   proofTreeToCalculation,
@@ -63,6 +63,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   console.log(`${LOG} (not a metamath proof page; no processing)`);
 } else {
   console.log(`${LOG} processing proof page...`);
+  const _perfStart = PERF_LOG ? performance.now() : 0;
   injectStyles();
 
   const banner = document.createElement("div");
@@ -86,6 +87,12 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   // Hang-indent the proof table's wrapped Expression lines. Do it now, while the
   // table is still laid out and visible (before the early grid hide below).
   if (proofTable) indentProofExpressions(proofTable);
+  if (PERF_LOG) {
+    const t = performance.now();
+    console.log(
+      `[mm-site-format] PERF setup: ${(t - _perfStart).toFixed(0)}ms`,
+    );
+  }
 
   // When the calculation will replace the grid, hide the grid body at once --
   // keeping its space so the page below does not jump -- and reveal the
@@ -529,18 +536,33 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     const highlighter = createHighlighter();
     parseUniExpressions(document, pageUrl, fetcher, document, cache)
       .then((results) => {
+        const _tParsed = PERF_LOG ? performance.now() : 0;
         addToIndex(results);
         finish((r) => installHover(r, occIndex, highlighter))(results);
+        const _tHover = PERF_LOG ? performance.now() : 0;
         // The calculation clones expressions; give those clones the same
         // parsing, whitespace and hover by running the pass again, scoped to it.
         const calc = showCalculation(results);
+        if (PERF_LOG) {
+          const t = performance.now();
+          console.log(
+            `[mm-site-format] PERF post-parse: ` +
+              `index+hover=${(_tHover - _tParsed).toFixed(0)}ms ` +
+              `showCalculation=${(t - _tHover).toFixed(0)}ms`,
+          );
+        }
         if (calc)
           parseUniExpressions(document, pageUrl, fetcher, calc, cache).then(
             (calcResults) => {
+              const _tCalc = PERF_LOG ? performance.now() : 0;
               addToIndex(calcResults);
               calcExprs.push(...calcResults);
               installHover(calcResults, occIndex, highlighter);
               sizeToExpandedWidth(calc); // after spacers are inserted
+              if (PERF_LOG)
+                console.log(
+                  `[mm-site-format] PERF calc pass: ${(performance.now() - _tCalc).toFixed(0)}ms (total since parse: ${(performance.now() - _tParsed).toFixed(0)}ms)`,
+                );
               console.log(`${LOG} finished`);
             },
           );
