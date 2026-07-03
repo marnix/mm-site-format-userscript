@@ -42,15 +42,13 @@ const bitrdiProofTree: ProofTree = {
   ],
 };
 
-// The a1i sub-derivation, shared by both examples.
+// The a1i sub-derivation: depth-1 (one rule application on a leaf), folded
+// into a given with leafRefHtmls carrying the leaf's ref.
 const a1iSub: Calculation = {
-  kind: "step",
-  inferenceRuleRefHtml: a1i,
+  kind: "given",
+  hypothesisRefHtml: a1i,
   expressionHtml: exprStep3,
-  subcalculations: [
-    { kind: "given", hypothesisRefHtml: bitrdi2, expressionHtml: exprHyp2 },
-  ],
-  spine: 0,
+  leafRefHtmls: [bitrdi2],
 };
 
 // Both examples are the same <== proof; they differ only in which subcalculation
@@ -80,13 +78,24 @@ const example1b: Calculation = {
   spine: 1,
 };
 
+// The evaluated tree loses the a1i node's children (depth-1 nodes are folded
+// to givens, so evaluateCalculation sees them as leaves).
+const evaluatedTree: ProofTree = {
+  refHtml: bitrd,
+  expressionHtml: exprGoal,
+  subproofs: [
+    { refHtml: bitrdi1, expressionHtml: exprHyp1, subproofs: [] },
+    { refHtml: a1i, expressionHtml: exprStep3, subproofs: [] },
+  ],
+};
+
 describe("evaluateCalculation", () => {
-  it("reconstructs the proof tree from example 1a (spine through bitrdi.1)", () => {
-    expect(evaluateCalculation(example1a)).toEqual(bitrdiProofTree);
+  it("reconstructs the proof tree from example 1a (depth-1 nodes become leaves)", () => {
+    expect(evaluateCalculation(example1a)).toEqual(evaluatedTree);
   });
 
-  it("reconstructs the proof tree from example 1b (spine through a1i)", () => {
-    expect(evaluateCalculation(example1b)).toEqual(bitrdiProofTree);
+  it("reconstructs the proof tree from example 1b (depth-1 nodes become leaves)", () => {
+    expect(evaluateCalculation(example1b)).toEqual(evaluatedTree);
   });
 });
 
@@ -95,10 +104,10 @@ describe("proofTreeToCalculation", () => {
     expect(proofTreeToCalculation(bitrdiProofTree)).toEqual(example1a);
   });
 
-  it("round-trips: evaluate(convert(tree)) equals the tree", () => {
+  it("round-trips: evaluate(convert(tree)) equals the lossy tree", () => {
     expect(
       evaluateCalculation(proofTreeToCalculation(bitrdiProofTree)),
-    ).toEqual(bitrdiProofTree);
+    ).toEqual(evaluatedTree);
   });
 
   it("threads the parent's tokens as anchor to the spine child only", () => {
@@ -107,8 +116,8 @@ describe("proofTreeToCalculation", () => {
     // child0 is a leaf, so spineFor is never called for it.
     // child1 is non-spine, so it gets anchor=null.
     // To expose anchor threading to the non-leaf spine child, we need a tree
-    // where the spine child itself has subproofs. Build a 3-level chain:
-    //   root -> [mid(spine) -> [leaf1(spine)], leaf2(non-spine)]
+    // where the spine child itself has subproofs that are NOT all leaves.
+    //   root -> [mid(spine) -> [inner -> [leaf1]], leaf2(non-spine)]
     const leaf1: ProofTree = {
       refHtml: ref("ref1"),
       expressionHtml: ref("L1"),
@@ -119,10 +128,15 @@ describe("proofTreeToCalculation", () => {
       expressionHtml: ref("L2"),
       subproofs: [],
     };
+    const inner: ProofTree = {
+      refHtml: ref("inner"),
+      expressionHtml: ref("I"),
+      subproofs: [leaf1],
+    };
     const mid: ProofTree = {
       refHtml: ref("mid"),
       expressionHtml: ref("M"),
-      subproofs: [leaf1],
+      subproofs: [inner],
     };
     const root: ProofTree = {
       refHtml: ref("root"),

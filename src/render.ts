@@ -159,6 +159,19 @@ function appendStep(
           : () => clone(sub.expressionHtml),
       );
       items.push(refEl);
+      // Depth-1 folded given: also include its leaf hypothesis refs.
+      for (const leafRef of sub.leafRefHtmls ?? []) {
+        const leafEl = clone(leafRef);
+        const leafHref =
+          leafRef.querySelector("a")?.getAttribute("href") ?? null;
+        attachTooltip(
+          leafEl,
+          leafHref && fetchRule && !leafHref.startsWith("#")
+            ? () => fetchRule(leafHref)
+            : () => clone(sub.expressionHtml),
+        );
+        items.push(leafEl);
+      }
     } else nested++;
   });
   if (nested > 0)

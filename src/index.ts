@@ -241,7 +241,11 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     // Detect shared sub-derivations and extract them as separate blocks.
     const shared = findSharedNodes(proofTree);
     // Only extract internal nodes (leaves are just hypotheses cited twice).
-    const extracted = [...shared].filter((n) => n.subproofs.length > 0);
+    const extracted = [...shared].filter(
+      (n) =>
+        n.subproofs.length > 0 &&
+        !n.subproofs.every((s) => s.subproofs.length === 0),
+    );
 
     // Give shared nodes a synthetic refHtml with a hyperlink "(N)" so that
     // when they appear as givens, the hint shows "(N) below/above". On-spine
@@ -285,13 +289,15 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
 
     // Determine which extracted nodes ended up on the spine (expanded inline)
     // so we don't render a redundant mini-calc for them.
-    // Walk the proof tree's spine directly (unaffected by Calculation folding).
+    // Walk the proof tree using spineFor with proper anchor threading.
     const onSpine = new Set<ProofTree>();
     {
       let t: ProofTree = proofTree;
+      let anch: string[] | null = null;
       while (t.subproofs.length > 0) {
-        const si = spineFor(t, tokensOf_(t));
+        const si = spineFor(t, anch);
         if (si === null || si >= t.subproofs.length) break;
+        anch = tokensOf_(t);
         t = t.subproofs[si];
         onSpine.add(t);
       }

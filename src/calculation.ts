@@ -31,6 +31,10 @@ export interface Given {
   kind: "given";
   hypothesisRefHtml: Element;
   expressionHtml: Element;
+  // When this given was folded from a depth-1 step (a single rule application
+  // on leaves), these are the leaf hypothesis refs. The renderer includes them
+  // as additional items in the parent's hint series alongside hypothesisRefHtml.
+  leafRefHtmls?: Element[];
 }
 
 export interface Step {
@@ -111,6 +115,17 @@ export function proofTreeToCalculation(
       get expressionHtml() {
         return tree.expressionHtml;
       },
+    };
+  // Depth-1: a single rule application on all-leaf children. Fold into a given
+  // that carries the leaf refs alongside its own rule ref.
+  if (tree.subproofs.every((s) => s.subproofs.length === 0))
+    return {
+      kind: "given",
+      hypothesisRefHtml: tree.refHtml,
+      get expressionHtml() {
+        return tree.expressionHtml;
+      },
+      leafRefHtmls: tree.subproofs.map((s) => s.refHtml),
     };
   const spineIndex = spineFor(tree, anchor);
   const nextAnchor = tokensFor(tree);
