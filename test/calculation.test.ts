@@ -158,10 +158,11 @@ describe("proofTreeToCalculation", () => {
 
     proofTreeToCalculation(root, spySpineFor, () => false, tokensFor, null);
 
-    // spineFor is called for root (anchor=null) and mid (anchor=tokensFor(root)).
+    // spineFor is called for root, mid, and inner (all on the spine chain).
     // leaf1 and leaf2 are leaves; spineFor is never called for them.
-    expect(calls).toHaveLength(2);
+    expect(calls).toHaveLength(3);
     expect(calls[0]).toEqual(["R", null]); // root: no parent anchor
     expect(calls[1]).toEqual(["M", tokensFor(root)]); // mid: spine child, gets root's tokens
+    expect(calls[2]).toEqual(["I", tokensFor(mid)]); // inner: spine child of mid
   });
 });

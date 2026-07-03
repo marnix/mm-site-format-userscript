@@ -107,6 +107,7 @@ export function proofTreeToCalculation(
   anchor: string[] | null = null,
   shared: Set<ProofTree> = new Set(),
   spineShared: Set<ProofTree> = new Set(),
+  isChild = false,
 ): Calculation {
   if (tree.subproofs.length === 0 || shared.has(tree))
     return {
@@ -117,8 +118,9 @@ export function proofTreeToCalculation(
       },
     };
   // Depth-1: a single rule application on all-leaf children. Fold into a given
-  // that carries the leaf refs alongside its own rule ref.
-  if (tree.subproofs.every((s) => s.subproofs.length === 0))
+  // that carries the leaf refs alongside its own rule ref. Only when this node
+  // is a child of another step (not the root of the calculation).
+  if (isChild && tree.subproofs.every((s) => s.subproofs.length === 0))
     return {
       kind: "given",
       hypothesisRefHtml: tree.refHtml,
@@ -148,6 +150,7 @@ export function proofTreeToCalculation(
         i === spineIndex ? nextAnchor : null,
         effectiveShared,
         spineShared,
+        i !== spineIndex, // only off-spine children can fold to givens
       );
     }),
     spine: spineIndex,
@@ -179,6 +182,7 @@ export function proofTreeToCalculation(
         nextAnchor,
         effectiveShared,
         spineShared,
+        false, // spine continuation: must not fold to given
       );
     }
   }
