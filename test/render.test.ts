@@ -313,33 +313,23 @@ describe("renderCalculation", () => {
   });
 
   it("folds a small spine step: skips the intermediate expression and merges its rule into the parent hint", () => {
-    // P (not-small) -> A (smallSpine) -> given.  A's expression must disappear;
-    // A's rule ref is appended to P's hint as "; using <rule>".
+    // P has foldedRuleRefs=[eleq2i], subcalculations=[given] (folded at build time).
+    // The intermediate expression (from the folded step) does not appear.
     const calc: Calculation = {
       kind: "step",
       inferenceRuleRefHtml: el('<a href="syl.html">syl</a>'),
       expressionHtml: el("GOAL"),
       subcalculations: [
         {
-          kind: "step",
-          inferenceRuleRefHtml: el('<a href="eleq2i.html">eleq2i</a>'),
-          expressionHtml: el("INTERMEDIATE"),
-          subcalculations: [
-            {
-              kind: "given",
-              hypothesisRefHtml: el("df-rels"),
-              expressionHtml: el("RESULT"),
-            },
-          ],
-          spine: 0,
-          smallSpine: true,
+          kind: "given",
+          hypothesisRefHtml: el("df-rels"),
+          expressionHtml: el("RESULT"),
         },
       ],
       spine: 0,
+      foldedRuleRefs: [el('<a href="eleq2i.html">eleq2i</a>')],
     };
     const box = renderCalculation(calc);
-    // INTERMEDIATE must not appear anywhere in the output.
-    expect(box.textContent).not.toContain("INTERMEDIATE");
     const rows = [...box.querySelector("tbody")!.children] as HTMLElement[];
     // 3 rows: GOAL expr, merged hint, (df-rels) RESULT -- not 5.
     expect(rows).toHaveLength(3);
@@ -357,38 +347,20 @@ describe("renderCalculation", () => {
   });
 
   it("folds a chain of small spine steps in one merged hint", () => {
-    // P -> A (small) -> B (small) -> given.  Both A and B disappear; both rule
-    // refs appear in P's hint.
+    // P has foldedRuleRefs=[step-a, step-b], subcalculations=[given].
     const calc: Calculation = {
       kind: "step",
       inferenceRuleRefHtml: el("outer"),
       expressionHtml: el("GOAL"),
       subcalculations: [
         {
-          kind: "step",
-          inferenceRuleRefHtml: el("step-a"),
-          expressionHtml: el("MID1"),
-          subcalculations: [
-            {
-              kind: "step",
-              inferenceRuleRefHtml: el("step-b"),
-              expressionHtml: el("MID2"),
-              subcalculations: [
-                {
-                  kind: "given",
-                  hypothesisRefHtml: el("h"),
-                  expressionHtml: el("RESULT"),
-                },
-              ],
-              spine: 0,
-              smallSpine: true,
-            },
-          ],
-          spine: 0,
-          smallSpine: true,
+          kind: "given",
+          hypothesisRefHtml: el("h"),
+          expressionHtml: el("RESULT"),
         },
       ],
       spine: 0,
+      foldedRuleRefs: [el("step-a"), el("step-b")],
     };
     const box = renderCalculation(calc);
     expect(box.textContent).not.toContain("MID1");
@@ -401,9 +373,8 @@ describe("renderCalculation", () => {
     expect(right(rows[1]).textContent).toContain("step-b");
   });
 
-  it("a small spine step renders normally (no fading) when the spine is not a further small step", () => {
-    // A step with smallSpine=true whose only spine child is a given: renders as
-    // three rows (expr, hint, given) without any faded styling.
+  it("a step with no foldedRuleRefs renders normally", () => {
+    // A simple step with one given -- no folding, renders as 3 rows.
     const calc: Calculation = {
       kind: "step",
       inferenceRuleRefHtml: el('<a href="r.html">r</a>'),
@@ -416,7 +387,6 @@ describe("renderCalculation", () => {
         },
       ],
       spine: 0,
-      smallSpine: true,
     };
     const box = renderCalculation(calc);
     const rows = [...box.querySelector("tbody")!.children] as HTMLElement[];
@@ -424,13 +394,7 @@ describe("renderCalculation", () => {
     expect(rows).toHaveLength(3);
     expect(right(rows[0]).textContent).toContain("TOP");
     expect(right(rows[1]).textContent).toContain("{ using r }");
-    expect(right(rows[1]).classList.contains("mm-site-format-calc-faded")).toBe(
-      false,
-    );
     expect(right(rows[2]).textContent).toContain("RESULT");
-    expect(right(rows[2]).classList.contains("mm-site-format-calc-faded")).toBe(
-      false,
-    );
   });
 
   it("calls onLazyRender when a lazy subcalc is expanded, with connected DOM", () => {

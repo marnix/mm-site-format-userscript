@@ -4,6 +4,7 @@ import { createCache, type KeyValueStore } from "./cache";
 import {
   findSharedNodes,
   proofTreeToCalculation,
+  type Calculation,
   type ProofTree,
 } from "./calculation";
 import { findMathSpans } from "./expression";
@@ -284,29 +285,34 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
 
     // Determine which extracted nodes ended up on the spine (expanded inline)
     // so we don't render a redundant mini-calc for them.
+    // Walk the proof tree's spine directly (unaffected by Calculation folding).
     const onSpine = new Set<ProofTree>();
     {
-      let c = calc;
-      let t = proofTree;
-      while (c.kind === "step") {
-        if (c.spine === null) break;
-        t = t.subproofs[c.spine];
+      let t: ProofTree = proofTree;
+      while (t.subproofs.length > 0) {
+        const si = spineFor(t, tokensOf_(t));
+        if (si === null || si >= t.subproofs.length) break;
+        t = t.subproofs[si];
         onSpine.add(t);
-        c = c.subcalculations[c.spine];
       }
     }
     const offSpineExtracted = extracted.filter((n) => !onSpine.has(n));
 
-    // Patch on-spine steps: their inferenceRuleRefHtml captured the synthetic
-    // "(N)" ref, but they need their original rule name in their own hint.
+    // Patch on-spine steps in the Calculation: their inferenceRuleRefHtml may
+    // be the synthetic "(N)" ref (set on extracted nodes before building the
+    // calc). Restore the original rule ref for on-spine nodes.
+    // Walk the Calculation spine only (no tree alignment needed).
     {
-      let c = calc;
-      let t = proofTree;
+      let c: Calculation = calc;
       while (c.kind === "step") {
-        const origRef = savedRefs.get(t);
-        if (origRef) c.inferenceRuleRefHtml = origRef;
+        // Check if this step's ref is one of the saved synthetic refs.
+        for (const [node, origRef] of savedRefs) {
+          if (c.inferenceRuleRefHtml === node.refHtml) {
+            c.inferenceRuleRefHtml = origRef;
+            break;
+          }
+        }
         if (c.spine === null) break;
-        t = t.subproofs[c.spine];
         c = c.subcalculations[c.spine];
       }
     }

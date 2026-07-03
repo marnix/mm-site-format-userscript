@@ -137,19 +137,10 @@ function appendStep(
   const expr = clone(step.expressionHtml);
   tbody.appendChild(row("", expr, "expr"));
 
-  // Fold small-step spines: walk the spine chain while each step has smallSpine,
-  // collecting their rule refs to merge into this step's hint.  The intermediate
-  // expressions are omitted entirely.
-  const foldedSteps: Step[] = [];
-  let effectiveSpine: Calculation | null =
+  // The effective spine continuation (small steps have been folded into
+  // foldedRuleRefs by proofTreeToCalculation).
+  const effectiveSpine: Calculation | null =
     step.spine !== null ? step.subcalculations[step.spine] : null;
-  while (effectiveSpine?.kind === "step" && effectiveSpine.smallSpine) {
-    foldedSteps.push(effectiveSpine);
-    effectiveSpine =
-      effectiveSpine.spine !== null
-        ? effectiveSpine.subcalculations[effectiveSpine.spine]
-        : null;
-  }
 
   // Hint: non-spine given premises, subproof count, rule ref, folded rule refs.
   const items: Node[] = [];
@@ -188,19 +179,17 @@ function appendStep(
   const hint = document.createElement("span");
   hint.append("{ using ");
   appendSeries(hint, items);
-  for (const folded of foldedSteps) {
-    const foldedRef = clone(folded.inferenceRuleRefHtml);
-    const foldedHref =
-      folded.inferenceRuleRefHtml.querySelector("a")?.getAttribute("href") ??
-      null;
+  for (const foldedRefEl of step.foldedRuleRefs ?? []) {
+    const ref = clone(foldedRefEl);
+    const href = foldedRefEl.querySelector("a")?.getAttribute("href") ?? null;
     attachTooltip(
-      foldedRef,
-      foldedHref && fetchRule
-        ? () => fetchRule(foldedHref)
-        : () => clone(folded.expressionHtml),
+      ref,
+      href && fetchRule
+        ? () => fetchRule(href)
+        : () => expr.cloneNode(true) as Node,
     );
     hint.append("; using ");
-    hint.append(foldedRef);
+    hint.append(ref);
   }
   hint.append(" }");
 

@@ -41,10 +41,10 @@ export interface Step {
   // index of the spine subcalculation (the next expression), or null to end the
   // spine (no clear main line) at a `<==> TRUE` terminal; render-only
   spine: number | null;
-  // true when this step's transition to its spine child "adds little" (a
-  // single-premise, near-identity step): its hint and the continuation
-  // expression are deemphasized. Absent (approx. false) otherwise. Render-only.
-  smallSpine?: boolean;
+  // Rule refs folded into this step's hint from small spine continuations
+  // (single-premise near-identity steps like definitional unfoldings). Built by
+  // proofTreeToCalculation; the renderer appends them as "; using X" in the hint.
+  foldedRuleRefs?: Element[];
 }
 
 /** Composes a calculation into the proof tree it represents. */
@@ -137,6 +137,35 @@ export function proofTreeToCalculation(
     }),
     spine: spineIndex,
   };
-  if (smallFor(tree)) step.smallSpine = true;
+  // Fold small spine continuations: walk the TREE spine (not the built
+  // Calculation) collecting small steps' rule refs before their subcalculations
+  // are built, so we don't conflict with child-level folding.
+  // The step's spine + subcalculations are then rebuilt pointing to the
+  // effective (non-small) continuation.
+  const foldedRefs: Element[] = [];
+  let foldNode = spineIndex !== null ? tree.subproofs[spineIndex] : null;
+  while (foldNode && smallFor(foldNode)) {
+    foldedRefs.push(foldNode.refHtml);
+    // Advance to the small step's own spine child (always index 0 for
+    // single-premise steps).
+    if (foldNode.subproofs.length !== 1) break;
+    foldNode = foldNode.subproofs[0];
+  }
+  if (foldedRefs.length > 0) {
+    step.foldedRuleRefs = foldedRefs;
+    // Rebuild the spine subcalculation from the effective (non-small) node.
+    if (spineIndex !== null && foldNode) {
+      const effectiveShared = new Set([...shared]);
+      step.subcalculations[spineIndex] = proofTreeToCalculation(
+        foldNode,
+        spineFor,
+        smallFor,
+        tokensFor,
+        nextAnchor,
+        effectiveShared,
+        spineShared,
+      );
+    }
+  }
   return step;
 }
