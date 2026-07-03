@@ -85,10 +85,42 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   const stepOf = proofResult?.stepOf ?? new Map<ProofTree, number>();
   const _tParseTree = DEV_PERF_LOG ? performance.now() : 0;
 
-  // Hang-indent the proof table's wrapped Expression lines. Do it now, while the
-  // table is still laid out and visible (before the early grid hide below).
+  // Hang-indent the proof table BEFORE hiding it (needs layout for measurement).
+  const grids = proofTable ? ([...proofTable.tBodies] as HTMLElement[]) : [];
+  const tableWidth = proofTable ? proofTable.getBoundingClientRect().width : 0;
+  const tableHeight = proofTable
+    ? proofTable.getBoundingClientRect().height
+    : 0;
   if (proofTable) indentProofExpressions(proofTable);
   const _tIndent = DEV_PERF_LOG ? performance.now() : 0;
+
+  // Now hide the grid and show a placeholder. The table reformatting happened
+  // but was never painted (single synchronous block before yielding to the
+  // browser's rendering pipeline).
+  let placeholder: HTMLElement | null = null;
+  if (proofTree && !tableSelected(window.location.search)) {
+    for (const grid of grids) grid.style.display = "none";
+    if (proofTable) {
+      placeholder = document.createElement("div");
+      placeholder.className = "mm-site-format-calc";
+      placeholder.style.width = `${Math.ceil(tableWidth * CALC_WIDTH_FACTOR)}px`;
+      placeholder.style.maxWidth = "100%";
+      placeholder.style.height = `${Math.ceil(tableHeight)}px`;
+      placeholder.style.display = "flex";
+      placeholder.style.alignItems = "center";
+      placeholder.style.justifyContent = "center";
+      placeholder.style.opacity = "0.4";
+      placeholder.textContent = "\u22ef"; // midline ellipsis
+      const caption = proofTable.querySelector("caption");
+      if (caption) caption.appendChild(placeholder);
+      else proofTable.parentNode?.insertBefore(placeholder, proofTable);
+    }
+  }
+  const restoreGrid = () => {
+    for (const grid of grids) grid.style.display = "";
+    placeholder?.remove();
+    placeholder = null;
+  };
 
   // Deep-clone expression cells now, after indent has read the layout but before
   // the spacer pass modifies them in-place.
@@ -102,17 +134,6 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         ` cloneExprs=${(t - _tIndent).toFixed(0)}ms)`,
     );
   }
-
-  // When the calculation will replace the grid, hide the grid body at once --
-  // keeping its space so the page below does not jump -- and reveal the
-  // calculation once it is ready. The caption (heading) stays visible. Restore
-  // the grid if the calculation never appears.
-  const grids = proofTable ? ([...proofTable.tBodies] as HTMLElement[]) : [];
-  if (proofTree && !tableSelected(window.location.search))
-    for (const grid of grids) grid.style.visibility = "hidden";
-  const restoreGrid = () => {
-    for (const grid of grids) grid.style.visibility = "";
-  };
 
   // Spine + small-step choosers backed by the page's parsed expressions: the
   // spine is the sub-proof whose parse tree most overlaps the step's, and a step
@@ -175,10 +196,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     return { spineFor, smallFor, tokensOf };
   };
 
-  // Size the calculation box based on the proof table's width (measured now,
-  // while it's still laid out), plus 10% headroom for spacers, clamped to the
-  // page width.
-  const tableWidth = proofTable ? proofTable.getBoundingClientRect().width : 0;
+  // Size the calculation box based on the proof table's width, clamped to page.
   const sizeToTableWidth = (box: HTMLElement) => {
     if (!tableWidth) return;
     const width = Math.ceil(tableWidth * CALC_WIDTH_FACTOR);
@@ -489,6 +507,8 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     // Into the caption, below the "Proof of Theorem" heading -- so the heading
     // stays in place whichever view is shown.
     const caption = proofTable.querySelector("caption");
+    placeholder?.remove();
+    placeholder = null;
     if (caption) caption.appendChild(rendered);
     else proofTable.parentNode?.insertBefore(rendered, proofTable);
     installViewToggle(rendered, proofTable);
