@@ -15,6 +15,7 @@ import {
   type KindColors,
   type VariableKind,
 } from "./kind";
+import { SYMVAR_CSS_CLASS, SYMVAR_KIND } from "./database-assumptions";
 
 export type Token =
   | { kind: null; text: string } // constant: operator, parenthesis, turnstile
@@ -171,24 +172,23 @@ export function locateMathSpan(
             token: { kind: cls, text },
             location: { type: "element", node: el },
           });
-      } else if (cls === "symvar" && colors) {
-        // `symvar` is set.mm's rendering variant for dot-prefixed "operator as
-        // variable" tokens (e.g. .||. renders as \u2225 with a dotted underline).
-        // It is always class-typed; the kind is not the CSS class name but the
-        // inline color, which matches the `class` entry in the colors legend.
+      } else if (cls === SYMVAR_CSS_CLASS && colors) {
+        // Dot-prefixed operator-as-variable tokens (e.g. .||. rendered as a
+        // symbol with dotted underline). The kind is determined by inline color
+        // matching the colours legend, falling back to SYMVAR_KIND.
         const style = el.getAttribute("style") ?? "";
         const m = style.match(/color\s*:\s*([^;]+)/i);
         const rgb = m ? parseCssColor(m[1]) : null;
-        const kind = rgb ? (colors.get(rgbKey(rgb)) ?? null) : null;
-        if (kind) {
-          flush();
-          const text = el.textContent?.trim() ?? "";
-          if (text)
-            out.push({
-              token: { kind, text },
-              location: { type: "element", node: el },
-            });
-        }
+        const kind = rgb
+          ? (colors.get(rgbKey(rgb)) ?? SYMVAR_KIND)
+          : SYMVAR_KIND;
+        flush();
+        const text = el.textContent?.trim() ?? "";
+        if (text)
+          out.push({
+            token: { kind, text },
+            location: { type: "element", node: el },
+          });
       } else if (INLINE_FORMATTING_TAGS.has(el.tagName) && run.length > 0) {
         // Inline formatting or subscript: absorb text into the current run.
         // Subscript characters are tagged with `sub: el` so the token location

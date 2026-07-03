@@ -34,3 +34,15 @@ export const UNI_TOP_RULE: InferenceRule = {
 // Loaded the same way as any hinted page (fetched and extracted), not hardcoded
 // -- so if set.mm ever renames them this list is the single thing to update.
 export const PRIMITIVE_SYNTAX_PAGES = ["cv", "wcel", "wceq", "weq", "wel"];
+
+// The ILE rendering labels the setvar typecode as "set" in the colour legend
+// (the older <FONT> variant). Wherever we see or need "set" as a kind, treat it
+// as "setvar" (the actual typecode in the database).
+export const KIND_ALIASES: Record<string, string> = { set: "setvar" };
+
+// The site's rendering uses the CSS class "symvar" for dot-prefixed
+// operator-as-variable tokens (e.g. .||. rendered as a symbol with a dotted
+// underline). These are always class-typed; "symvar" is effectively a rendering
+// variant of the "class" kind.
+export const SYMVAR_CSS_CLASS = "symvar";
+export const SYMVAR_KIND = "class";

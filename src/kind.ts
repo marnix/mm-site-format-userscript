@@ -5,6 +5,8 @@
 // decodes the .gif directly. The colour->kind map comes from the page's
 // "Colors of variables" legend.
 
+import { KIND_ALIASES } from "./database-assumptions";
+
 export type Rgb = [number, number, number];
 
 /** A metamath variable kind, as named in the "Colors of variables" legend. */
@@ -49,8 +51,8 @@ function colourOf(el: Element): Rgb | null {
  * Reads the "Colors of variables" legend into a colour->kind map. Each kind is a
  * coloured sample whose text is the kind name. Two renderings occur: the newer
  * `<SPAN CLASS=wff STYLE="color:blue">wff</SPAN>` (MPE) and the older
- * `<FONT COLOR="#0000FF">wff</FONT>` (ILE). The older one labels the setvar kind
- * "set", which we rewrite to the actual typecode "setvar".
+ * `<FONT COLOR="#0000FF">wff</FONT>` (ILE). Kind names are normalised through
+ * KIND_ALIASES (see database-assumptions.ts).
  */
 export function parseKindColors(doc: Document): KindColors {
   const colors: KindColors = new Map();
@@ -62,7 +64,7 @@ export function parseKindColors(doc: Document): KindColors {
   for (const el of cell.querySelectorAll("[style], [color]")) {
     const name = el.textContent?.trim();
     const rgb = colourOf(el);
-    if (name && rgb) colors.set(rgbKey(rgb), name === "set" ? "setvar" : name);
+    if (name && rgb) colors.set(rgbKey(rgb), KIND_ALIASES[name] ?? name);
   }
   return colors;
 }
