@@ -3,7 +3,8 @@
 // expression into a proof (= parse tree). Pure logic, independent of the
 // browser -- index.ts supplies the real fetch + canvas sampler.
 
-import { createCache, PERF_LOG, type Cache } from "./cache";
+import { createCache, type Cache } from "./cache";
+import { DEV_PERF_LOG } from "./config";
 import {
   assembleGifGrammar,
   assembleUniGrammar,
@@ -126,18 +127,18 @@ export async function parseGifExpressions(
   root: Node = doc,
   cache: Cache = createCache(null, GRAMMAR_CACHE_VERSION),
 ): Promise<ParsedExpression[]> {
-  const t0 = PERF_LOG ? performance.now() : 0;
+  const t0 = DEV_PERF_LOG ? performance.now() : 0;
   const colors = parseKindColors(doc);
   const kindCache = new Map<string, string | null>();
   const runs = findGifRuns(root);
   const located = runs.map((run) =>
     locateGifRun(run, colors, sample, kindCache),
   );
-  const t1 = PERF_LOG ? performance.now() : 0;
+  const t1 = DEV_PERF_LOG ? performance.now() : 0;
   const rules = await assembleGifGrammar(doc, pageUrl, fetcher, cache);
-  const t2 = PERF_LOG ? performance.now() : 0;
+  const t2 = DEV_PERF_LOG ? performance.now() : 0;
   const parsed = parseLocated(located, rules);
-  const t3 = PERF_LOG ? performance.now() : 0;
+  const t3 = DEV_PERF_LOG ? performance.now() : 0;
 
   const result = parsed.map((expr, i) => {
     if (!expr.proof) return expr;
@@ -149,7 +150,7 @@ export async function parseGifExpressions(
     return withLocations(expr, locateGifRun(nodes, colors, sample, kindCache));
   });
 
-  if (PERF_LOG) {
+  if (DEV_PERF_LOG) {
     const t4 = performance.now();
     const parsedCount = parsed.filter((e) => e.proof !== null).length;
     console.log(
@@ -175,11 +176,11 @@ export async function parseUniExpressions(
   root: ParentNode = doc,
   cache: Cache = createCache(null, GRAMMAR_CACHE_VERSION),
 ): Promise<ParsedExpression[]> {
-  const t0 = PERF_LOG ? performance.now() : 0;
+  const t0 = DEV_PERF_LOG ? performance.now() : 0;
   const colors = parseKindColors(doc);
   const kinds = new Set(colors.values());
   const rules = await assembleUniGrammar(doc, pageUrl, fetcher, cache);
-  const t1 = PERF_LOG ? performance.now() : 0;
+  const t1 = DEV_PERF_LOG ? performance.now() : 0;
   const constants = collectConstants(rules);
   const spans = findMathSpans(root);
 
@@ -189,7 +190,7 @@ export async function parseUniExpressions(
     chunked.map((c) => c.chunks),
     rules,
   );
-  const t2 = PERF_LOG ? performance.now() : 0;
+  const t2 = DEV_PERF_LOG ? performance.now() : 0;
 
   // Parse using chunk-based parser (handles concatenated constants like (,)).
   const turnstile = rules[0]?.conclusion[1];
@@ -223,7 +224,7 @@ export async function parseUniExpressions(
     }
     return parseChunks(parseChunksArr, type, rules, chunkKindOf);
   });
-  const t3 = PERF_LOG ? performance.now() : 0;
+  const t3 = DEV_PERF_LOG ? performance.now() : 0;
 
   // Re-tokenize with vocab-based splitting for spacing and hover highlighting.
   const result = proofs.map((proof, i) => {
@@ -240,7 +241,7 @@ export async function parseUniExpressions(
     };
   });
 
-  if (PERF_LOG) {
+  if (DEV_PERF_LOG) {
     const t4 = performance.now();
     const parsed = proofs.filter((p) => p !== null).length;
     console.log(

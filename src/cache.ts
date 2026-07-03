@@ -5,19 +5,7 @@
 // themselves; this caches the DOM-parse + extraction on top. Results must be
 // JSON-serialisable; `version` namespaces entries so a format change drops them.
 
-/**
- * When true, the cache bypasses all storage (both in-memory memo and
- * sessionStorage): every `get()` recomputes from scratch and nothing is
- * persisted. Flip to `true` during development to always observe cold-cache
- * behaviour without manually clearing sessionStorage.
- */
-export const BYPASS_CACHE = false;
-
-/**
- * When true, performance timing is logged to console for each processing phase.
- * Flip to `true` during development to profile hot-path performance.
- */
-export const PERF_LOG = false;
+import { DEV_BYPASS_CACHE } from "./config";
 
 /** The subset of Storage (e.g. sessionStorage) the cache uses. */
 export interface KeyValueStore {
@@ -35,7 +23,7 @@ export function createCache(
   store: KeyValueStore | null,
   version: string,
 ): Cache {
-  if (BYPASS_CACHE) {
+  if (DEV_BYPASS_CACHE) {
     // No memoisation, no storage: every get() recomputes fresh.
     return { get: <T>(_key: string, compute: () => Promise<T>) => compute() };
   }

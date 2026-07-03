@@ -13,3 +13,19 @@ export const DIFF_COLOR = "#ffd0d0";
 /** Width of the calculation box as a fraction of the proof table's width.
  *  A value > 1 gives headroom so lines don't wrap more than in the table. */
 export const CALC_WIDTH_FACTOR = 1.1;
+
+// --- Development-only flags (keep false in committed code) ---
+
+/**
+ * When true, the cache bypasses all storage (both in-memory memo and
+ * sessionStorage): every `get()` recomputes from scratch and nothing is
+ * persisted. Flip to `true` during development to always observe cold-cache
+ * behaviour without manually clearing sessionStorage.
+ */
+export const DEV_BYPASS_CACHE = false;
+
+/**
+ * When true, performance timing is logged to console for each processing phase.
+ * Flip to `true` during development to profile hot-path performance.
+ */
+export const DEV_PERF_LOG = false;

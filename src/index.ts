@@ -1,6 +1,6 @@
 import "./config";
 import "./database-assumptions"; // hoist the MM database assumptions below config
-import { createCache, PERF_LOG, type KeyValueStore } from "./cache";
+import { createCache, type KeyValueStore } from "./cache";
 import {
   findSharedNodes,
   proofTreeToCalculation,
@@ -16,7 +16,7 @@ import {
   installHover,
   type OccurrenceIndex,
 } from "./highlight";
-import { DIFF_COLOR, CALC_WIDTH_FACTOR } from "./config";
+import { DIFF_COLOR, CALC_WIDTH_FACTOR, DEV_PERF_LOG } from "./config";
 import { extractSyntaxHintUrls } from "./loader";
 import { canvasSampler } from "./kind";
 import {
@@ -63,7 +63,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   console.log(`${LOG} (not a metamath proof page; no processing)`);
 } else {
   console.log(`${LOG} processing proof page...`);
-  const _perfStart = PERF_LOG ? performance.now() : 0;
+  const _perfStart = DEV_PERF_LOG ? performance.now() : 0;
   injectStyles();
 
   const banner = document.createElement("div");
@@ -83,17 +83,17 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   const proofResult = parseProofTableLazy(document);
   const proofTree = proofResult?.tree ?? null;
   const stepOf = proofResult?.stepOf ?? new Map<ProofTree, number>();
-  const _tParseTree = PERF_LOG ? performance.now() : 0;
+  const _tParseTree = DEV_PERF_LOG ? performance.now() : 0;
 
   // Hang-indent the proof table's wrapped Expression lines. Do it now, while the
   // table is still laid out and visible (before the early grid hide below).
   if (proofTable) indentProofExpressions(proofTable);
-  const _tIndent = PERF_LOG ? performance.now() : 0;
+  const _tIndent = DEV_PERF_LOG ? performance.now() : 0;
 
   // Deep-clone expression cells now, after indent has read the layout but before
   // the spacer pass modifies them in-place.
   if (proofTree) materializeExpressions(proofTree);
-  if (PERF_LOG) {
+  if (DEV_PERF_LOG) {
     const t = performance.now();
     console.log(
       `[mm-site-format] PERF setup: ${(t - _perfStart).toFixed(0)}ms` +
@@ -212,9 +212,9 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
 
   const showCalculation = (results: ParsedExpression[]): HTMLElement | null => {
     if (!proofTree || !proofTable) return null;
-    const _t0 = PERF_LOG ? performance.now() : 0;
+    const _t0 = DEV_PERF_LOG ? performance.now() : 0;
     const { spineFor, smallFor, tokensOf: tokensOf_ } = choosers(results);
-    const _t1 = PERF_LOG ? performance.now() : 0;
+    const _t1 = DEV_PERF_LOG ? performance.now() : 0;
 
     // Detect shared sub-derivations and extract them as separate blocks.
     const shared = findSharedNodes(proofTree);
@@ -259,7 +259,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       leafShared,
       new Set(extracted),
     );
-    const _t2 = PERF_LOG ? performance.now() : 0;
+    const _t2 = DEV_PERF_LOG ? performance.now() : 0;
 
     // Determine which extracted nodes ended up on the spine (expanded inline)
     // so we don't render a redundant mini-calc for them.
@@ -304,7 +304,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       onLazyRender: (root: ParentNode) => labelNewContent?.(root),
     };
     const rendered = renderCalculation(calc, renderOpts);
-    const _t3 = PERF_LOG ? performance.now() : 0;
+    const _t3 = DEV_PERF_LOG ? performance.now() : 0;
     let _t4 = 0;
 
     // Give on-spine shared expressions an anchor id so "(N)" links can target
@@ -383,7 +383,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         wrapper.style.display = "none"; // start hidden; updateMiniCalcVisibility will show
         box.appendChild(wrapper);
       }
-      _t4 = PERF_LOG ? performance.now() : 0;
+      _t4 = DEV_PERF_LOG ? performance.now() : 0;
       // Delegated click handler: ensure the target mini-calc is visible before
       // the browser navigates to the fragment (which pushes a history entry and
       // scrolls). Browser Back then returns to the previous position.
@@ -492,7 +492,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     if (caption) caption.appendChild(rendered);
     else proofTable.parentNode?.insertBefore(rendered, proofTable);
     installViewToggle(rendered, proofTable);
-    if (PERF_LOG)
+    if (DEV_PERF_LOG)
       console.log(
         `[mm-site-format] PERF showCalculation: ` +
           `choosers=${(_t1 - _t0).toFixed(0)}ms ` +
@@ -575,19 +575,19 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     const highlighter = createHighlighter();
     parseUniExpressions(document, pageUrl, fetcher, document, cache)
       .then((results) => {
-        const _tParsed = PERF_LOG ? performance.now() : 0;
+        const _tParsed = DEV_PERF_LOG ? performance.now() : 0;
         addToIndex(results);
-        if (PERF_LOG) console.log(`[mm-site-format] PERF addToIndex done`);
+        if (DEV_PERF_LOG) console.log(`[mm-site-format] PERF addToIndex done`);
         finish((r) => installHover(r, occIndex, highlighter))(results);
-        if (PERF_LOG)
+        if (DEV_PERF_LOG)
           console.log(`[mm-site-format] PERF finish+installHover done`);
-        const _tHover = PERF_LOG ? performance.now() : 0;
+        const _tHover = DEV_PERF_LOG ? performance.now() : 0;
         // The calculation clones expressions; give those clones the same
         // parsing, whitespace and hover by running the pass again, scoped to it.
-        if (PERF_LOG)
+        if (DEV_PERF_LOG)
           console.log(`[mm-site-format] PERF calling showCalculation...`);
         const calc = showCalculation(results);
-        if (PERF_LOG) {
+        if (DEV_PERF_LOG) {
           const t = performance.now();
           console.log(
             `[mm-site-format] PERF post-parse: ` +
@@ -598,12 +598,12 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         if (calc)
           parseUniExpressions(document, pageUrl, fetcher, calc, cache).then(
             (calcResults) => {
-              const _tCalc = PERF_LOG ? performance.now() : 0;
+              const _tCalc = DEV_PERF_LOG ? performance.now() : 0;
               addToIndex(calcResults);
               calcExprs.push(...calcResults);
               installHover(calcResults, occIndex, highlighter);
               sizeToTableWidth(calc); // size calc box to proof table width
-              if (PERF_LOG)
+              if (DEV_PERF_LOG)
                 console.log(
                   `[mm-site-format] PERF calc pass: ${(performance.now() - _tCalc).toFixed(0)}ms (total since parse: ${(performance.now() - _tParsed).toFixed(0)}ms)`,
                 );
@@ -651,12 +651,12 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         ),
       )
       .then((results) => {
-        const _tParsed = PERF_LOG ? performance.now() : 0;
+        const _tParsed = DEV_PERF_LOG ? performance.now() : 0;
         addToIndex(results);
         finish((r) => installHover(r, occIndex, highlighter))(results);
-        const _tHover = PERF_LOG ? performance.now() : 0;
+        const _tHover = DEV_PERF_LOG ? performance.now() : 0;
         const calc = showCalculation(results);
-        if (PERF_LOG) {
+        if (DEV_PERF_LOG) {
           const t = performance.now();
           console.log(
             `[mm-site-format] PERF post-parse (GIF): ` +
@@ -677,12 +677,12 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
               ),
             )
             .then((calcResults) => {
-              const _tCalc = PERF_LOG ? performance.now() : 0;
+              const _tCalc = DEV_PERF_LOG ? performance.now() : 0;
               addToIndex(calcResults);
               calcExprs.push(...calcResults);
               installHover(calcResults, occIndex, highlighter);
               sizeToTableWidth(calc); // size calc box to proof table width
-              if (PERF_LOG)
+              if (DEV_PERF_LOG)
                 console.log(
                   `[mm-site-format] PERF calc pass (GIF): ${(performance.now() - _tCalc).toFixed(0)}ms (total since parse: ${(performance.now() - _tParsed).toFixed(0)}ms)`,
                 );
