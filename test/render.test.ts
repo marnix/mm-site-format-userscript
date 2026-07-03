@@ -432,4 +432,36 @@ describe("renderCalculation", () => {
       false,
     );
   });
+
+  it("calls onLazyRender when a lazy subcalc is expanded, with connected DOM", () => {
+    const rendered: ParentNode[] = [];
+    const box = renderCalculation(sample(), {
+      onLazyRender: (root) => rendered.push(root),
+    });
+    const nested = box.querySelectorAll("table")[1]; // the lazy a1i sub-calc
+    const marker = nested.querySelector(".mm-site-format-fold") as HTMLElement;
+
+    // Before expansion, onLazyRender has not been called.
+    expect(rendered).toHaveLength(0);
+
+    // Expand the sub-calc.
+    marker.click();
+
+    // onLazyRender was called once.
+    expect(rendered).toHaveLength(1);
+    // The rendered root is connected to the box (not an orphan).
+    expect(box.contains(rendered[0] as Node)).toBe(true);
+    // The expanded content includes the hint row with the rule reference.
+    const hintText = (rendered[0] as HTMLElement).textContent;
+    expect(hintText).toContain("a1i");
+    // The expression elements in the expanded content are in the DOM (not orphaned),
+    // so hover/diff handlers that reference them will work.
+    const exprs = (rendered[0] as HTMLElement).querySelectorAll(
+      "tr:first-child td:last-child",
+    );
+    expect(exprs.length).toBeGreaterThan(0);
+    for (const expr of exprs) {
+      expect(box.contains(expr)).toBe(true);
+    }
+  });
 });

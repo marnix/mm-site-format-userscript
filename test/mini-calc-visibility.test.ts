@@ -236,3 +236,74 @@ describe("reactive mini-calc visibility (sgnrn)", () => {
     document.body.removeChild(box);
   });
 });
+
+describe("lazy mini-calc parse callback", () => {
+  it("calls parseNewContent when a lazy mini-calc is first made visible", () => {
+    // Model the lazy mini-calc pattern from index.ts: renderMiniCalc is deferred
+    // and should trigger parseNewContent when it fires.
+    const parsed: ParentNode[] = [];
+    // Simulate: parseNewContent is set after the second parse pass.
+    let parseNewContent: ((root: ParentNode) => void) | null = null;
+
+    const html = readFixture("mpeuni", "sgnrn.html");
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const result = parseProofTable(doc)!;
+    const { tree, stepOf } = result;
+    const shared = findSharedNodes(tree);
+    const extracted = [...shared].filter((n) => n.subproofs.length > 0);
+    const ordered = [...extracted].sort(
+      (a, b) => (stepOf.get(b) ?? 0) - (stepOf.get(a) ?? 0),
+    );
+
+    // Build a simple box with lazy mini-calcs (mirrors index.ts pattern).
+    const box = document.createElement("div");
+    document.body.appendChild(box);
+
+    for (const node of ordered) {
+      const n = stepOf.get(node);
+      const wrapper = document.createElement("div");
+      wrapper.id = n !== undefined ? `mm-site-format-proof-${n}` : "";
+      wrapper.style.display = "none";
+      // Lazy render closure -- should call parseNewContent.
+      let rendered = false;
+      const renderMiniCalc = () => {
+        if (rendered) return;
+        rendered = true;
+        const others = new Set(shared);
+        others.delete(node);
+        const miniCalc = proofTreeToCalculation(
+          node,
+          () => 0,
+          () => false,
+          () => null,
+          null,
+          others,
+        );
+        wrapper.appendChild(renderCalcTable(miniCalc));
+        parseNewContent?.(wrapper); // <-- the contract under test
+      };
+      (
+        wrapper as HTMLElement & { __renderMiniCalc?: () => void }
+      ).__renderMiniCalc = renderMiniCalc;
+      box.appendChild(wrapper);
+    }
+
+    // Simulate the second parse pass completing.
+    parseNewContent = (root) => parsed.push(root);
+
+    // Make the first mini-calc visible (simulating updateMiniCalcVisibility).
+    const first = box.querySelector(
+      "[id^='mm-site-format-proof-']",
+    ) as HTMLElement;
+    expect(first).not.toBeNull();
+    const lazy = first as HTMLElement & { __renderMiniCalc?: () => void };
+    lazy.__renderMiniCalc?.();
+    first.style.display = "";
+
+    // parseNewContent should have been called with the wrapper.
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0]).toBe(first);
+
+    document.body.removeChild(box);
+  });
+});

@@ -213,6 +213,9 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
   // Diff painter and lazy exprFor lookup. calcExprs is populated by the second
   // parse pass (async) but always ready before the user can hover.
   const calcExprs: ParsedExpression[] = [];
+  // Mutable slot: filled after the second parse pass completes, so lazy
+  // renders get their expressions parsed and hover-highlighted.
+  let parseNewContent: ((root: ParentNode) => Promise<void>) | null = null;
   const diffPainter = createPainter(
     "mm-site-format-diff",
     "mm-site-format-diff-hl",
@@ -319,7 +322,10 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       fetchRuleTooltip,
       diffPainter: diffPainter ?? undefined,
       exprFor,
-      onLazyRender: (root: ParentNode) => labelNewContent?.(root),
+      onLazyRender: (root: ParentNode) => {
+        labelNewContent?.(root);
+        parseNewContent?.(root);
+      },
     };
     const rendered = renderCalculation(calc, renderOpts);
     const _t3 = DEV_PERF_LOG ? performance.now() : 0;
@@ -394,6 +400,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
           for (const [other, ref] of nestedSaved) other.refHtml = ref;
           wrapper.appendChild(renderCalcTable(miniCalc, renderOpts));
           labelNewContent?.(wrapper);
+          parseNewContent?.(wrapper);
         };
         (
           wrapper as HTMLElement & { __renderMiniCalc?: () => void }
@@ -623,6 +630,19 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
               calcExprs.push(...calcResults);
               installHover(calcResults, occIndex, highlighter);
               sizeToTableWidth(calc); // size calc box to proof table width
+              // Enable lazy-rendered content to get the same parse + hover.
+              parseNewContent = async (root: ParentNode) => {
+                const r = await parseUniExpressions(
+                  document,
+                  pageUrl,
+                  fetcher,
+                  root,
+                  cache,
+                );
+                addToIndex(r);
+                calcExprs.push(...r);
+                installHover(r, occIndex, highlighter);
+              };
               if (DEV_PERF_LOG)
                 console.log(
                   `[mm-site-format] PERF calc pass: ${(performance.now() - _tCalc).toFixed(0)}ms (total since parse: ${(performance.now() - _tParsed).toFixed(0)}ms)`,
@@ -702,6 +722,21 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
               calcExprs.push(...calcResults);
               installHover(calcResults, occIndex, highlighter);
               sizeToTableWidth(calc); // size calc box to proof table width
+              // Enable lazy-rendered content to get the same parse + hover.
+              parseNewContent = async (root: ParentNode) => {
+                await imagesReady(gifImages(root as HTMLElement));
+                const r = await parseGifExpressions(
+                  document,
+                  pageUrl,
+                  fetcher,
+                  canvasSampler,
+                  root as Node,
+                  cache,
+                );
+                addToIndex(r);
+                calcExprs.push(...r);
+                installHover(r, occIndex, highlighter);
+              };
               if (DEV_PERF_LOG)
                 console.log(
                   `[mm-site-format] PERF calc pass (GIF): ${(performance.now() - _tCalc).toFixed(0)}ms (total since parse: ${(performance.now() - _tParsed).toFixed(0)}ms)`,

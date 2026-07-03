@@ -333,12 +333,21 @@ function makeLazyCollapsible(
 
   const expand = () => {
     if (!rendered) {
-      // Render the full table and steal its rows (except the first conclusion
-      // row which we already have).
+      // Render the full table and steal ALL its rows, replacing our placeholder
+      // conclusion with the real one (so installDiffHover's closure captures the
+      // correct expression element).
       const full = renderCalcTable(calc, options);
       const fullTbody = full.querySelector("tbody")!;
       const fullRows = [...fullTbody.children] as HTMLElement[];
-      // Skip the first row (conclusion) -- we already show ours.
+      // Replace our placeholder conclusion row with the real one.
+      const realConclusion = fullRows[0] as HTMLElement;
+      conclusion.replaceWith(realConclusion);
+      // Move the marker to the real conclusion row.
+      const markerCell = (realConclusion.firstElementChild ??
+        realConclusion) as HTMLElement;
+      markerCell.style.textAlign = "left";
+      markerCell.appendChild(marker);
+      // The rest are the hint + spine continuation + subcalcs.
       restRows = fullRows.slice(1);
       for (const r of restRows) tbody.appendChild(r);
       // The first non-conclusion row (the hint) is clickable for collapsing.
