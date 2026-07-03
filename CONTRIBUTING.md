@@ -65,6 +65,22 @@ To auto-format before running CI:
 npm run format && npm run ci
 ```
 
+## Bugfix commit discipline
+
+Every bugfix must be delivered as **two separate commits** (intermediate
+refactoring commits are allowed between them):
+
+1. **Test commit**: add or modify a unit test that demonstrates the bug. The
+   test must be marked as _expected to fail_ (e.g. with `it.fails(...)` or by
+   asserting the currently-wrong behaviour with a `// BUG:` comment), so that
+   `npm run ci` still passes. This commit proves the bug is reproducible.
+
+2. **Fix commit**: fix the bug without changing any existing tests (only remove
+   the `it.fails` / `// BUG:` marker from the test added in step 1). The
+   previously-failing test now passes, confirming the fix.
+
+This ensures every bug has a regression test and the fix is clearly traceable.
+
 ## Source conventions
 
 All `.ts` source files and the generated `dist/mm-site-format.user.js` must be
