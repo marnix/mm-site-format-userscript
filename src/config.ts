@@ -35,4 +35,7 @@ export const DEV_PERF_LOG = false;
  * mini-calc for each shared node to verify completeness). O(S*N) on large
  * proofs; disable in production.
  */
-export const DEV_CHECK_SHARED_COVERAGE = false;
+export const DEV_CHECK_SHARED_COVERAGE =
+  // Always enabled in test runs (vitest sets import.meta.env.MODE to "test").
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  (import.meta as unknown as { env?: { MODE?: string } }).env?.MODE === "test";
