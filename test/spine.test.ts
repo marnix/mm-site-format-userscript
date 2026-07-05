@@ -319,3 +319,25 @@ describe("anchorSpine", () => {
     expect(anchorSpine(toks("A"), [null, null])).toBeNull();
   });
 });
+
+describe("chooseSpine: multiple trivial hypotheses", () => {
+  it("returns null (symmetric) when all top-overlap candidates are trivial and tied", () => {
+    // jca with hyps=[1,1]: both subproofs are the same leaf. The spine chooser
+    // must recognise the tie and return null (=> TRUE) rather than picking the
+    // first arbitrarily.
+    const conclusion = node(WA, leaf("wff", "ph"), leaf("wff", "ph"));
+    const hyp = leaf("wff", "ph");
+    const result = chooseSpine(conclusion, [
+      { parse: hyp, trivial: true },
+      { parse: hyp, trivial: true },
+    ]);
+    expect(result).toBeNull();
+  });
+
+  it("returns the only candidate when there is a single trivial hypothesis", () => {
+    const conclusion = node(WI, leaf("wff", "ph"), leaf("wff", "ps"));
+    const hyp = leaf("wff", "ph");
+    const result = chooseSpine(conclusion, [{ parse: hyp, trivial: true }]);
+    expect(result).toBe(0);
+  });
+});
