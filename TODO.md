@@ -126,3 +126,14 @@
   rule's assumption patterns into `chooseSpine` -- currently it only receives
   grammar-level parse trees of the expressions, not the theorem's hypothesis
   structure.
+
+  The shared-vars metric was prototyped and verified manually on dvelimf (picks
+  .3), bi2anan9 (null), 3eqtr2i (null), sylanbrc (null), ax-mp (picks .2), bitrd
+  (null), isermulc2 (picks .5). The algorithm: exclude "context" variables
+  (those appearing in every assumption AND the conclusion), then count remaining
+  conclusion-variables per hypothesis; pick the max, null on tie. It works as a
+  primary metric before structural overlap. Implementation blocked on
+  architecture: the inference rule's assumption patterns are not available at
+  spine-selection time (only grammar-level parse trees are). Would need to fetch
+  and cache each rule page's hypotheses, or extract them from the proof table's
+  Hyp/Ref columns.
