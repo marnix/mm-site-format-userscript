@@ -227,8 +227,12 @@ export function missingCalcRefs(
   const walk = (node: ProofTree) => {
     if (visited.has(node)) return;
     visited.add(node);
-    // Shared nodes are accounted for via their mini-calcs.
-    if (!shared.has(node) && !mainRefs.has(node.refHtml)) {
+    if (shared.has(node)) {
+      // Shared nodes are accounted for via their mini-calcs; their descendants
+      // are covered by the mini-calc and don't need to appear in the main calc.
+      return;
+    }
+    if (!mainRefs.has(node.refHtml)) {
       const n = stepOf.get(node);
       if (n !== undefined) missing.push(n);
     }

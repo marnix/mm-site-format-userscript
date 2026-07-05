@@ -261,3 +261,26 @@ describe("missingCalcRefs", () => {
     expect(missingCalcRefs(root, stepOf, calc, shared)).toEqual([]);
   });
 });
+
+describe("missingCalcRefs (cniccbdd)", () => {
+  it("all steps are accounted for in the calculation", () => {
+    const html = readFixture("mpeuni", "cniccbdd.html");
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const result = parseProofTable(doc)!;
+    const { tree, stepOf } = result;
+    const shared = findSharedNodes(tree);
+    // Try with null spine (no spine chosen -- everything is a subcalc):
+    const calcNull = proofTreeToCalculation(
+      tree,
+      () => null,
+      () => false,
+      () => null,
+      null,
+      new Set(),
+      new Set(),
+      false,
+    );
+    const missingNull = missingCalcRefs(tree, stepOf, calcNull, shared);
+    expect(missingNull).toEqual([]);
+  });
+});
