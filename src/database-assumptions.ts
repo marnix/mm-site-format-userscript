@@ -33,7 +33,14 @@ export const UNI_TOP_RULE: InferenceRule = {
 //    fix on branch syntax-hints-def-bodies corrects this upstream).
 // Loaded the same way as any hinted page (fetched and extracted), not hardcoded
 // -- so if set.mm ever renames them this list is the single thing to update.
-export const PRIMITIVE_SYNTAX_PAGES = ["cv", "wcel", "wceq", "weq", "wel"];
+export const PRIMITIVE_SYNTAX_PAGES = [
+  "cv",
+  "wcel",
+  "wceq",
+  "weq",
+  "wel",
+  "wnf",
+];
 
 // The ILE rendering labels the setvar typecode as "set" in the colour legend
 // (the older <FONT> variant). Wherever we see or need "set" as a kind, treat it
