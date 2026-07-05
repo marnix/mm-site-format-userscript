@@ -59,6 +59,7 @@ const a1iSub: Calculation = {
   hypothesisRefHtml: a1i,
   expressionHtml: exprStep3,
   leafRefHtmls: [bitrdi2],
+  leafExpressionHtmls: [exprHyp2],
 };
 
 // Both examples are the same <== proof; they differ only in which subcalculation

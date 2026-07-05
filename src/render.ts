@@ -160,15 +160,19 @@ function appendStep(
       );
       items.push(refEl);
       // Depth-1 folded given: also include its leaf hypothesis refs.
-      for (const leafRef of sub.leafRefHtmls ?? []) {
+      for (let li = 0; li < (sub.leafRefHtmls ?? []).length; li++) {
+        const leafRef = sub.leafRefHtmls![li];
         const leafEl = clone(leafRef);
         const leafHref =
           leafRef.querySelector("a")?.getAttribute("href") ?? null;
+        const leafExpr = sub.leafExpressionHtmls?.[li];
         attachTooltip(
           leafEl,
           leafHref && fetchRule && !leafHref.startsWith("#")
             ? () => fetchRule(leafHref)
-            : () => clone(sub.expressionHtml),
+            : leafExpr
+              ? () => clone(leafExpr)
+              : () => clone(sub.expressionHtml),
         );
         items.push(leafEl);
       }

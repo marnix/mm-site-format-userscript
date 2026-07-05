@@ -131,6 +131,7 @@ export function proofTreeToCalculation(
         return tree.expressionHtml;
       },
       leafRefHtmls: tree.subproofs.map((s) => s.refHtml),
+      leafExpressionHtmls: tree.subproofs.map((s) => s.expressionHtml),
     };
   const spineIndex = spineFor(tree, anchor);
   const nextAnchor = tokensFor(tree);
