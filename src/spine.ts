@@ -213,7 +213,7 @@ export function chooseSpine(
     .map((s, i) => ({ index: i, trivial: s.trivial, size: treeSize(s.parse) }))
     .filter(({ index }) => overlap[index] === best);
   const nonTrivial = top.filter((t) => !t.trivial);
-  if (nonTrivial.length === 0) return top[0].index;
+  if (nonTrivial.length === 0) return top.length === 1 ? top[0].index : null;
   if (nonTrivial.length === 1) return nonTrivial[0].index;
   const fdp = nonTrivial.map((t) =>
     firstDivergingPosition(conclusion, subproofs[t.index].parse),
