@@ -188,3 +188,52 @@ export function proofTreeToCalculation(
   }
   return step;
 }
+
+/**
+ * Collects all ref Elements that appear in a Calculation (recursively).
+ * These are the refs that end up in hints when rendered.
+ */
+export function collectCalcRefs(calc: Calculation): Set<Element> {
+  const refs = new Set<Element>();
+  const walk = (c: Calculation) => {
+    if (c.kind === "given") {
+      refs.add(c.hypothesisRefHtml);
+      for (const leaf of c.leafRefHtmls ?? []) refs.add(leaf);
+    } else {
+      refs.add(c.inferenceRuleRefHtml);
+      for (const folded of c.foldedRuleRefs ?? []) refs.add(folded);
+      for (const sub of c.subcalculations) walk(sub);
+    }
+  };
+  walk(calc);
+  return refs;
+}
+
+/**
+ * Self-check: verifies that every step in the proof tree has its refHtml appear
+ * somewhere in the calculation(s), or is accounted for as a shared node (which
+ * will get its own mini-calc). Returns the step numbers of any steps whose refs
+ * are missing (empty array = all good).
+ */
+export function missingCalcRefs(
+  tree: ProofTree,
+  stepOf: Map<ProofTree, number>,
+  mainCalc: Calculation,
+  shared: Set<ProofTree>,
+): number[] {
+  const mainRefs = collectCalcRefs(mainCalc);
+  const missing: number[] = [];
+  const visited = new Set<ProofTree>();
+  const walk = (node: ProofTree) => {
+    if (visited.has(node)) return;
+    visited.add(node);
+    // Shared nodes are accounted for via their mini-calcs.
+    if (!shared.has(node) && !mainRefs.has(node.refHtml)) {
+      const n = stepOf.get(node);
+      if (n !== undefined) missing.push(n);
+    }
+    for (const sub of node.subproofs) walk(sub);
+  };
+  walk(tree);
+  return missing;
+}

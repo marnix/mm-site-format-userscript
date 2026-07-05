@@ -2,10 +2,14 @@
 import { describe, expect, it } from "vitest";
 import {
   evaluateCalculation,
+  findSharedNodes,
+  missingCalcRefs,
   proofTreeToCalculation,
   type Calculation,
   type ProofTree,
 } from "../src/calculation";
+import { parseProofTable } from "../src/table";
+import { readFixture } from "./helpers";
 
 // Ref-column HTML fragments, as distinct elements (the same instances are shared
 // between the calculations and the expected tree, so toEqual compares them by
@@ -164,5 +168,96 @@ describe("proofTreeToCalculation", () => {
     expect(calls[0]).toEqual(["R", null]); // root: no parent anchor
     expect(calls[1]).toEqual(["M", tokensFor(root)]); // mid: spine child, gets root's tokens
     expect(calls[2]).toEqual(["I", tokensFor(mid)]); // inner: spine child of mid
+  });
+});
+
+describe("missingCalcRefs", () => {
+  it("returns empty when all steps are accounted for", () => {
+    const { tree, stepOf } = parseProofTable(
+      new DOMParser().parseFromString(
+        readFixture("mpeuni", "bitrdi.html"),
+        "text/html",
+      ),
+    )!;
+    const shared = findSharedNodes(tree);
+    const calc = proofTreeToCalculation(tree);
+    expect(missingCalcRefs(tree, stepOf, calc, shared)).toEqual([]);
+  });
+
+  it("reports a missing step when a ref is not in the calc or shared", () => {
+    // Build a simple tree: root -> [child1, child2(leaf)]
+    const child1Ref = document.createElement("td");
+    child1Ref.textContent = "child1";
+    const child2Ref = document.createElement("td");
+    child2Ref.textContent = "child2";
+    const rootRef = document.createElement("td");
+    rootRef.textContent = "root";
+
+    const child1: ProofTree = {
+      refHtml: child1Ref,
+      expressionHtml: document.createElement("td"),
+      subproofs: [],
+    };
+    const child2: ProofTree = {
+      refHtml: child2Ref,
+      expressionHtml: document.createElement("td"),
+      subproofs: [],
+    };
+    const root: ProofTree = {
+      refHtml: rootRef,
+      expressionHtml: document.createElement("td"),
+      subproofs: [child1, child2],
+    };
+    const stepOf = new Map<ProofTree, number>([
+      [root, 3],
+      [child1, 1],
+      [child2, 2],
+    ]);
+
+    // Build a calc that only includes root and child1 (child2 missing).
+    const calc: Calculation = {
+      kind: "step",
+      inferenceRuleRefHtml: rootRef,
+      expressionHtml: document.createElement("td"),
+      subcalculations: [
+        {
+          kind: "given",
+          hypothesisRefHtml: child1Ref,
+          expressionHtml: document.createElement("td"),
+        },
+      ],
+      spine: 0,
+    };
+    const shared = new Set<ProofTree>();
+    expect(missingCalcRefs(root, stepOf, calc, shared)).toEqual([2]);
+  });
+
+  it("does not report shared nodes as missing", () => {
+    const child1Ref = document.createElement("td");
+    const rootRef = document.createElement("td");
+    const child1: ProofTree = {
+      refHtml: child1Ref,
+      expressionHtml: document.createElement("td"),
+      subproofs: [],
+    };
+    const root: ProofTree = {
+      refHtml: rootRef,
+      expressionHtml: document.createElement("td"),
+      subproofs: [child1],
+    };
+    const stepOf = new Map<ProofTree, number>([
+      [root, 2],
+      [child1, 1],
+    ]);
+    // calc only has root (child1 not referenced), but child1 is shared.
+    const calc: Calculation = {
+      kind: "step",
+      inferenceRuleRefHtml: rootRef,
+      expressionHtml: document.createElement("td"),
+      subcalculations: [],
+      spine: null,
+    };
+    const shared = new Set<ProofTree>([child1]);
+    expect(missingCalcRefs(root, stepOf, calc, shared)).toEqual([]);
   });
 });

@@ -3,6 +3,7 @@ import "./database-assumptions"; // hoist the MM database assumptions below conf
 import { createCache, type KeyValueStore } from "./cache";
 import {
   findSharedNodes,
+  missingCalcRefs,
   proofTreeToCalculation,
   type Calculation,
   type ProofTree,
@@ -286,6 +287,15 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       new Set(extracted),
     );
     const _t2 = DEV_PERF_LOG ? performance.now() : 0;
+
+    // Self-check: every step's ref must appear in the calculation or be shared.
+    const missingSteps = missingCalcRefs(proofTree, stepOf, calc, shared);
+    if (missingSteps.length > 0) {
+      console.warn(
+        `[mm-site-format] calc self-check: steps missing from hints: ${missingSteps.join(", ")}`,
+      );
+      banner.textContent += ` \u26a0\ufe0f ${missingSteps.length} step(s) missing from calc`;
+    }
 
     // Determine which extracted nodes ended up on the spine (expanded inline)
     // so we don't render a redundant mini-calc for them.
