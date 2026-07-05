@@ -1,8 +1,14 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from "vitest";
 import {
+  checkNoDuplicateAppearance,
+  checkRuleRefIntegrity,
+  checkSharedSubtreeCoverage,
+  checkSpineValidity,
+  checkStepCountConservation,
   evaluateCalculation,
   findSharedNodes,
+  missingCalcExpressions,
   missingCalcRefs,
   proofTreeToCalculation,
   type Calculation,
@@ -168,6 +174,124 @@ describe("proofTreeToCalculation", () => {
     expect(calls[0]).toEqual(["R", null]); // root: no parent anchor
     expect(calls[1]).toEqual(["M", tokensFor(root)]); // mid: spine child, gets root's tokens
     expect(calls[2]).toEqual(["I", tokensFor(mid)]); // inner: spine child of mid
+  });
+});
+
+describe("missingCalcExpressions", () => {
+  it("returns empty for bitrdi (all expressions accounted for)", () => {
+    const html = readFixture("mpeuni", "bitrdi.html");
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const { tree, stepOf } = parseProofTable(doc)!;
+    const shared = findSharedNodes(tree);
+    const calc = proofTreeToCalculation(tree);
+    expect(missingCalcExpressions(tree, stepOf, calc, shared)).toEqual([]);
+  });
+
+  it("returns empty for cniccbdd (shared subtrees skipped)", () => {
+    const html = readFixture("mpeuni", "cniccbdd.html");
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const { tree, stepOf } = parseProofTable(doc)!;
+    const shared = findSharedNodes(tree);
+    const calc = proofTreeToCalculation(tree);
+    expect(missingCalcExpressions(tree, stepOf, calc, shared)).toEqual([]);
+  });
+});
+
+describe("checkSharedSubtreeCoverage", () => {
+  it("returns empty for cniccbdd (shared subtrees fully covered)", () => {
+    const html = readFixture("mpeuni", "cniccbdd.html");
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const { tree, stepOf } = parseProofTable(doc)!;
+    const shared = findSharedNodes(tree);
+    expect(
+      checkSharedSubtreeCoverage(
+        shared,
+        stepOf,
+        () => 0,
+        () => false,
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe("checkStepCountConservation", () => {
+  it("returns empty for bitrdi (all steps accounted for)", () => {
+    const html = readFixture("mpeuni", "bitrdi.html");
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const { tree, stepOf } = parseProofTable(doc)!;
+    const shared = findSharedNodes(tree);
+    const calc = proofTreeToCalculation(tree);
+    expect(checkStepCountConservation(tree, stepOf, calc, shared)).toEqual([]);
+  });
+
+  it("returns empty for cniccbdd (shared subtrees covered)", () => {
+    const html = readFixture("mpeuni", "cniccbdd.html");
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const { tree, stepOf } = parseProofTable(doc)!;
+    const shared = findSharedNodes(tree);
+    const calc = proofTreeToCalculation(tree);
+    expect(checkStepCountConservation(tree, stepOf, calc, shared)).toEqual([]);
+  });
+});
+
+describe("checkNoDuplicateAppearance", () => {
+  it("returns empty for bitrdi (no duplicates)", () => {
+    const html = readFixture("mpeuni", "bitrdi.html");
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const { tree, stepOf } = parseProofTable(doc)!;
+    const calc = proofTreeToCalculation(tree);
+    expect(checkNoDuplicateAppearance(calc, stepOf)).toEqual([]);
+  });
+
+  it("returns empty for cniccbdd (no duplicates)", () => {
+    const html = readFixture("mpeuni", "cniccbdd.html");
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const { tree, stepOf } = parseProofTable(doc)!;
+    const calc = proofTreeToCalculation(tree);
+    expect(checkNoDuplicateAppearance(calc, stepOf)).toEqual([]);
+  });
+});
+
+describe("checkRuleRefIntegrity", () => {
+  it("returns empty for bitrdi (refs match tree)", () => {
+    const html = readFixture("mpeuni", "bitrdi.html");
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const { tree, stepOf } = parseProofTable(doc)!;
+    const shared = findSharedNodes(tree);
+    const calc = proofTreeToCalculation(tree);
+    expect(checkRuleRefIntegrity(tree, stepOf, calc, shared)).toEqual([]);
+  });
+});
+
+describe("checkSpineValidity", () => {
+  it("returns null for a valid calculation (bitrdi)", () => {
+    const html = readFixture("mpeuni", "bitrdi.html");
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const { tree } = parseProofTable(doc)!;
+    const calc = proofTreeToCalculation(tree);
+    expect(checkSpineValidity(calc)).toBeNull();
+  });
+
+  it("returns null for a null-spine (=> TRUE) step", () => {
+    const calc: Calculation = {
+      kind: "step",
+      inferenceRuleRefHtml: document.createElement("td"),
+      expressionHtml: document.createElement("td"),
+      subcalculations: [],
+      spine: null,
+    };
+    expect(checkSpineValidity(calc)).toBeNull();
+  });
+
+  it("reports out-of-bounds spine index", () => {
+    const calc: Calculation = {
+      kind: "step",
+      inferenceRuleRefHtml: document.createElement("td"),
+      expressionHtml: document.createElement("td"),
+      subcalculations: [],
+      spine: 5,
+    };
+    expect(checkSpineValidity(calc)).toContain("out of bounds");
   });
 });
 

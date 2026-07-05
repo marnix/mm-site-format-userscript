@@ -2,7 +2,13 @@ import "./config";
 import "./database-assumptions"; // hoist the MM database assumptions below config
 import { createCache, type KeyValueStore } from "./cache";
 import {
+  checkNoDuplicateAppearance,
+  checkRuleRefIntegrity,
+  checkSharedSubtreeCoverage,
+  checkSpineValidity,
+  checkStepCountConservation,
   findSharedNodes,
+  missingCalcExpressions,
   missingCalcRefs,
   proofTreeToCalculation,
   type Calculation,
@@ -18,7 +24,12 @@ import {
   installHover,
   type OccurrenceIndex,
 } from "./highlight";
-import { DIFF_COLOR, CALC_WIDTH_FACTOR, DEV_PERF_LOG } from "./config";
+import {
+  DIFF_COLOR,
+  CALC_WIDTH_FACTOR,
+  DEV_PERF_LOG,
+  DEV_CHECK_SHARED_COVERAGE,
+} from "./config";
 import { extractSyntaxHintUrls } from "./loader";
 import { canvasSampler } from "./kind";
 import {
@@ -295,6 +306,60 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         `[mm-site-format] calc self-check: steps missing from hints: ${missingSteps.join(", ")}`,
       );
       banner.textContent += ` \u26a0\ufe0f ${missingSteps.length} step(s) missing from calc`;
+    }
+    const spineErr = checkSpineValidity(calc);
+    if (spineErr) {
+      console.warn(
+        `[mm-site-format] calc self-check: invalid spine: ${spineErr}`,
+      );
+      banner.textContent += ` \u26a0\ufe0f invalid spine`;
+    }
+    const missingExprs = missingCalcExpressions(
+      proofTree,
+      stepOf,
+      calc,
+      shared,
+    );
+    if (missingExprs.length > 0) {
+      console.warn(
+        `[mm-site-format] calc self-check: expressions missing: ${missingExprs.join(", ")}`,
+      );
+      banner.textContent += ` \u26a0\ufe0f ${missingExprs.length} expression(s) missing`;
+    }
+    if (DEV_CHECK_SHARED_COVERAGE) {
+      const sharedMissing = checkSharedSubtreeCoverage(
+        shared,
+        stepOf,
+        spineFor,
+        smallFor,
+      );
+      if (sharedMissing.length > 0) {
+        console.warn(
+          `[mm-site-format] calc self-check: shared subtree steps missing: ${sharedMissing.join(", ")}`,
+        );
+        banner.textContent += ` \u26a0\ufe0f ${sharedMissing.length} shared step(s) uncovered`;
+      }
+    }
+    const badRefs = checkRuleRefIntegrity(proofTree, stepOf, calc, shared);
+    if (badRefs.length > 0) {
+      console.warn(
+        `[mm-site-format] calc self-check: rule ref mismatch at steps: ${badRefs.join(", ")}`,
+      );
+      banner.textContent += ` \u26a0\ufe0f ${badRefs.length} ref mismatch(es)`;
+    }
+    const dupes = checkNoDuplicateAppearance(calc, stepOf);
+    if (dupes.length > 0) {
+      console.warn(
+        `[mm-site-format] calc self-check: steps appear both inline and expanded: ${dupes.join(", ")}`,
+      );
+      banner.textContent += ` \u26a0\ufe0f ${dupes.length} duplicate(s)`;
+    }
+    const orphans = checkStepCountConservation(proofTree, stepOf, calc, shared);
+    if (orphans.length > 0) {
+      console.warn(
+        `[mm-site-format] calc self-check: orphan steps: ${orphans.join(", ")}`,
+      );
+      banner.textContent += ` \u26a0\ufe0f ${orphans.length} orphan(s)`;
     }
 
     // Determine which extracted nodes ended up on the spine (expanded inline)

@@ -29,3 +29,10 @@ export const DEV_BYPASS_CACHE = false;
  * Flip to `true` during development to profile hot-path performance.
  */
 export const DEV_PERF_LOG = false;
+
+/**
+ * When true, runs the expensive shared-subtree coverage self-check (builds a
+ * mini-calc for each shared node to verify completeness). O(S*N) on large
+ * proofs; disable in production.
+ */
+export const DEV_CHECK_SHARED_COVERAGE = false;

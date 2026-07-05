@@ -241,3 +241,315 @@ export function missingCalcRefs(
   walk(tree);
   return missing;
 }
+
+/**
+ * Self-check: the spine forms a valid terminating path. Each step's spine index
+ * must be in-bounds for its subcalculations, and the chain must terminate at
+ * either a given or a null spine (=> TRUE). Returns an error message or null.
+ */
+export function checkSpineValidity(calc: Calculation): string | null {
+  const walk = (c: Calculation, depth: number): string | null => {
+    if (depth > 10000) return "spine depth exceeds 10000 (likely cycle)";
+    if (c.kind === "given") return null; // valid termination
+    if (c.spine === null) return null; // valid termination (=> TRUE)
+    if (c.spine < 0 || c.spine >= c.subcalculations.length)
+      return `spine index ${c.spine} out of bounds (${c.subcalculations.length} subcalculations)`;
+    // Check all non-spine subcalculations recursively too.
+    for (let i = 0; i < c.subcalculations.length; i++) {
+      if (i === c.spine) continue;
+      const sub = c.subcalculations[i];
+      if (sub.kind === "step") {
+        const err = walk(sub, 0);
+        if (err) return `in subcalc ${i}: ${err}`;
+      }
+    }
+    return walk(c.subcalculations[c.spine], depth + 1);
+  };
+  return walk(calc, 0);
+}
+
+/**
+ * Collects all expressionHtml Elements in a Calculation (recursively).
+ */
+export function collectCalcExpressions(calc: Calculation): Set<Element> {
+  const exprs = new Set<Element>();
+  const walk = (c: Calculation) => {
+    exprs.add(c.expressionHtml);
+    if (c.kind === "step") {
+      for (const sub of c.subcalculations) walk(sub);
+    }
+  };
+  walk(calc);
+  return exprs;
+}
+
+/**
+ * Self-check: every step in the proof tree has its expressionHtml appear in the
+ * calculation or is inside a shared subtree (covered by mini-calcs) or is a
+ * leaf folded into a depth-1 given (expression only in tooltip). Returns the
+ * step numbers of steps whose expressions are missing.
+ */
+export function missingCalcExpressions(
+  tree: ProofTree,
+  stepOf: Map<ProofTree, number>,
+  mainCalc: Calculation,
+  shared: Set<ProofTree>,
+): number[] {
+  const exprs = collectCalcExpressions(mainCalc);
+  // Collect refs that were small-step folded (their expressions are omitted).
+  const foldedRefs = new Set<Element>();
+  const collectFolded = (c: Calculation) => {
+    if (c.kind === "step") {
+      for (const ref of c.foldedRuleRefs ?? []) foldedRefs.add(ref);
+      for (const sub of c.subcalculations) collectFolded(sub);
+    }
+  };
+  collectFolded(mainCalc);
+
+  const missing: number[] = [];
+  const visited = new Set<ProofTree>();
+  const walk = (node: ProofTree, parentIsDepth1: boolean) => {
+    if (visited.has(node)) return;
+    visited.add(node);
+    if (shared.has(node)) return; // covered by mini-calc
+    // Leaves of depth-1 parents are folded into leafRefHtmls (no expression).
+    if (parentIsDepth1 && node.subproofs.length === 0) return;
+    // Small-step folded nodes have their expression omitted intentionally.
+    if (foldedRefs.has(node.refHtml)) return;
+    if (!exprs.has(node.expressionHtml)) {
+      const n = stepOf.get(node);
+      if (n !== undefined) missing.push(n);
+    }
+    const isDepth1 =
+      node.subproofs.length > 0 &&
+      node.subproofs.every((s) => s.subproofs.length === 0);
+    for (const sub of node.subproofs) walk(sub, isDepth1);
+  };
+  walk(tree, false);
+  return missing;
+}
+
+/**
+ * Self-check: for each shared (extracted) node, verifies that building a
+ * mini-calc from it covers all its descendants' refs and expressions. Returns
+ * step numbers of any nodes inside shared subtrees that would be missing.
+ */
+export function checkSharedSubtreeCoverage(
+  shared: Set<ProofTree>,
+  stepOf: Map<ProofTree, number>,
+  spineFor: (node: ProofTree, anchor: string[] | null) => number | null,
+  smallFor: (node: ProofTree) => boolean,
+): number[] {
+  const missing: number[] = [];
+  for (const node of shared) {
+    // Only check internal shared nodes (not leaves).
+    if (node.subproofs.length === 0) continue;
+    // Build the mini-calc the same way showCalculation would.
+    const others = new Set(shared);
+    others.delete(node);
+    const miniCalc = proofTreeToCalculation(
+      node,
+      spineFor,
+      smallFor,
+      () => null,
+      null,
+      others,
+      new Set(),
+      false,
+    );
+    const refs = collectCalcRefs(miniCalc);
+    const exprs = collectCalcExpressions(miniCalc);
+    // Collect folded rule refs (their expressions are intentionally omitted).
+    const foldedRefs = new Set<Element>();
+    const collectFolded = (c: Calculation) => {
+      if (c.kind === "step") {
+        for (const ref of c.foldedRuleRefs ?? []) foldedRefs.add(ref);
+        for (const sub of c.subcalculations) collectFolded(sub);
+      }
+    };
+    collectFolded(miniCalc);
+    // Walk the subtree; descendants in `others` (nested shared) are skipped.
+    const visited = new Set<ProofTree>();
+    const walk = (n: ProofTree, parentIsDepth1: boolean) => {
+      if (visited.has(n)) return;
+      visited.add(n);
+      if (others.has(n)) return; // covered by its own mini-calc
+      // Small-step folded nodes: ref is in foldedRuleRefs, expression omitted.
+      if (foldedRefs.has(n.refHtml)) {
+        // Still walk children (they're part of the rebuilt continuation).
+        for (const sub of n.subproofs) walk(sub, false);
+        return;
+      }
+      if (!refs.has(n.refHtml)) {
+        const s = stepOf.get(n);
+        if (s !== undefined) missing.push(s);
+      } else if (
+        !exprs.has(n.expressionHtml) &&
+        !(parentIsDepth1 && n.subproofs.length === 0)
+      ) {
+        const s = stepOf.get(n);
+        if (s !== undefined) missing.push(s);
+      }
+      const isDepth1 =
+        n.subproofs.length > 0 &&
+        n.subproofs.every((sub) => sub.subproofs.length === 0);
+      for (const sub of n.subproofs) walk(sub, isDepth1);
+    };
+    walk(node, false);
+  }
+  return missing;
+}
+
+/**
+ * Self-check: every Step's inferenceRuleRefHtml in the calculation corresponds
+ * to the refHtml of the ProofTree node at that position. Detects accidental ref
+ * swaps from the savedRefs patching logic. Returns step numbers where the rule
+ * ref doesn't match any tree node's ref.
+ */
+export function checkRuleRefIntegrity(
+  tree: ProofTree,
+  stepOf: Map<ProofTree, number>,
+  mainCalc: Calculation,
+  shared: Set<ProofTree>,
+): number[] {
+  // Collect all refHtml elements from the tree (the set of valid refs).
+  const allTreeRefs = new Set<Element>();
+  const visited = new Set<ProofTree>();
+  const collectTreeRefs = (node: ProofTree) => {
+    if (visited.has(node)) return;
+    visited.add(node);
+    allTreeRefs.add(node.refHtml);
+    for (const sub of node.subproofs) collectTreeRefs(sub);
+  };
+  collectTreeRefs(tree);
+
+  // Walk the calculation; every inferenceRuleRefHtml and hypothesisRefHtml
+  // should be a valid tree ref or a synthetic "(N)" link (which contains an
+  // anchor with href starting with #mm-site-format-proof-).
+  const isSynthetic = (el: Element) =>
+    !!el.querySelector('a[href^="#mm-site-format-proof-"]');
+  const bad: number[] = [];
+  const walkCalc = (c: Calculation) => {
+    if (c.kind === "given") {
+      if (
+        !allTreeRefs.has(c.hypothesisRefHtml) &&
+        !isSynthetic(c.hypothesisRefHtml)
+      ) {
+        // Find which step this ref belongs to (by matching expressionHtml)
+        for (const [node, n] of stepOf) {
+          if (node.expressionHtml === c.expressionHtml) {
+            bad.push(n);
+            break;
+          }
+        }
+      }
+    } else {
+      if (
+        !allTreeRefs.has(c.inferenceRuleRefHtml) &&
+        !isSynthetic(c.inferenceRuleRefHtml)
+      ) {
+        for (const [node, n] of stepOf) {
+          if (node.expressionHtml === c.expressionHtml) {
+            bad.push(n);
+            break;
+          }
+        }
+      }
+      for (const sub of c.subcalculations) walkCalc(sub);
+    }
+  };
+  walkCalc(mainCalc);
+  return bad;
+}
+
+/**
+ * Self-check: no step appears both as an inline given (in a hint) AND as an
+ * expanded sub-derivation (a nested step subcalculation) within the same parent.
+ * Returns step numbers of any duplicates found.
+ */
+export function checkNoDuplicateAppearance(
+  mainCalc: Calculation,
+  stepOf: Map<ProofTree, number>,
+): number[] {
+  const duplicates: number[] = [];
+  const walkCalc = (c: Calculation) => {
+    if (c.kind !== "step") return;
+    // Collect refs that appear as givens in this step's hint.
+    const givenRefs = new Set<Element>();
+    // Collect refs that appear as step subcalculations.
+    const stepRefs = new Set<Element>();
+    for (let i = 0; i < c.subcalculations.length; i++) {
+      if (i === c.spine) continue;
+      const sub = c.subcalculations[i];
+      if (sub.kind === "given") givenRefs.add(sub.hypothesisRefHtml);
+      else stepRefs.add(sub.inferenceRuleRefHtml);
+    }
+    // Check for overlap.
+    for (const ref of givenRefs) {
+      if (stepRefs.has(ref)) {
+        for (const [node, n] of stepOf) {
+          if (node.refHtml === ref) {
+            duplicates.push(n);
+            break;
+          }
+        }
+      }
+    }
+    // Recurse into subcalculations.
+    for (const sub of c.subcalculations) walkCalc(sub);
+  };
+  walkCalc(mainCalc);
+  return duplicates;
+}
+
+/**
+ * Self-check: step count conservation. The total number of unique ProofTree
+ * nodes should equal the number of nodes accounted for in the main calc plus
+ * those inside shared subtrees. Returns step numbers of any orphans (nodes not
+ * reached by either path) or a negative count if there are duplicates.
+ */
+export function checkStepCountConservation(
+  tree: ProofTree,
+  stepOf: Map<ProofTree, number>,
+  mainCalc: Calculation,
+  shared: Set<ProofTree>,
+): number[] {
+  // Count all unique nodes in the tree.
+  const allNodes = new Set<ProofTree>();
+  const collectAll = (node: ProofTree) => {
+    if (allNodes.has(node)) return;
+    allNodes.add(node);
+    for (const sub of node.subproofs) collectAll(sub);
+  };
+  collectAll(tree);
+
+  // Count nodes accounted for: main calc refs + expressions, and shared subtrees.
+  const mainRefs = collectCalcRefs(mainCalc);
+  const mainExprs = collectCalcExpressions(mainCalc);
+  const accounted = new Set<ProofTree>();
+  for (const node of allNodes) {
+    if (shared.has(node)) {
+      // Shared node and all its exclusive descendants are covered.
+      const markShared = (n: ProofTree) => {
+        if (accounted.has(n)) return;
+        accounted.add(n);
+        for (const sub of n.subproofs) markShared(sub);
+      };
+      markShared(node);
+    } else if (
+      mainRefs.has(node.refHtml) ||
+      mainExprs.has(node.expressionHtml)
+    ) {
+      accounted.add(node);
+    }
+  }
+
+  const orphans: number[] = [];
+  for (const node of allNodes) {
+    if (!accounted.has(node)) {
+      const n = stepOf.get(node);
+      if (n !== undefined) orphans.push(n);
+    }
+  }
+  return orphans;
+}
