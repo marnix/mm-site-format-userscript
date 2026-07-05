@@ -35,6 +35,9 @@ export interface Given {
   // on leaves), these are the leaf hypothesis refs. The renderer includes them
   // as additional items in the parent's hint series alongside hypothesisRefHtml.
   leafRefHtmls?: Element[];
+  // Parallel to leafRefHtmls: the expression of each leaf hypothesis, used for
+  // tooltips on page-internal (#) refs where the expression cannot be fetched.
+  leafExpressionHtmls?: Element[];
 }
 
 export interface Step {

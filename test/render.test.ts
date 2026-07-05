@@ -312,6 +312,52 @@ describe("renderCalculation", () => {
     tooltip.remove();
   });
 
+  it("shows the leaf hypothesis expression (not the folded step conclusion) in the tooltip for a depth-1 folded given with page-internal refs", () => {
+    // Reproduces prlngref bug: step 9 (brprlng) is depth-1 folded into a given.
+    // Its leafRefHtmls point to brprlng.l etc. whose hrefs start with "#".
+    // The tooltip must show each leaf's own expression, not the parent's.
+    const calc: Calculation = {
+      kind: "step",
+      inferenceRuleRefHtml: el('<a href="mpbir2and.html">mpbir2and</a>'),
+      expressionHtml: el("FINAL_CONCL"),
+      subcalculations: [
+        {
+          kind: "given",
+          hypothesisRefHtml: el('<a href="brprlng.html">brprlng</a>'),
+          expressionHtml: el("STEP9_CONCL"),
+          leafRefHtmls: [
+            el('<a href="#brprlng.l">brprlng.l</a>'),
+            el('<a href="#brprlng.e">brprlng.e</a>'),
+          ],
+          leafExpressionHtmls: [el("LEAF_L_EXPR"), el("LEAF_E_EXPR")],
+        },
+        {
+          kind: "given",
+          hypothesisRefHtml: el("min"),
+          expressionHtml: el("MINOR"),
+        },
+      ],
+      spine: 1,
+    };
+    const box = renderCalculation(calc);
+
+    // The hint: { using brprlng, brprlng.l, brprlng.e, min, and mpbir2and }
+    const hintRow = [...box.querySelector("tbody")!.children][1] as HTMLElement;
+    const hintCell = hintRow.children[1] as HTMLElement;
+    // Find the brprlng.l ref in the hint
+    const leafLRef = hintCell.querySelector("a[href='#brprlng.l']")!
+      .parentElement as HTMLElement;
+    leafLRef.dispatchEvent(new MouseEvent("mouseenter"));
+
+    const tooltip = document.querySelector(
+      ".mm-site-format-ref-tooltip",
+    ) as HTMLElement | null;
+    expect(tooltip).not.toBeNull();
+    expect(tooltip!.textContent).toContain("LEAF_L_EXPR");
+    expect(tooltip!.textContent).not.toContain("STEP9_CONCL");
+    tooltip!.remove();
+  });
+
   it("folds a small spine step: skips the intermediate expression and merges its rule into the parent hint", () => {
     // P has foldedRuleRefs=[eleq2i], subcalculations=[given] (folded at build time).
     // The intermediate expression (from the folded step) does not appear.
