@@ -85,21 +85,12 @@ function spacingOf(proof: Proof, memo: Map<Proof, number>): number {
   return s;
 }
 
-/** True when a proof's rendered token sequence begins with a hole (a variable),
- *  not a literal like `(` or `{`. Used to decide symmetric first-operand spacing. */
-function startsWithHole(p: Proof): boolean {
-  const pattern = p.rule.conclusion.slice(1);
-  return pattern.length > 0 && p.subst.has(pattern[0]);
-}
-
 /**
  * Units of extra whitespace to put *before* each token of the proof's token
  * sequence (`units[0]` is 0). A node contributes its spacing to the gaps
  * strictly between its first and last sub-expression -- i.e. around its operators
- * -- and nothing before the first or after the last, so brackets stay tight.
- * The first child also gets space when it begins with a hole (a bare expression
- * like `A ∈ B`, not one wrapped in `(` or `{`), preserving symmetric spacing
- * around binary connectives like `A ↔ B`.
+ * -- and nothing before the first or after the last, so brackets stay tight and
+ * the space around an operator is symmetric.
  */
 export function gapUnits(proof: Proof): number[] {
   const memo = new Map<Proof, number>();
@@ -117,10 +108,7 @@ export function gapUnits(proof: Proof): number[] {
     pattern.forEach((tok, j) => {
       if (j > 0) {
         const interior =
-          firstHole !== undefined &&
-          j <= lastHole &&
-          (j > firstHole ||
-            (j === firstHole && startsWithHole(p.subproofs[nextSub])));
+          firstHole !== undefined && j - 1 >= firstHole && j <= lastHole;
         units[offset] = interior ? spacing : 0;
       }
       if (p.subst.has(tok)) offset = walk(p.subproofs[nextSub++], offset);
