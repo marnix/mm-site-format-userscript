@@ -77,14 +77,14 @@ function makeLeaf(typecode: string, token: string): Proof {
 describe("gapUnits", () => {
   it("puts space around the outer operator, none around the inner one", () => {
     // spacing: leaves -1; ( ps <-> th ) = 0; ( ph -> ... ) = 1.
-    // 1 unit before "->" and before the "(" after it (symmetric around "->");
+    // 1 unit before "->"; holes (operands) never get spacing directly.
     // 0 around "<->"; nothing at brackets or the turnstile.
     expect(gapUnits(proof)).toEqual([
       0, // |-
       0, // (
       0, // ph
       1, // -> (after ph)
-      1, // (  (before the inner subexpression)
+      0, // (  (holes get no spacing from parent)
       0, // ps
       0, // <->
       0, // th
