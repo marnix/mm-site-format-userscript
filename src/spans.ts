@@ -108,10 +108,7 @@ export function gapUnits(proof: Proof): number[] {
     pattern.forEach((tok, j) => {
       if (j > 0) {
         const interior =
-          firstHole !== undefined &&
-          !p.subst.has(tok) &&
-          j - 1 >= firstHole &&
-          j <= lastHole;
+          firstHole !== undefined && j - 1 >= firstHole && j <= lastHole;
         units[offset] = interior ? spacing : 0;
       }
       if (p.subst.has(tok)) offset = walk(p.subproofs[nextSub++], offset);
