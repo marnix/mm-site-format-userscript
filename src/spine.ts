@@ -28,13 +28,17 @@ export function structuralOverlap(a: Proof, b: Proof): number {
   const bLeaf = b.subproofs.length === 0;
   if (aLeaf && bLeaf) return 1;
   if (aLeaf || bLeaf) return 0;
-  if (a.rule.conclusion.join(" ") !== b.rule.conclusion.join(" ")) return 0;
   if (a.subproofs.length !== b.subproofs.length) return 0;
-  let matched = 1;
+  const rulesMatch =
+    a.rule.conclusion.join(" ") === b.rule.conclusion.join(" ");
+  let childSum = 0;
   for (let i = 0; i < a.subproofs.length; i++) {
-    matched += structuralOverlap(a.subproofs[i], b.subproofs[i]);
+    childSum += structuralOverlap(a.subproofs[i], b.subproofs[i]);
   }
-  return matched;
+  if (rulesMatch) return 1 + childSum;
+  // Mismatched parent: only count child overlap if it exceeds the trivial
+  // leaf-leaf baseline (i.e. at least one child pair shares internal structure).
+  return childSum > a.subproofs.length ? childSum : 0;
 }
 
 /** The number of nodes in a parse tree. */
