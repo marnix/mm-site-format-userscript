@@ -14,13 +14,13 @@
     "postci": "node scripts/check-ascii.mjs dist"
   },
   "devDependencies": {
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.1.1",
     "concurrently": "^10.0.3",
-    "happy-dom": "^20.10.3",
-    "prettier": "^3.9.4",
+    "happy-dom": "^20.11.0",
+    "prettier": "^3.9.6",
     "tsup": "^8.5.1",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.8"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
   },
   "overrides": {
     "esbuild": "^0.28.1"

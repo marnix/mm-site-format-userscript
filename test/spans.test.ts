@@ -93,12 +93,12 @@ describe("gapUnits", () => {
     ]);
   });
 
-  it("no space between ∩ and { when applied to a class abstraction", () => {
-    // ∩ { x ∈ B | P } — cint(crab(x, B, P))
-    // cint pattern ["∩", "A"]: single hole at end, not interior, gap = 0.
+  it("no space between \u2229 and { when applied to a class abstraction", () => {
+    // \u2229 { x \u2208 B | P } \u2014 cint(crab(x, B, P))
+    // cint pattern ["\u2229", "A"]: single hole at end, not interior, gap = 0.
     const cintRule: InferenceRule = {
       assumptions: [["class", "A"]],
-      conclusion: ["class", "∩", "A"],
+      conclusion: ["class", "\u2229", "A"],
     };
     const crabRule: InferenceRule = {
       assumptions: [
@@ -106,7 +106,7 @@ describe("gapUnits", () => {
         ["class", "B"],
         ["wff", "P"],
       ],
-      conclusion: ["class", "{", "x", "∈", "B", "|", "P", "}"],
+      conclusion: ["class", "{", "x", "\u2208", "B", "|", "P", "}"],
     };
     const crabProof: Proof = {
       rule: crabRule,
@@ -126,21 +126,21 @@ describe("gapUnits", () => {
       subst: new Map([["A", ["class", "A"]]]),
       subproofs: [crabProof],
     };
-    // tokens: ∩  {  x  ∈  B  |  P  }
+    // tokens: \u2229  {  x  \u2208  B  |  P  }
     //         0  1  2  3  4  5  6  7
     expect(gapUnits(cintProof)[1]).toBe(0);
   });
 
   it("no space between successive ( in a nested conjunction", () => {
-    // ( ( C ∧ D ) ∧ B ) — wa(wa(C, D), B)
-    // outer wa pattern ["(", "A", "∧", "B", ")"]: first hole at j=1,
-    // interior check j-1=0 >= firstHole=1 is false → gap = 0.
+    // ( ( C \u2227 D ) \u2227 B ) \u2014 wa(wa(C, D), B)
+    // outer wa pattern ["(", "A", "\u2227", "B", ")"]: first hole at j=1,
+    // interior check j-1=0 >= firstHole=1 is false \u2192 gap = 0.
     const waRule: InferenceRule = {
       assumptions: [
         ["wff", "A"],
         ["wff", "B"],
       ],
-      conclusion: ["wff", "(", "A", "∧", "B", ")"],
+      conclusion: ["wff", "(", "A", "\u2227", "B", ")"],
     };
     const innerWa: Proof = {
       rule: waRule,
@@ -158,62 +158,65 @@ describe("gapUnits", () => {
       ]),
       subproofs: [innerWa, makeLeaf("wff", "B")],
     };
-    // tokens: (  (  C  ∧  D  )  ∧  B  )
+    // tokens: (  (  C  \u2227  D  )  \u2227  B  )
     //         0  1  2  3  4  5  6  7  8
     expect(gapUnits(outerWa)[1]).toBe(0);
   });
 
-  it.fails("symmetric spacing around ↔ when both sides are equally complex", () => {
-    // ( r ∈ On <-> s ∈ On ) — wb(wcel(r, On), wcel(s, On))
-    // Both sides have spacing 0; wb has spacing 1.
-    // Requirement: gap before first operand = gap before second operand.
-    // Currently fails: units[1]=0 (not interior), units[5]=1 (interior).
-    const wcelRule: InferenceRule = {
-      assumptions: [
-        ["class", "A"],
-        ["class", "B"],
-      ],
-      conclusion: ["wff", "A", "∈", "B"],
-    };
-    const wcelLeft: Proof = {
-      rule: wcelRule,
-      subst: new Map([
-        ["A", ["class", "r"]],
-        ["B", ["class", "On"]],
-      ]),
-      subproofs: [makeLeaf("class", "r"), makeLeaf("class", "On")],
-    };
-    const wcelRight: Proof = {
-      rule: wcelRule,
-      subst: new Map([
-        ["A", ["class", "s"]],
-        ["B", ["class", "On"]],
-      ]),
-      subproofs: [makeLeaf("class", "s"), makeLeaf("class", "On")],
-    };
-    const wbProof: Proof = {
-      rule: wb,
-      subst: new Map([
-        ["ph", ["wff", "r", "∈", "On"]],
-        ["ps", ["wff", "s", "∈", "On"]],
-      ]),
-      subproofs: [wcelLeft, wcelRight],
-    };
-    // tokens: (  r  ∈  On  <->  s  ∈  On  )
-    //         0  1  2   3    4   5  6   7  8
-    const units = gapUnits(wbProof);
-    expect(units[1]).toBe(units[5]);
-  });
+  it.fails(
+    "symmetric spacing around \u2194 when both sides are equally complex",
+    () => {
+      // ( r \u2208 On <-> s \u2208 On ) \u2014 wb(wcel(r, On), wcel(s, On))
+      // Both sides have spacing 0; wb has spacing 1.
+      // Requirement: gap before first operand = gap before second operand.
+      // Currently fails: units[1]=0 (not interior), units[5]=1 (interior).
+      const wcelRule: InferenceRule = {
+        assumptions: [
+          ["class", "A"],
+          ["class", "B"],
+        ],
+        conclusion: ["wff", "A", "\u2208", "B"],
+      };
+      const wcelLeft: Proof = {
+        rule: wcelRule,
+        subst: new Map([
+          ["A", ["class", "r"]],
+          ["B", ["class", "On"]],
+        ]),
+        subproofs: [makeLeaf("class", "r"), makeLeaf("class", "On")],
+      };
+      const wcelRight: Proof = {
+        rule: wcelRule,
+        subst: new Map([
+          ["A", ["class", "s"]],
+          ["B", ["class", "On"]],
+        ]),
+        subproofs: [makeLeaf("class", "s"), makeLeaf("class", "On")],
+      };
+      const wbProof: Proof = {
+        rule: wb,
+        subst: new Map([
+          ["ph", ["wff", "r", "\u2208", "On"]],
+          ["ps", ["wff", "s", "\u2208", "On"]],
+        ]),
+        subproofs: [wcelLeft, wcelRight],
+      };
+      // tokens: (  r  \u2208  On  <->  s  \u2208  On  )
+      //         0  1  2   3    4   5  6   7  8
+      const units = gapUnits(wbProof);
+      expect(units[1]).toBe(units[5]);
+    },
+  );
 
   it("no space right after ( in wb(wcel, wcel)", () => {
-    // ( r ∈ On <-> s ∈ On ) — same proof as symmetry test above.
+    // ( r \u2208 On <-> s \u2208 On ) \u2014 same proof as symmetry test above.
     // units[1] is the gap before the first token of the left operand, right after (.
     const wcelRule: InferenceRule = {
       assumptions: [
         ["class", "A"],
         ["class", "B"],
       ],
-      conclusion: ["wff", "A", "∈", "B"],
+      conclusion: ["wff", "A", "\u2208", "B"],
     };
     const wcelLeft: Proof = {
       rule: wcelRule,
@@ -234,12 +237,12 @@ describe("gapUnits", () => {
     const wbProof: Proof = {
       rule: wb,
       subst: new Map([
-        ["ph", ["wff", "r", "∈", "On"]],
-        ["ps", ["wff", "s", "∈", "On"]],
+        ["ph", ["wff", "r", "\u2208", "On"]],
+        ["ps", ["wff", "s", "\u2208", "On"]],
       ]),
       subproofs: [wcelLeft, wcelRight],
     };
-    // tokens: (  r  ∈  On  <->  s  ∈  On  )
+    // tokens: (  r  \u2208  On  <->  s  \u2208  On  )
     //         0  1  2   3    4   5  6   7  8
     expect(gapUnits(wbProof)[1]).toBe(0);
   });
