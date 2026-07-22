@@ -20,8 +20,8 @@ import { DEV_SPINE_LOG } from "./config";
 
 /**
  * Matched nodes when aligning two parse trees from their roots: same rule -> 1
- * plus the matches of paired children; leaf<->leaf -> 1; any mismatch (different
- * rule, or leaf vs node) stops that branch at 0.
+ * plus the recursive matches of paired children; leaf<->leaf -> 1; any mismatch
+ * (different rule, or leaf vs node) stops that branch at 0.
  */
 export function structuralOverlap(a: Proof, b: Proof): number {
   const aLeaf = a.subproofs.length === 0;
@@ -32,17 +32,7 @@ export function structuralOverlap(a: Proof, b: Proof): number {
   if (a.subproofs.length !== b.subproofs.length) return 0;
   let matched = 1;
   for (let i = 0; i < a.subproofs.length; i++) {
-    const ai = a.subproofs[i];
-    const bi = b.subproofs[i];
-    const aiLeaf = ai.subproofs.length === 0;
-    const biLeaf = bi.subproofs.length === 0;
-    if (aiLeaf && biLeaf) matched++;
-    else if (
-      !aiLeaf &&
-      !biLeaf &&
-      ai.rule.conclusion.join(" ") === bi.rule.conclusion.join(" ")
-    )
-      matched++;
+    matched += structuralOverlap(a.subproofs[i], b.subproofs[i]);
   }
   return matched;
 }
@@ -190,19 +180,22 @@ function firstDivergingPosition(conclusion: Proof, hypothesis: Proof): number {
 }
 
 /**
- * The index of the spine sub-proof: the one whose parse tree overlaps the
- * conclusion's the most. Among equal-overlap candidates, prefer a non-trivial
- * (derived) sub-proof over a trivial one (a leaf -- a hypothesis / 0-assumption
- * step), so the main line flows through reasoning. When several non-trivial
- * sub-proofs still tie, prefer the one that first diverges from the conclusion
- * at the earliest argument position (lower index = the hypothesis preserves more
- * of the conclusion's trailing arguments, e.g. the consequent of a `syl` step).
- * When that still ties, prefer the one with the lowest divergingSubtreeOverlap:
- * a hypothesis whose diverging part contains the conclusion's diverging part as
- * a subtree is a rewrite rule, not the main transformed input (e.g. mpjaod's
- * jaod.1/jaod.2 contain the conclusion's consequent ch inside wi(ps,ch); jaod.3,
- * the disjunction being eliminated, does not). Falls back to smallest size, then
- * returns null for a genuinely symmetric step (e.g. `bitrd`).
+ * The index of the spine sub-proof: the one whose parse tree is most like the
+ * conclusion's. Among candidates, prefer a non-trivial (derived) sub-proof over
+ * a trivial one (a leaf). Among non-trivial candidates, the tiebreaker cascade:
+ *
+ * 1. First diverging position (FDP): prefer the hypothesis that first diverges
+ *    from the conclusion at the EARLIEST child position (lower = more trailing
+ *    arguments are preserved, e.g. the consequent of a `syl` step).
+ * 2. Structural overlap: recursive count of shared tree nodes from the root.
+ *    Higher is better -- the hypothesis that shares more internal structure
+ *    with the conclusion is more likely to be the main derivation line.
+ * 3. Diverging subtree overlap (DSO): prefer LOWER -- a hypothesis whose
+ *    diverging part contains the conclusion's diverging part as a subtree is a
+ *    rewrite rule, not the main transformed expression.
+ * 4. Size: prefer the larger hypothesis (it usually carries the main derivation
+ *    forward rather than being a helper lemma).
+ * 5. Null: genuinely symmetric step (e.g. `bitrd`) -- no clear main line.
  */
 export function chooseSpine(
   conclusion: Proof,
@@ -210,27 +203,29 @@ export function chooseSpine(
   label?: string,
 ): number | null {
   if (subproofs.length === 0) return null;
-  const overlap = subproofs.map((s) => structuralOverlap(conclusion, s.parse));
-  const best = Math.max(...overlap);
-  const top = subproofs
-    .map((s, i) => ({ index: i, trivial: s.trivial, size: treeSize(s.parse) }))
-    .filter(({ index }) => overlap[index] === best);
-  const nonTrivial = top.filter((t) => !t.trivial);
+
+  // Trivial filter: prefer non-trivial (derived) sub-proofs.
+  const candidates = subproofs.map((s, i) => ({
+    index: i,
+    trivial: s.trivial,
+    size: treeSize(s.parse),
+  }));
+  const nonTrivial = candidates.filter((t) => !t.trivial);
   if (nonTrivial.length === 0) {
-    const result = top.length === 1 ? top[0].index : null;
+    const result = candidates.length === 1 ? candidates[0].index : null;
     if (DEV_SPINE_LOG)
-      console.log(
-        `[spine] ${label ?? "?"}: all trivial, overlap=[${overlap}] => ${result}`,
-      );
+      console.log(`[spine] ${label ?? "?"}: all trivial => ${result}`);
     return result;
   }
   if (nonTrivial.length === 1) {
     if (DEV_SPINE_LOG)
       console.log(
-        `[spine] ${label ?? "?"}: single non-trivial #${nonTrivial[0].index}, overlap=[${overlap}]`,
+        `[spine] ${label ?? "?"}: single non-trivial #${nonTrivial[0].index}`,
       );
     return nonTrivial[0].index;
   }
+
+  // 1. First diverging position: lower = better (preserves trailing args).
   const fdp = nonTrivial.map((t) =>
     firstDivergingPosition(conclusion, subproofs[t.index].parse),
   );
@@ -239,28 +234,46 @@ export function chooseSpine(
   if (fdpTop.length === 1) {
     if (DEV_SPINE_LOG)
       console.log(
-        `[spine] ${label ?? "?"}: fdp winner #${fdpTop[0].index}, overlap=[${overlap}] fdp=[${fdp.map((f, i) => `${nonTrivial[i].index}:${f}`)}]`,
+        `[spine] ${label ?? "?"}: fdp winner #${fdpTop[0].index}, fdp=[${fdp.map((f, i) => `${nonTrivial[i].index}:${f}`)}]`,
       );
     return fdpTop[0].index;
   }
-  const dso = fdpTop.map((t) =>
+
+  // 2. Structural overlap: higher = better (more shared structure).
+  const overlap = fdpTop.map((t) =>
+    structuralOverlap(conclusion, subproofs[t.index].parse),
+  );
+  const maxOverlap = Math.max(...overlap);
+  const overlapTop = fdpTop.filter((_, i) => overlap[i] === maxOverlap);
+  if (overlapTop.length === 1) {
+    if (DEV_SPINE_LOG)
+      console.log(
+        `[spine] ${label ?? "?"}: overlap winner #${overlapTop[0].index}, fdp=[${fdp.map((f, i) => `${nonTrivial[i].index}:${f}`)}] overlap=[${overlap.map((o, i) => `${fdpTop[i].index}:${o}`)}]`,
+      );
+    return overlapTop[0].index;
+  }
+
+  // 3. Diverging subtree overlap: lower = better (not a rewrite rule).
+  const dso = overlapTop.map((t) =>
     divergingSubtreeOverlap(conclusion, subproofs[t.index].parse),
   );
   const minDso = Math.min(...dso);
-  const dsoTop = fdpTop.filter((_, i) => dso[i] === minDso);
+  const dsoTop = overlapTop.filter((_, i) => dso[i] === minDso);
   if (dsoTop.length === 1) {
     if (DEV_SPINE_LOG)
       console.log(
-        `[spine] ${label ?? "?"}: dso winner #${dsoTop[0].index}, overlap=[${overlap}] fdp=[${fdp.map((f, i) => `${nonTrivial[i].index}:${f}`)}] dso=[${dso.map((d, i) => `${fdpTop[i].index}:${d}`)}]`,
+        `[spine] ${label ?? "?"}: dso winner #${dsoTop[0].index}, fdp=[${fdp.map((f, i) => `${nonTrivial[i].index}:${f}`)}] overlap=[${overlap.map((o, i) => `${fdpTop[i].index}:${o}`)}] dso=[${dso.map((d, i) => `${overlapTop[i].index}:${d}`)}]`,
       );
     return dsoTop[0].index;
   }
-  const minSize = Math.min(...dsoTop.map((t) => t.size));
-  const smallest = dsoTop.filter((t) => t.size === minSize);
-  const result = smallest.length === 1 ? smallest[0].index : null;
+
+  // 4. Size: prefer larger (main derivation is typically more complex).
+  const maxSize = Math.max(...dsoTop.map((t) => t.size));
+  const largest = dsoTop.filter((t) => t.size === maxSize);
+  const result = largest.length === 1 ? largest[0].index : null;
   if (DEV_SPINE_LOG)
     console.log(
-      `[spine] ${label ?? "?"}: size/tie, overlap=[${overlap}] fdp=[${fdp.map((f, i) => `${nonTrivial[i].index}:${f}`)}] dso=[${dso.map((d, i) => `${fdpTop[i].index}:${d}`)}] size=[${dsoTop.map((t) => `${t.index}:${t.size}`)}] => ${result}`,
+      `[spine] ${label ?? "?"}: size/tie, fdp=[${fdp.map((f, i) => `${nonTrivial[i].index}:${f}`)}] overlap=[${overlap.map((o, i) => `${fdpTop[i].index}:${o}`)}] dso=[${dso.map((d, i) => `${overlapTop[i].index}:${d}`)}] size=[${dsoTop.map((t) => `${t.index}:${t.size}`)}] => ${result}`,
     );
   return result;
 }

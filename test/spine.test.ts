@@ -51,10 +51,10 @@ describe("structuralOverlap", () => {
     expect(structuralOverlap(leaf("wff", "ps"), wb)).toBe(0);
   });
 
-  it("does not recurse beyond immediate children: matching child rule counts 1, not treeSize", () => {
+  it("recurses into matching children: counts shared nodes at all depths", () => {
     // wi( wcel(A, D), ps ) vs wi( wcel(A, cxp(B,C)), th )
-    // Root: wi matches (+1). Child0: wcel vs wcel same-rule (+1). Child1: both leaves (+1). Total = 3.
-    // Without this fix the old recursive code gives 4: +1 for A_leaf matching inside wcel.
+    // Root: wi matches (+1). Child0: wcel matches (+1), A leaf=leaf (+1),
+    // D leaf vs cxp node (0). Child1: both leaves (+1). Total = 4.
     const a = node(
       WI,
       node(WCEL, leaf("class", "A"), leaf("class", "D")),
@@ -69,7 +69,7 @@ describe("structuralOverlap", () => {
       ),
       leaf("wff", "th"),
     );
-    expect(structuralOverlap(a, b)).toBe(3);
+    expect(structuralOverlap(a, b)).toBe(4);
   });
 });
 
