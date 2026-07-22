@@ -16,6 +16,8 @@
 
 import type { Proof } from "./proof";
 
+import { DEV_SPINE_LOG } from "./config";
+
 /**
  * Matched nodes when aligning two parse trees from their roots: same rule -> 1
  * plus the matches of paired children; leaf<->leaf -> 1; any mismatch (different
@@ -205,6 +207,7 @@ function firstDivergingPosition(conclusion: Proof, hypothesis: Proof): number {
 export function chooseSpine(
   conclusion: Proof,
   subproofs: { parse: Proof; trivial: boolean }[],
+  label?: string,
 ): number | null {
   if (subproofs.length === 0) return null;
   const overlap = subproofs.map((s) => structuralOverlap(conclusion, s.parse));
@@ -213,21 +216,51 @@ export function chooseSpine(
     .map((s, i) => ({ index: i, trivial: s.trivial, size: treeSize(s.parse) }))
     .filter(({ index }) => overlap[index] === best);
   const nonTrivial = top.filter((t) => !t.trivial);
-  if (nonTrivial.length === 0) return top.length === 1 ? top[0].index : null;
-  if (nonTrivial.length === 1) return nonTrivial[0].index;
+  if (nonTrivial.length === 0) {
+    const result = top.length === 1 ? top[0].index : null;
+    if (DEV_SPINE_LOG)
+      console.log(
+        `[spine] ${label ?? "?"}: all trivial, overlap=[${overlap}] => ${result}`,
+      );
+    return result;
+  }
+  if (nonTrivial.length === 1) {
+    if (DEV_SPINE_LOG)
+      console.log(
+        `[spine] ${label ?? "?"}: single non-trivial #${nonTrivial[0].index}, overlap=[${overlap}]`,
+      );
+    return nonTrivial[0].index;
+  }
   const fdp = nonTrivial.map((t) =>
     firstDivergingPosition(conclusion, subproofs[t.index].parse),
   );
   const minFdp = Math.min(...fdp);
   const fdpTop = nonTrivial.filter((_, i) => fdp[i] === minFdp);
-  if (fdpTop.length === 1) return fdpTop[0].index;
-  const mso = fdpTop.map((t) =>
+  if (fdpTop.length === 1) {
+    if (DEV_SPINE_LOG)
+      console.log(
+        `[spine] ${label ?? "?"}: fdp winner #${fdpTop[0].index}, overlap=[${overlap}] fdp=[${fdp.map((f, i) => `${nonTrivial[i].index}:${f}`)}]`,
+      );
+    return fdpTop[0].index;
+  }
+  const dso = fdpTop.map((t) =>
     divergingSubtreeOverlap(conclusion, subproofs[t.index].parse),
   );
-  const minMso = Math.min(...mso);
-  const msoTop = fdpTop.filter((_, i) => mso[i] === minMso);
-  if (msoTop.length === 1) return msoTop[0].index;
-  const minSize = Math.min(...msoTop.map((t) => t.size));
-  const smallest = msoTop.filter((t) => t.size === minSize);
-  return smallest.length === 1 ? smallest[0].index : null;
+  const minDso = Math.min(...dso);
+  const dsoTop = fdpTop.filter((_, i) => dso[i] === minDso);
+  if (dsoTop.length === 1) {
+    if (DEV_SPINE_LOG)
+      console.log(
+        `[spine] ${label ?? "?"}: dso winner #${dsoTop[0].index}, overlap=[${overlap}] fdp=[${fdp.map((f, i) => `${nonTrivial[i].index}:${f}`)}] dso=[${dso.map((d, i) => `${fdpTop[i].index}:${d}`)}]`,
+      );
+    return dsoTop[0].index;
+  }
+  const minSize = Math.min(...dsoTop.map((t) => t.size));
+  const smallest = dsoTop.filter((t) => t.size === minSize);
+  const result = smallest.length === 1 ? smallest[0].index : null;
+  if (DEV_SPINE_LOG)
+    console.log(
+      `[spine] ${label ?? "?"}: size/tie, overlap=[${overlap}] fdp=[${fdp.map((f, i) => `${nonTrivial[i].index}:${f}`)}] dso=[${dso.map((d, i) => `${fdpTop[i].index}:${d}`)}] size=[${dsoTop.map((t) => `${t.index}:${t.size}`)}] => ${result}`,
+    );
+  return result;
 }

@@ -29,6 +29,7 @@ import {
   CALC_WIDTH_FACTOR,
   DEV_PERF_LOG,
   DEV_CHECK_SHARED_COVERAGE,
+  DEV_SPINE_LOG,
 } from "./config";
 import { extractSyntaxHintUrls } from "./loader";
 import { canvasSampler } from "./kind";
@@ -187,16 +188,27 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
       // Without parse trees, fall back to the first sub-proof; otherwise a null
       // from chooseSpine means "no clear main line". Try the anchor tiebreaker
       // before giving up.
-      if (!conclusion || subs.some((s) => !s.parse)) return 0;
+      if (!conclusion || subs.some((s) => !s.parse)) {
+        if (DEV_SPINE_LOG)
+          console.log(
+            `[spine] step ${stepOf.get(node) ?? "?"}: no parse => fallback 0`,
+          );
+        return 0;
+      }
+      const label = `step ${stepOf.get(node) ?? "?"}`;
       const result = chooseSpine(
         conclusion,
         subs as { parse: Proof; trivial: boolean }[],
+        label,
       );
       if (result !== null || anchor === null) return result;
-      return anchorSpine(
+      const anchorResult = anchorSpine(
         anchor,
         node.subproofs.map((s) => tokensOf(s)),
       );
+      if (DEV_SPINE_LOG)
+        console.log(`[spine] ${label}: anchor tiebreaker => ${anchorResult}`);
+      return anchorResult;
     };
     // Single-premise only (matching the earlier userscript's stepIsSmall): a
     // multi-premise step combines information, so it is never "small".

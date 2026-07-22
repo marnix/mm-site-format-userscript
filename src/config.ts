@@ -39,3 +39,10 @@ export const DEV_CHECK_SHARED_COVERAGE =
   // Always enabled in test runs (vitest sets import.meta.env.MODE to "test").
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   (import.meta as unknown as { env?: { MODE?: string } }).env?.MODE === "test";
+
+/**
+ * When true, logs spine-choice decisions and their metric scores to the console
+ * for every proof step. Useful for diagnosing why a particular hypothesis was
+ * (or was not) chosen as the spine.
+ */
+export const DEV_SPINE_LOG = false;
