@@ -230,9 +230,20 @@ export function chooseSpine(
   }
 
   // 1. First diverging position: lower = better (preserves trailing args).
-  const fdp = nonTrivial.map((t) =>
-    firstDivergingPosition(conclusion, subproofs[t.index].parse),
-  );
+  //    Only meaningful when the hypothesis shares the conclusion's outermost
+  //    rule structure; a hypothesis whose top-level rule differs entirely gets
+  //    max FDP (= least preferred). Looks past a single-child wrapper ($TOP).
+  const conclInner =
+    conclusion.subproofs.length === 1 ? conclusion.subproofs[0] : conclusion;
+  const conclInnerRule = conclInner.rule.conclusion.join(" ");
+  const fdp = nonTrivial.map((t) => {
+    const hyp = subproofs[t.index].parse;
+    const hypInner = hyp.subproofs.length === 1 ? hyp.subproofs[0] : hyp;
+    const hypInnerRule = hypInner.rule.conclusion.join(" ");
+    return hypInnerRule === conclInnerRule
+      ? firstDivergingPosition(conclusion, hyp)
+      : conclusion.subproofs.length; // worst possible FDP
+  });
   const minFdp = Math.min(...fdp);
   const fdpTop = nonTrivial.filter((_, i) => fdp[i] === minFdp);
   if (fdpTop.length === 1) {
