@@ -36,8 +36,17 @@ export function structuralOverlap(a: Proof, b: Proof): number {
     childSum += structuralOverlap(a.subproofs[i], b.subproofs[i]);
   }
   if (rulesMatch) return 1 + childSum;
-  // Mismatched parent: only count child overlap if it exceeds the trivial
-  // leaf-leaf baseline (i.e. at least one child pair shares internal structure).
+  // Mismatched parent: count child overlap if it exceeds the trivial leaf-leaf
+  // baseline (at least one child pair shares internal structure). For binary
+  // operators, also try the swapped child pairing and take the max -- this
+  // prevents asymmetry when the only difference is argument order (e.g.
+  // wss(A,B) and wss(B,A) should score equally against wceq(A,B)).
+  if (a.subproofs.length === 2) {
+    const swapped =
+      structuralOverlap(a.subproofs[0], b.subproofs[1]) +
+      structuralOverlap(a.subproofs[1], b.subproofs[0]);
+    childSum = Math.max(childSum, swapped);
+  }
   return childSum > a.subproofs.length ? childSum : 0;
 }
 
