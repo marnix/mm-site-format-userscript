@@ -51,7 +51,7 @@ describe("renderCalculation", () => {
     expect(rows[0]).toEqual(["", "GOAL"]); // the step's expression
     // operator | hint: a "subproof" for the non-spine sub-derivation (the a1i
     // sub-calc shown below), then the rule last.
-    expect(rows[1]).toEqual(["\u21d0", "{ using subproof and bitrd }"]);
+    expect(rows[1]).toEqual(["\u21d0", "{ using subproof and bitrd }"]); // <==
     expect(rows[2][0]).toBe(""); // the indented a1i sub-calc
     expect(rows[2][1]).toContain("STEP3");
     expect(rows[3]).toEqual(["(bitrdi.1)", "HYP1"]); // leaf Ref | its expression

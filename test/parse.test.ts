@@ -1,3 +1,9 @@
+// Unicode tokens used in test expressions (GIF names from set.mm $t):
+//   \u22a2=|- \u2192=-> \u2194=<-> \u2208=e. \u2018=` (function value)
+//   \u03c0=pi \u211d=RR \u21be=|`s (restriction) \u2191=^ (up-arrow)
+//   \u266f=# (hash) \u21150=NN0 \u2115=NN
+//   \u{1d434}=A \u{1d435}=B \u{1d439}=F \u{1d441}=N \u{1d445}=R
+//   \u{1d711}=ph \u{1d712}=ch \u{1d713}=ps \u{1d703}=th \u{1d45f}=r
 import { describe, expect, it } from "vitest";
 import { parseChunks, parseExpression, type KindOf } from "../src/parse";
 import { evaluate, type InferenceRule } from "../src/proof";
@@ -121,9 +127,10 @@ describe("parseExpression on deep nesting", () => {
 });
 
 describe("parseChunks with concatenated constants", () => {
-  // Mimics the fouriersw.html scenario: (-\u03c0(,)\u03c0) where \u03c0 is a constant
-  // from cpi, (,) is a zero-variable constant from cioo, and the outer
-  // parens are from co (operation value).
+  // Mimics the fouriersw.html scenario: (-pi(,)pi) where \u03c0 = pi is a
+  // constant from cpi, (,) is a zero-variable constant from cioo, and the
+  // outer parens are from co (operation value).
+  // Other tokens: \u211d = RR (reals), \u{1d434} = A, \u21be = |`s (restriction)
   const cpi: InferenceRule = {
     assumptions: [],
     conclusion: ["class", "\u03c0"],
@@ -234,10 +241,11 @@ describe("parseChunks with concatenated constants", () => {
   });
 
   it("parses (\u266f'A) \u2208 \u21150 with multi-char constants", () => {
-    // cn0 rule: class \u21150 (rendered as \u2115 + subscript 0, folded into one token)
-    // chash rule: class \u266f
-    // cfv rule: (F'A)
-    // wcel rule: A \u2208 B
+    // \u21150 = NN0 (rendered as \u2115 + subscript 0, folded into one token)
+    // \u266f = # (hash/cardinality)
+    // \u2208 = e. (element of)
+    // \u2018 = ` (function value tick)
+    // \u2192 = -> (implies)
     const cn0: InferenceRule = {
       assumptions: [],
       conclusion: ["class", "\u21150"],

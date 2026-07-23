@@ -49,7 +49,7 @@ describe("gifAssertionRule", () => {
 });
 
 describe("uniAssertionRule", () => {
-  it("extracts wi with Unicode glyphs (\u2192, \u{1d711}, \u{1d713})", () => {
+  it("extracts wi with Unicode glyphs (\u2192=->, \u{1d711}=ph, \u{1d713}=ps)", () => {
     expect(uniRuleOf("wi.html")).toEqual({
       assumptions: [
         ["wff", "\u{1d711}"],

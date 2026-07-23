@@ -312,6 +312,7 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
     const _t2 = DEV_PERF_LOG ? performance.now() : 0;
 
     // Self-check: every step's ref must appear in the calculation or be shared.
+    // Self-check warnings use \u26a0\ufe0f = warning sign + variation selector.
     const missingSteps = missingCalcRefs(proofTree, stepOf, calc, shared);
     if (missingSteps.length > 0) {
       console.warn(

@@ -68,7 +68,7 @@ export function attachTooltip(
     const tt = getTooltip();
     const result = getContent();
     if (result instanceof Promise) {
-      tt.replaceChildren(document.createTextNode("\u2026"));
+      tt.replaceChildren(document.createTextNode("\u2026")); // horizontal ellipsis
       tt.style.display = "";
       positionTooltip(tt, e);
       result

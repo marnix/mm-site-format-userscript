@@ -130,7 +130,7 @@ export function installViewToggle(
 
   const line = versionLine();
   if (line) {
-    line.prepend(link, "\u00a0\u00a0");
+    line.prepend(link, "\u00a0\u00a0"); // non-breaking spaces
   } else {
     const box = document.createElement("div");
     // TOGGLE_CLASS so applyViewToLinks skips it; the -view-box class styles it.

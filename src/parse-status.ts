@@ -34,6 +34,6 @@ export function installParseWarning(
   span.className = "mm-site-format-parse-warn";
   const noun = failureCount === 1 ? "expression" : "expressions";
   span.title = `${failureCount} ${noun} could not be parsed`;
-  span.textContent = " \u26a0";
+  span.textContent = " \u26a0"; // warning sign
   banner.appendChild(span);
 }

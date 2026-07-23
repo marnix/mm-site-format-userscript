@@ -89,6 +89,54 @@ character as a `\uXXXX` (or `\u{XXXXX}`) escape in string and regex literals,
 and as an ASCII description in comments. The CI step enforces this with
 `scripts/check-ascii.mjs`.
 
+### Unicode escapes in code
+
+Every `\uXXXX` / `\u{XXXXX}` escape in source code must have a nearby comment
+giving the GIF/original token name (for Metamath symbols) or a plain-English
+description (for UI characters). **Never** put a Unicode description in a
+comment using the actual Unicode glyph — always use the GIF name or ASCII
+rendering.
+
+The canonical token-to-Unicode mapping lives in the `$( $t ... $)` section of
+[set.mm](https://github.com/metamath/set.mm) (file `develop/set.mm`), in the
+`althtmldef` entries. Common examples:
+
+| Escape      | GIF token | Meaning                   |
+| ----------- | --------- | ------------------------- |
+| `\u22a2`    | `\|-`     | turnstile (assertion)     |
+| `\u2192`    | `->`      | implies                   |
+| `\u2194`    | `<->`     | biconditional             |
+| `\u2227`    | `/\`      | and (conjunction)         |
+| `\u2208`    | `e.`      | element of                |
+| `\u2203`    | `E.`      | there exists              |
+| `\u2229`    | `i^i`     | intersection              |
+| `\u27e8`    | `<.`      | left angle bracket        |
+| `\u27e9`    | `.>`      | right angle bracket       |
+| `\u21be`    | `\|`s`    | restriction               |
+| `\u2191`    | `^`       | up-arrow (exponentiation) |
+| `\u03c0`    | `pi`      | pi                        |
+| `\u00b7`    | `.cc`     | scalar multiplication     |
+| `\u{1d711}` | `ph`      | phi (wff variable)        |
+| `\u{1d713}` | `ps`      | psi (wff variable)        |
+| `\u{1d712}` | `ch`      | chi (wff variable)        |
+| `\u{1d703}` | `th`      | theta (wff variable)      |
+| `\u{1d434}` | `A`       | class variable (italic)   |
+| `\u{1d435}` | `B`       | class variable (italic)   |
+
+For UI characters not from Metamath (arrows, markers, etc.), use a plain
+description:
+
+| Escape   | Description                                |
+| -------- | ------------------------------------------ |
+| `\u21d0` | left double arrow (<=)                     |
+| `\u21d4` | biconditional (<=>)                        |
+| `\u25b6` | right-pointing triangle (collapsed marker) |
+| `\u25bc` | down-pointing triangle (expanded marker)   |
+| `\u26a0` | warning sign                               |
+| `\u22ef` | midline ellipsis                           |
+| `\u2026` | horizontal ellipsis                        |
+| `\u00a0` | non-breaking space                         |
+
 ## Grammar cache version
 
 The userscript caches grammar rules in `localStorage` (keyed by

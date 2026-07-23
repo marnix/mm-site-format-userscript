@@ -20,6 +20,8 @@ describe("findMathSpans + extractMathText (mpeuni)", () => {
 
   it("extracts every span.math expression in document order", () => {
     const exprs = findMathSpans(doc).map(extractMathText);
+    // Unicode tokens: \u22a2=|- \u{1d711}=ph \u{1d712}=ch \u{1d713}=ps
+    //   \u{1d703}=th \u2192=-> \u2194=<->
     expect(exprs).toEqual([
       "\u22a2 ( \u{1d711} \u2192 ( \u{1d713} \u2194 \u{1d712} ))", // hypothesis 1
       "\u22a2 ( \u{1d712} \u2194 \u{1d703} )", // hypothesis 2

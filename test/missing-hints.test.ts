@@ -35,7 +35,7 @@ describe("missingSyntaxHints", () => {
   });
 
   it("ignores unlabeled rules (the $TOP rule, variable-typing leaves)", () => {
-    const top = node(rule(undefined, ["$TOP", "\u22a2", "chi"]), wn);
+    const top = node(rule(undefined, ["$TOP", "\u22a2", "chi"]), wn); // \u22a2 = |-
     expect(missingSyntaxHints([top], new Set(["wn", "wcel"]))).toEqual([]);
   });
 });

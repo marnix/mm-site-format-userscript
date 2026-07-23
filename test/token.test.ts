@@ -21,6 +21,7 @@ function parse(variant: string, name = "bitrdi.html"): Document {
 }
 
 describe("tokenizeMathSpan (mpeuni)", () => {
+  // Unicode tokens: \u22a2=|- \u{1d711}=ph \u{1d713}=ps \u{1d703}=th \u2192=-> \u2194=<->
   const doc = parse("mpeuni");
   const kinds = parseKindNames(doc);
   const assertion = findMathSpans(doc)[2]; // hyp1, hyp2, assertion
@@ -224,6 +225,7 @@ describe("tokenizeMathSpan (symvar: dotted-underline symbol variables)", () => {
     // prlngref.html uses .||. (.||.) styled as CLASS=symvar color:#C3C.
     // The tokenizer must treat it as a class variable, not a constant -- otherwise
     // `wbr A .||. A` and `.||. = (parlnG ' G)` cannot parse.
+    // \u2225 = ||r (parallel) -- as a symvar with kind-color
     const span = document.createElement("span");
     span.innerHTML =
       '<span class="symvar" style="border-bottom:1px dotted;color:#C3C">\u2225</span>';

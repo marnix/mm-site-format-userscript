@@ -301,7 +301,7 @@ function makeCollapsible(table: HTMLTableElement): void {
   let collapsed = true;
   const refresh = () => {
     for (const r of rest) r.style.display = collapsed ? "none" : "";
-    marker.textContent = collapsed ? "\u25b6" : "\u25bc";
+    marker.textContent = collapsed ? "\u25b6" : "\u25bc"; // tri-right / tri-down
   };
   const toggle = () => {
     collapsed = !collapsed;
@@ -365,13 +365,13 @@ function makeLazyCollapsible(
       options?.onLazyRender?.(tbody);
     }
     for (const r of restRows) r.style.display = "";
-    marker.textContent = "\u25bc";
+    marker.textContent = "\u25bc"; // tri-down (expanded)
   };
 
   const refresh = () => {
     if (collapsed) {
       for (const r of restRows) r.style.display = "none";
-      marker.textContent = "\u25b6";
+      marker.textContent = "\u25b6"; // tri-right (collapsed)
     } else {
       expand();
     }

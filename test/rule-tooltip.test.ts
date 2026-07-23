@@ -1,4 +1,6 @@
 // @vitest-environment happy-dom
+// Unicode tokens used in test expressions:
+//   \u22a2=|- \u2192=-> \u2203=E. \u21d0=<== (tooltip separator) \u00a0=nbsp
 import { describe, expect, it } from "vitest";
 import {
   attachRuleTooltipsToPage,

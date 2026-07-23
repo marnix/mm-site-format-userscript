@@ -55,7 +55,7 @@ function* splitConstants(
 /**
  * Splits a run of concatenated constants by longest-match against the known
  * constant vocabulary (the tokens the grammar defines). The Unicode rendering
- * runs adjacent constants together with no delimiter (e.g. `([\u27e8`), so plain
+ * runs adjacent constants together with no delimiter (e.g. `([<.`), so plain
  * whitespace/paren splitting cannot recover the token boundaries; matching
  * against the vocabulary can. Whitespace separates tokens; an unrecognised
  * character is emitted on its own (the expression will then fail to parse).
@@ -91,7 +91,7 @@ function isSubscript(el: Element): boolean {
 }
 
 /** Inline presentational tags that may wrap a constant token mid-expression
- *  (e.g. `<B>&middot;</B>` in mpeuni `\u00B7` scalar-mult operator). Their text
+ *  (e.g. `<B>&middot;</B>` in mpeuni for the .cc scalar-mult operator). Their text
  *  content is absorbed into the current run so subscript folding still works.
  *  SUB is included: its text is folded with `sub` tagging for location tracking. */
 const INLINE_FORMATTING_TAGS = new Set([

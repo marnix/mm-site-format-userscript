@@ -126,6 +126,7 @@ describe("parseUniExpressions (mpeuni/bitrdi)", () => {
     // 9 span.math: 7 real expressions + the "->"/"<->" syntax-hint operator spans.
     expect(results.filter((r) => r.proof !== null)).toHaveLength(7);
 
+    // Assertion = |- ( ph -> ( ps <-> th ) )
     const assertion = results[2];
     expect(assertion.tokens.map((t) => t.text).join(" ")).toBe(
       "\u22a2 ( \u{1d711} \u2192 ( \u{1d713} \u2194 \u{1d703} ) )",
