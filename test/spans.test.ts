@@ -163,50 +163,47 @@ describe("gapUnits", () => {
     expect(gapUnits(outerWa)[1]).toBe(0);
   });
 
-  it.fails(
-    "symmetric spacing around \u2194 when both sides are equally complex",
-    () => {
-      // ( r \u2208 On <-> s \u2208 On ) \u2014 wb(wcel(r, On), wcel(s, On))
-      // Both sides have spacing 0; wb has spacing 1.
-      // Requirement: gap before first operand = gap before second operand.
-      // Currently fails: units[1]=0 (not interior), units[5]=1 (interior).
-      const wcelRule: InferenceRule = {
-        assumptions: [
-          ["class", "A"],
-          ["class", "B"],
-        ],
-        conclusion: ["wff", "A", "\u2208", "B"],
-      };
-      const wcelLeft: Proof = {
-        rule: wcelRule,
-        subst: new Map([
-          ["A", ["class", "r"]],
-          ["B", ["class", "On"]],
-        ]),
-        subproofs: [makeLeaf("class", "r"), makeLeaf("class", "On")],
-      };
-      const wcelRight: Proof = {
-        rule: wcelRule,
-        subst: new Map([
-          ["A", ["class", "s"]],
-          ["B", ["class", "On"]],
-        ]),
-        subproofs: [makeLeaf("class", "s"), makeLeaf("class", "On")],
-      };
-      const wbProof: Proof = {
-        rule: wb,
-        subst: new Map([
-          ["ph", ["wff", "r", "\u2208", "On"]],
-          ["ps", ["wff", "s", "\u2208", "On"]],
-        ]),
-        subproofs: [wcelLeft, wcelRight],
-      };
-      // tokens: (  r  \u2208  On  <->  s  \u2208  On  )
-      //         0  1  2   3    4   5  6   7  8
-      const units = gapUnits(wbProof);
-      expect(units[1]).toBe(units[5]);
-    },
-  );
+  it("symmetric spacing around \u2194 when both sides are equally complex", () => {
+    // ( r \u2208 On <-> s \u2208 On ) \u2014 wb(wcel(r, On), wcel(s, On))
+    // Both sides have spacing 0; wb has spacing 1.
+    // Requirement: gap before first operand = gap before second operand
+    // (infix operators give both adjacent gaps |h(left) - h(right)| = 0).
+    const wcelRule: InferenceRule = {
+      assumptions: [
+        ["class", "A"],
+        ["class", "B"],
+      ],
+      conclusion: ["wff", "A", "\u2208", "B"],
+    };
+    const wcelLeft: Proof = {
+      rule: wcelRule,
+      subst: new Map([
+        ["A", ["class", "r"]],
+        ["B", ["class", "On"]],
+      ]),
+      subproofs: [makeLeaf("class", "r"), makeLeaf("class", "On")],
+    };
+    const wcelRight: Proof = {
+      rule: wcelRule,
+      subst: new Map([
+        ["A", ["class", "s"]],
+        ["B", ["class", "On"]],
+      ]),
+      subproofs: [makeLeaf("class", "s"), makeLeaf("class", "On")],
+    };
+    const wbProof: Proof = {
+      rule: wb,
+      subst: new Map([
+        ["ph", ["wff", "r", "\u2208", "On"]],
+        ["ps", ["wff", "s", "\u2208", "On"]],
+      ]),
+      subproofs: [wcelLeft, wcelRight],
+    };
+    // tokens: (  r  \u2208  On  <->  s  \u2208  On  )
+    //         0  1  2   3    4   5  6   7  8
+    const units = gapUnits(wbProof);
+    expect(units[1]).toBe(units[5]);
+  });
 
   it("no space right after ( in wb(wcel, wcel)", () => {
     // ( r \u2208 On <-> s \u2208 On ) \u2014 same proof as symmetry test above.

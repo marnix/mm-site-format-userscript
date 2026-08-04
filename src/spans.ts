@@ -87,29 +87,42 @@ function spacingOf(proof: Proof, memo: Map<Proof, number>): number {
 
 /**
  * Units of extra whitespace to put *before* each token of the proof's token
- * sequence (`units[0]` is 0). A node contributes its spacing to the gaps
- * strictly between its first and last sub-expression -- i.e. around its operators
- * -- and nothing before the first or after the last, so brackets stay tight and
- * the space around an operator is symmetric.
+ * sequence (`units[0]` is 0). A gap gets spacing only when it is adjacent to an
+ * *infix* literal -- a pattern token that is a literal with a hole immediately
+ * before and after it (e.g. `->` or `e.`, but not a wrapper like `(` / `)`).
+ * Both sides of the operator get the same value: the absolute difference of its
+ * operands' heights (`spacingOf`). So every operator is symmetric, brackets
+ * stay tight, and everything follows from each rule's own pattern structure and
+ * the parse-tree heights -- nothing is keyed on a rule name or paren token.
  */
 export function gapUnits(proof: Proof): number[] {
   const memo = new Map<Proof, number>();
   const units: number[] = [];
 
   function walk(p: Proof, start: number): number {
-    const spacing = spacingOf(p, memo);
     const pattern = p.rule.conclusion.slice(1);
-    const holes = pattern.flatMap((tok, j) => (p.subst.has(tok) ? [j] : []));
-    const firstHole = holes[0];
-    const lastHole = holes[holes.length - 1];
+    const isHole = (j: number) =>
+      j >= 0 && j < pattern.length && p.subst.has(pattern[j]);
 
     let offset = start;
     let nextSub = 0;
     pattern.forEach((tok, j) => {
       if (j > 0) {
-        const interior =
-          firstHole !== undefined && j - 1 >= firstHole && j <= lastHole;
-        units[offset] = interior ? spacing : 0;
+        // The gap before pattern token j is adjacent to an infix operator when
+        // the literal right before it (j-1) has holes on both sides (tok is the
+        // right operand), or when j itself is an infix literal (its left and
+        // right operands are the holes at j-1 and j+1). In both cases the
+        // adjacent operands are subproofs[nextSub-1] and subproofs[nextSub].
+        const beforeIsInfix =
+          isHole(j - 2) && !p.subst.has(pattern[j - 1]) && isHole(j);
+        const jIsInfix = isHole(j - 1) && !p.subst.has(tok) && isHole(j + 1);
+        units[offset] =
+          beforeIsInfix || jIsInfix
+            ? Math.abs(
+                spacingOf(p.subproofs[nextSub - 1], memo) -
+                  spacingOf(p.subproofs[nextSub], memo),
+              )
+            : 0;
       }
       if (p.subst.has(tok)) offset = walk(p.subproofs[nextSub++], offset);
       else offset += 1;
