@@ -77,6 +77,14 @@
   the spine. `nmulprop.html` (step 71 used 16x, step 69 used 14x) is the
   stress-test fixture.
 
+- **Hint `Ref` ordering**: in a calculation step hint, the `Ref` key should
+  always be put first after the initial "using …" (only the first step of a
+  calculation may put the hypothesis-derived refs first). Example: on
+  `rhmkerinj` (us.metamath.org/mpeuni/rhmkerinj.html) the last calculation step
+  `((7) <=> TRUE)` should read "using kerf1ghm, …" with `kerf1ghm` first,
+  whereas the first step's "using rhmghm and …" is already correct. The ordering
+  depends on whether a step is the first of its calculation.
+
 - **Reverse-`wi` rendering**: show implication the other way (`⇒` vs `⇐`) where
   it reads better.
 - **Sub-expression calculations**: instead of relating whole `|- …` statements
