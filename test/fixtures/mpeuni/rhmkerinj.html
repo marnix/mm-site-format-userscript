@@ -1,0 +1,561 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML LANG="EN-US">
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<STYLE TYPE="text/css">
+<!--
+img { margin-bottom: -4px }
+.r { font-family: "Arial Narrow";
+     font-size: x-small;
+   }
+.i { font-family: "Arial Narrow";
+     font-size: x-small;
+     color: gray;
+   }
+-->
+</STYLE>
+<STYLE TYPE="text/css">
+<!--
+  .setvar { color: red; }
+  .wff { color: blue; }
+  .class { color: #C3C; }
+  .symvar { border-bottom:1px dotted;color:#C3C}
+  .typecode { color: gray }
+  .hidden { color: gray }
+  @font-face {
+    font-family: XITSMath-Regular;
+    src: url(xits-math.woff);
+  }
+  .math { font-family: XITSMath-Regular }
+-->
+</STYLE>
+<LINK href="mmset.css" title="mmset"
+    rel="stylesheet" type="text/css">
+<LINK href="mmsetalt.css" title="mmsetalt"
+    rel="alternate stylesheet" type="text/css">
+<TITLE>rhmkerinj - Metamath Proof Explorer</TITLE>
+<LINK REL="shortcut icon" HREF="favicon.ico" TYPE="image/x-icon">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
+  <TR>
+    <TD ALIGN=LEFT VALIGN=TOP WIDTH="25%"><A HREF=
+    "mmset.html"><IMG SRC="mm.gif"
+      BORDER=0
+      ALT="MPE Home"
+      TITLE="MPE Home"
+      HEIGHT=32 WIDTH=32 ALIGN=TOP STYLE="margin-bottom:0px"></A>
+    </TD>
+    <TD ALIGN=CENTER COLSPAN=2 VALIGN=TOP><FONT SIZE="+3" COLOR="#006633"><B>
+Metamath Proof Explorer
+      </B></FONT></TD>
+    <TD ALIGN=RIGHT VALIGN=TOP WIDTH="25%">
+      <FONT SIZE=-1 FACE=sans-serif>
+      <A HREF="rhmco.html">
+      &lt; Previous</A>&nbsp;&nbsp;
+      <A HREF="pwsco1rhm.html">Next &gt;</A>
+      </FONT><FONT FACE=sans-serif SIZE=-2>
+      <BR><A HREF="mmtheorems206.html#rhmkerinj">Nearby theorems</A>
+      </FONT>
+    </TD>
+  </TR>
+  <TR>
+    <TD COLSPAN=2 ALIGN=LEFT VALIGN=TOP><FONT SIZE=-2
+      FACE=sans-serif>
+      <A HREF="../mm.html">Mirrors</A>&nbsp; &gt;
+      &nbsp;<A HREF="../index.html">Home</A>&nbsp; &gt;
+      &nbsp;<A HREF="mmset.html">MPE Home</A>&nbsp; &gt;
+      &nbsp;<A HREF="mmtheorems.html">Th. List</A>&nbsp; &gt;
+      &nbsp;rhmkerinj
+      </FONT>
+    </TD>
+    <TD COLSPAN=2 ALIGN=RIGHT VALIGN=TOP>
+      <FONT SIZE=-2 FACE=sans-serif>
+<A HREF="http://metamath.tirix.org/mpests/rhmkerinj.html">Structured
+version</A>&nbsp;&nbsp; <A
+HREF="https://expln.github.io/metamath/asrt/rhmkerinj.html">Visualization
+version</A>&nbsp;&nbsp; 
+      <A HREF="../mpegif/rhmkerinj.html">GIF version</A>
+      </FONT>
+    </TD>
+  </TR>
+</TABLE>
+<HR NOSHADE SIZE=1>
+<CENTER><B><FONT SIZE="+1">Theorem <FONT
+COLOR="#006633">rhmkerinj</FONT></FONT></B>&nbsp;<SPAN CLASS=r
+STYLE="color:#129308">20588</SPAN></CENTER>
+<CENTER><TABLE><TR><TD ALIGN=LEFT><B>Description: </B>A ring homomorphism is
+injective if and only if its kernel is zero.
+       (Contributed by Jeff Madsen, 16-Jun-2011.)  (Revised by AV,
+       24-Jul-2026.)</TD></TR></TABLE></CENTER>
+
+<CENTER><TABLE BORDER CELLSPACING=0 BGCOLOR="#EEFFFA"
+SUMMARY="Hypotheses">
+<CAPTION><B>Hypotheses</B></CAPTION>
+<TR><TH>Ref
+</TH><TH>Expression</TH></TR>
+<TR ALIGN=LEFT><TD>rhmkerinj.b</TD><TD>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN><SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> = (Base&lsquo;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D445;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>rhmkerinj.c</TD><TD>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN><SPAN
+CLASS=class STYLE="color:#C3C">&#x1D436;</SPAN> = (Base&lsquo;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D446;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>rhmkerinj.0</TD><TD>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN> <SPAN
+CLASS=symvar STYLE="border-bottom:1px dotted;color:#C3C">0</SPAN> =
+(0<SUB>g</SUB>&lsquo;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D445;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>rhmkerinj.z</TD><TD>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN><SPAN
+CLASS=class STYLE="color:#C3C">&#x1D44D;</SPAN> = (0<SUB>g</SUB>&lsquo;<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D446;</SPAN>)</SPAN></TD></TR>
+</TABLE></CENTER>
+<CENTER><TABLE BORDER CELLSPACING=0 BGCOLOR="#EEFFFA"
+SUMMARY="Assertion">
+<CAPTION><B>Assertion</B></CAPTION>
+<TR><TH>Ref
+</TH><TH>Expression</TH></TR>
+<TR ALIGN=LEFT><TD><FONT COLOR="#006633"><B>rhmkerinj</B></FONT></TD><TD>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D439;</SPAN> &isin; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D445;</SPAN> RingHom <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D446;</SPAN>) &rarr; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN>:<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&ndash;<FONT SIZE=-2
+FACE=sans-serif>1-1</FONT>&rarr;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D436;</SPAN> &harr; (<FONT
+SIZE="-1"><SUP>&#9697;</SUP></FONT><SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN> &ldquo; {<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D44D;</SPAN>}) = { <SPAN CLASS=symvar
+STYLE="border-bottom:1px dotted;color:#C3C">0</SPAN> }))</SPAN></TD></TR>
+</TABLE></CENTER>
+
+
+<HR NOSHADE SIZE=1>
+<CENTER><TABLE BORDER CELLSPACING=0 BGCOLOR="#EEFFFA"
+SUMMARY="Proof of theorem">
+<CAPTION><B>Proof of Theorem <FONT
+   COLOR="#006633">rhmkerinj</FONT></B></CAPTION>
+<TR><TH>Step</TH><TH>Hyp</TH><TH>Ref
+</TH><TH>Expression</TH></TR>
+<TR ALIGN=LEFT><TD>1</TD><TD>&nbsp;</TD><TD><A HREF="rhmghm.html"
+TITLE="A ring homomorphism is an additive group homomorphism. (Contributed by Stefan...">rhmghm</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#129308">20562</SPAN></TD><TD><A NAME="1"></A>
+<SPAN CLASS=i>. 2</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D439;</SPAN> &isin; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D445;</SPAN> RingHom <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D446;</SPAN>) &rarr; <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN> &isin; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D445;</SPAN> GrpHom <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D446;</SPAN>))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>2</TD><TD>&nbsp;</TD><TD>rhmkerinj.b</TD><TD><A
+NAME="2"></A>
+<SPAN CLASS=i>. . 3</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN><SPAN
+CLASS=class STYLE="color:#C3C">&#x1D435;</SPAN> = (Base&lsquo;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D445;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>3</TD><TD>&nbsp;</TD><TD>rhmkerinj.c</TD><TD><A
+NAME="3"></A>
+<SPAN CLASS=i>. . 3</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN><SPAN
+CLASS=class STYLE="color:#C3C">&#x1D436;</SPAN> = (Base&lsquo;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D446;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>4</TD><TD>&nbsp;</TD><TD>rhmkerinj.0</TD><TD><A
+NAME="4"></A>
+<SPAN CLASS=i>. . 3</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN> <SPAN
+CLASS=symvar STYLE="border-bottom:1px dotted;color:#C3C">0</SPAN> =
+(0<SUB>g</SUB>&lsquo;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D445;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>5</TD><TD>&nbsp;</TD><TD>rhmkerinj.z</TD><TD><A
+NAME="5"></A>
+<SPAN CLASS=i>. . 3</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN><SPAN
+CLASS=class STYLE="color:#C3C">&#x1D44D;</SPAN> = (0<SUB>g</SUB>&lsquo;<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D446;</SPAN>)</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>6</TD><TD><A HREF="#2">2</A>, <A HREF="#3">3</A>, <A
+HREF="#4">4</A>, <A HREF="#5">5</A></TD><TD><A HREF="kerf1ghm.html"
+TITLE="A group homomorphism ` F ` is injective if and only if its kernel is the singleton `...">kerf1ghm</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#279200">19312</SPAN></TD><TD><A NAME="6"></A>
+<SPAN CLASS=i>. 2</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D439;</SPAN> &isin; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D445;</SPAN> GrpHom <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D446;</SPAN>) &rarr; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN>:<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&ndash;<FONT SIZE=-2
+FACE=sans-serif>1-1</FONT>&rarr;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D436;</SPAN> &harr; (<FONT
+SIZE="-1"><SUP>&#9697;</SUP></FONT><SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN> &ldquo; {<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D44D;</SPAN>}) = { <SPAN CLASS=symvar
+STYLE="border-bottom:1px dotted;color:#C3C">0</SPAN> }))</SPAN></TD></TR>
+<TR ALIGN=LEFT><TD>7</TD><TD><A HREF="#1">1</A>, <A HREF="#6">6</A></TD><TD><A
+HREF="syl.html"
+TITLE="An inference version of the transitive laws for implication ~ imim2 and ~ imim1 (and...">syl</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0000">18</SPAN></TD><TD><A NAME="7"></A>
+<SPAN CLASS=i>1</SPAN>
+<SPAN CLASS=math><SPAN CLASS=hidden STYLE="color:gray">&#8866; </SPAN>(<SPAN
+CLASS=class STYLE="color:#C3C">&#x1D439;</SPAN> &isin; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D445;</SPAN> RingHom <SPAN CLASS=class
+STYLE="color:#C3C">&#x1D446;</SPAN>) &rarr; (<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN>:<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D435;</SPAN>&ndash;<FONT SIZE=-2
+FACE=sans-serif>1-1</FONT>&rarr;<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D436;</SPAN> &harr; (<FONT
+SIZE="-1"><SUP>&#9697;</SUP></FONT><SPAN CLASS=class
+STYLE="color:#C3C">&#x1D439;</SPAN> &ldquo; {<SPAN CLASS=class
+STYLE="color:#C3C">&#x1D44D;</SPAN>}) = { <SPAN CLASS=symvar
+STYLE="border-bottom:1px dotted;color:#C3C">0</SPAN> }))</SPAN></TD></TR>
+</TABLE></CENTER>
+<CENTER><TABLE CELLSPACING=5><TR><TD ALIGN=LEFT><FONT SIZE=-1><B>Colors of
+variables:</B>  <SPAN CLASS=wff STYLE="color:blue;font-style:normal">wff</SPAN>
+<SPAN CLASS=setvar STYLE="color:red;font-style:normal">setvar</SPAN> <SPAN
+CLASS=class STYLE="color:#C3C;font-style:normal">class</SPAN></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>Syntax hints:</B>  &nbsp;<SPAN CLASS=math>
+&rarr; </SPAN><A HREF="wi.html">wi</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#FA0000">4</SPAN> &nbsp;<SPAN CLASS=math> &harr; </SPAN><A
+HREF="wb.html">wb</A>&nbsp;<SPAN CLASS=r STYLE="color:#FA0100">209</SPAN>
+&nbsp;<SPAN CLASS=math> = </SPAN><A HREF="wceq.html">wceq</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F70A00">1570</SPAN> &nbsp;<SPAN CLASS=math> &isin;
+</SPAN><A HREF="wcel.html">wcel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51100">2143</SPAN> &nbsp;<SPAN CLASS=math>{</SPAN><A
+HREF="csn.html">csn</A>&nbsp;<SPAN CLASS=r STYLE="color:#E53A00">4589</SPAN>
+&nbsp;<SPAN CLASS=math><FONT SIZE="-1"><SUP>&#9697;</SUP></FONT></SPAN><A
+HREF="ccnv.html">ccnv</A>&nbsp;<SPAN CLASS=r STYLE="color:#DB4900">5660</SPAN>
+&nbsp;<SPAN CLASS=math> &ldquo; </SPAN><A HREF="cima.html">cima</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#DB4900">5664</SPAN> &nbsp;<SPAN CLASS=math>&ndash;<FONT
+SIZE=-2 FACE=sans-serif>1-1</FONT>&rarr;</SPAN><A
+HREF="wf1.html">wf1</A>&nbsp;<SPAN CLASS=r STYLE="color:#D25200">6533</SPAN>
+&nbsp;<SPAN CLASS=math>&lsquo;</SPAN><A HREF="cfv.html">cfv</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#D25200">6536</SPAN> &nbsp;(<i>class class class</i>)<A
+HREF="co.html">co</A>&nbsp;<SPAN CLASS=r STYLE="color:#C85A00">7410</SPAN>
+&nbsp;<SPAN CLASS=math>Base</SPAN><A HREF="cbs.html">cbs</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#478E00">17264</SPAN> &nbsp;<SPAN
+CLASS=math>0<SUB>g</SUB></SPAN><A HREF="c0g.html">c0g</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#448F00">17487</SPAN> &nbsp;<SPAN CLASS=math> GrpHom </SPAN><A
+HREF="cghm.html">cghm</A>&nbsp;<SPAN CLASS=r STYLE="color:#289100">19278</SPAN>
+&nbsp;<SPAN CLASS=math> RingHom </SPAN><A HREF="crh.html">crh</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#139308">20547</SPAN></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>This theorem was proved from axioms:</B>
+&nbsp;<A HREF="ax-mp.html">ax-mp</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#FA0000">5</SPAN> &nbsp;<A HREF="ax-1.html">ax-1</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#FA0000">6</SPAN> &nbsp;<A
+HREF="ax-2.html">ax-2</A>&nbsp;<SPAN CLASS=r STYLE="color:#FA0000">7</SPAN>
+&nbsp;<A HREF="ax-3.html">ax-3</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#FA0000">8</SPAN> &nbsp;<A
+HREF="ax-gen.html">ax-gen</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F60C00">1825</SPAN> &nbsp;<A HREF="ax-4.html">ax-4</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F60C00">1839</SPAN> &nbsp;<A
+HREF="ax-5.html">ax-5</A>&nbsp;<SPAN CLASS=r STYLE="color:#F60E00">1940</SPAN>
+&nbsp;<A HREF="ax-6.html">ax-6</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F60F00">1997</SPAN> &nbsp;<A HREF="ax-7.html">ax-7</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#F51000">2038</SPAN> &nbsp;<A
+HREF="ax-8.html">ax-8</A>&nbsp;<SPAN CLASS=r STYLE="color:#F51100">2145</SPAN>
+&nbsp;<A HREF="ax-9.html">ax-9</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51200">2153</SPAN> &nbsp;<A
+HREF="ax-10.html">ax-10</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51200">2176</SPAN> &nbsp;<A
+HREF="ax-11.html">ax-11</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51200">2192</SPAN> &nbsp;<A
+HREF="ax-12.html">ax-12</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F41300">2213</SPAN> &nbsp;<A
+HREF="ax-ext.html">ax-ext</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F21C00">2735</SPAN> &nbsp;<A
+HREF="ax-sep.html">ax-sep</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DF4400">5257</SPAN> &nbsp;<A
+HREF="ax-nul.html">ax-nul</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DF4400">5269</SPAN> &nbsp;<A
+HREF="ax-pow.html">ax-pow</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DE4500">5336</SPAN> &nbsp;<A
+HREF="ax-pr.html">ax-pr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DE4600">5404</SPAN> &nbsp;<A
+HREF="ax-un.html">ax-un</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#C45E00">7732</SPAN> &nbsp;<A
+HREF="ax-cnex.html">ax-cnex</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11151</SPAN> &nbsp;<A
+HREF="ax-resscn.html">ax-resscn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11152</SPAN> &nbsp;<A
+HREF="ax-1cn.html">ax-1cn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11153</SPAN> &nbsp;<A
+HREF="ax-icn.html">ax-icn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11154</SPAN> &nbsp;<A
+HREF="ax-addcl.html">ax-addcl</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11155</SPAN> &nbsp;<A
+HREF="ax-addrcl.html">ax-addrcl</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11156</SPAN> &nbsp;<A
+HREF="ax-mulcl.html">ax-mulcl</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11157</SPAN> &nbsp;<A
+HREF="ax-mulrcl.html">ax-mulrcl</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11158</SPAN> &nbsp;<A
+HREF="ax-mulcom.html">ax-mulcom</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11159</SPAN> &nbsp;<A
+HREF="ax-addass.html">ax-addass</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11160</SPAN> &nbsp;<A
+HREF="ax-mulass.html">ax-mulass</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11161</SPAN> &nbsp;<A
+HREF="ax-distr.html">ax-distr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11162</SPAN> &nbsp;<A
+HREF="ax-i2m1.html">ax-i2m1</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11163</SPAN> &nbsp;<A
+HREF="ax-1ne0.html">ax-1ne0</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11164</SPAN> &nbsp;<A
+HREF="ax-1rid.html">ax-1rid</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11165</SPAN> &nbsp;<A
+HREF="ax-rnegex.html">ax-rnegex</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11166</SPAN> &nbsp;<A
+HREF="ax-rrecex.html">ax-rrecex</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11167</SPAN> &nbsp;<A
+HREF="ax-cnre.html">ax-cnre</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11168</SPAN> &nbsp;<A
+HREF="ax-pre-lttri.html">ax-pre-lttri</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11169</SPAN> &nbsp;<A
+HREF="ax-pre-lttrn.html">ax-pre-lttrn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11170</SPAN> &nbsp;<A
+HREF="ax-pre-ltadd.html">ax-pre-ltadd</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11171</SPAN> &nbsp;<A
+HREF="ax-pre-mulgt0.html">ax-pre-mulgt0</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#957B00">11172</SPAN></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>This theorem depends on definitions:</B>
+&nbsp;<A HREF="df-bi.html">df-bi</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#FA0100">210</SPAN> &nbsp;<A
+HREF="df-an.html">df-an</A>&nbsp;<SPAN CLASS=r STYLE="color:#FA0200">401</SPAN>
+&nbsp;<A HREF="df-or.html">df-or</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F90500">861</SPAN> &nbsp;<A
+HREF="df-3or.html">df-3or</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F80700">1104</SPAN> &nbsp;<A
+HREF="df-3an.html">df-3an</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F80700">1105</SPAN> &nbsp;<A
+HREF="df-tru.html">df-tru</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F70A00">1573</SPAN> &nbsp;<A
+HREF="df-fal.html">df-fal</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F70A00">1583</SPAN> &nbsp;<A
+HREF="df-ex.html">df-ex</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F60C00">1810</SPAN> &nbsp;<A
+HREF="df-nf.html">df-nf</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F60C00">1814</SPAN> &nbsp;<A
+HREF="df-sb.html">df-sb</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F51100">2097</SPAN> &nbsp;<A
+HREF="df-mo.html">df-mo</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F31900">2567</SPAN> &nbsp;<A
+HREF="df-eu.html">df-eu</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F31900">2597</SPAN> &nbsp;<A
+HREF="df-clab.html">df-clab</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F21C00">2742</SPAN> &nbsp;<A
+HREF="df-cleq.html">df-cleq</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F21C00">2755</SPAN> &nbsp;<A
+HREF="df-clel.html">df-clel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F11E00">2838</SPAN> &nbsp;<A
+HREF="df-nfc.html">df-nfc</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F11F00">2912</SPAN> &nbsp;<A
+HREF="df-ne.html">df-ne</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F12000">2959</SPAN> &nbsp;<A
+HREF="df-nel.html">df-nel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F02200">3065</SPAN> &nbsp;<A
+HREF="df-ral.html">df-ral</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F02200">3080</SPAN> &nbsp;<A
+HREF="df-rex.html">df-rex</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#F02200">3090</SPAN> &nbsp;<A
+HREF="df-rmo.html">df-rmo</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EF2700">3369</SPAN> &nbsp;<A
+HREF="df-reu.html">df-reu</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EF2700">3370</SPAN> &nbsp;<A
+HREF="df-rab.html">df-rab</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EE2800">3417</SPAN> &nbsp;<A HREF="df-v.html">df-v</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#EE2900">3457</SPAN> &nbsp;<A
+HREF="df-sbc.html">df-sbc</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EC2D00">3745</SPAN> &nbsp;<A
+HREF="df-csb.html">df-csb</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB2F00">3854</SPAN> &nbsp;<A
+HREF="df-dif.html">df-dif</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3908</SPAN> &nbsp;<A
+HREF="df-un.html">df-un</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3910</SPAN> &nbsp;<A
+HREF="df-in.html">df-in</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3912</SPAN> &nbsp;<A
+HREF="df-ss.html">df-ss</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3922</SPAN> &nbsp;<A
+HREF="df-pss.html">df-pss</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#EB3000">3925</SPAN> &nbsp;<A
+HREF="df-nul.html">df-nul</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E83600">4287</SPAN> &nbsp;<A
+HREF="df-if.html">df-if</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E63900">4488</SPAN> &nbsp;<A
+HREF="df-pw.html">df-pw</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E53A00">4564</SPAN> &nbsp;<A
+HREF="df-sn.html">df-sn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E53A00">4590</SPAN> &nbsp;<A
+HREF="df-pr.html">df-pr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E53A00">4592</SPAN> &nbsp;<A
+HREF="df-op.html">df-op</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E53A00">4596</SPAN> &nbsp;<A
+HREF="df-uni.html">df-uni</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E23E00">4873</SPAN> &nbsp;<A
+HREF="df-iun.html">df-iun</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E24000">4958</SPAN> &nbsp;<A
+HREF="df-br.html">df-br</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E04200">5110</SPAN> &nbsp;<A
+HREF="df-opab.html">df-opab</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E04300">5174</SPAN> &nbsp;<A
+HREF="df-mpt.html">df-mpt</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#E04300">5193</SPAN> &nbsp;<A
+HREF="df-tr.html">df-tr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DF4300">5219</SPAN> &nbsp;<A
+HREF="df-id.html">df-id</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DC4800">5556</SPAN> &nbsp;<A
+HREF="df-eprel.html">df-eprel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DC4800">5561</SPAN> &nbsp;<A
+HREF="df-po.html">df-po</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DC4800">5569</SPAN> &nbsp;<A
+HREF="df-so.html">df-so</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DC4800">5570</SPAN> &nbsp;<A
+HREF="df-fr.html">df-fr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DC4800">5614</SPAN> &nbsp;<A
+HREF="df-we.html">df-we</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4800">5616</SPAN> &nbsp;<A
+HREF="df-xp.html">df-xp</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5667</SPAN> &nbsp;<A
+HREF="df-rel.html">df-rel</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5668</SPAN> &nbsp;<A
+HREF="df-cnv.html">df-cnv</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5669</SPAN> &nbsp;<A
+HREF="df-co.html">df-co</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5670</SPAN> &nbsp;<A
+HREF="df-dm.html">df-dm</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5671</SPAN> &nbsp;<A
+HREF="df-rn.html">df-rn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5672</SPAN> &nbsp;<A
+HREF="df-res.html">df-res</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5673</SPAN> &nbsp;<A
+HREF="df-ima.html">df-ima</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#DB4900">5674</SPAN> &nbsp;<A
+HREF="df-pred.html">df-pred</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D44F00">6302</SPAN> &nbsp;<A
+HREF="df-ord.html">df-ord</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D45000">6363</SPAN> &nbsp;<A
+HREF="df-on.html">df-on</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D45000">6364</SPAN> &nbsp;<A
+HREF="df-lim.html">df-lim</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D45000">6365</SPAN> &nbsp;<A
+HREF="df-suc.html">df-suc</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D45000">6366</SPAN> &nbsp;<A
+HREF="df-iota.html">df-iota</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25100">6492</SPAN> &nbsp;<A
+HREF="df-fun.html">df-fun</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6538</SPAN> &nbsp;<A
+HREF="df-fn.html">df-fn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6539</SPAN> &nbsp;<A HREF="df-f.html">df-f</A>&nbsp;<SPAN
+CLASS=r STYLE="color:#D25200">6540</SPAN> &nbsp;<A
+HREF="df-f1.html">df-f1</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6541</SPAN> &nbsp;<A
+HREF="df-fo.html">df-fo</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6542</SPAN> &nbsp;<A
+HREF="df-f1o.html">df-f1o</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6543</SPAN> &nbsp;<A
+HREF="df-fv.html">df-fv</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#D25200">6544</SPAN> &nbsp;<A
+HREF="df-riota.html">df-riota</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#C95A00">7367</SPAN> &nbsp;<A
+HREF="df-ov.html">df-ov</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#C85A00">7413</SPAN> &nbsp;<A
+HREF="df-oprab.html">df-oprab</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#C85A00">7414</SPAN> &nbsp;<A
+HREF="df-mpo.html">df-mpo</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#C85A00">7415</SPAN> &nbsp;<A
+HREF="df-om.html">df-om</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#C25F00">7859</SPAN> &nbsp;<A
+HREF="df-1st.html">df-1st</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#C06000">7982</SPAN> &nbsp;<A
+HREF="df-2nd.html">df-2nd</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#C06000">7983</SPAN> &nbsp;<A
+HREF="df-frecs.html">df-frecs</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#BC6300">8274</SPAN> &nbsp;<A
+HREF="df-wrecs.html">df-wrecs</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#BC6400">8305</SPAN> &nbsp;<A
+HREF="df-recs.html">df-recs</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#BB6400">8354</SPAN> &nbsp;<A
+HREF="df-rdg.html">df-rdg</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#BA6500">8393</SPAN> &nbsp;<A
+HREF="df-er.html">df-er</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#B66800">8690</SPAN> &nbsp;<A
+HREF="df-map.html">df-map</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#B56900">8822</SPAN> &nbsp;<A
+HREF="df-en.html">df-en</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#B36A00">8940</SPAN> &nbsp;<A
+HREF="df-dom.html">df-dom</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#B36A00">8941</SPAN> &nbsp;<A
+HREF="df-sdom.html">df-sdom</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#B36A00">8942</SPAN> &nbsp;<A
+HREF="df-pnf.html">df-pnf</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#947B00">11240</SPAN> &nbsp;<A
+HREF="df-mnf.html">df-mnf</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#947B00">11241</SPAN> &nbsp;<A
+HREF="df-xr.html">df-xr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#947B00">11242</SPAN> &nbsp;<A
+HREF="df-ltxr.html">df-ltxr</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#947B00">11243</SPAN> &nbsp;<A
+HREF="df-le.html">df-le</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#947B00">11244</SPAN> &nbsp;<A
+HREF="df-sub.html">df-sub</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#917C00">11438</SPAN> &nbsp;<A
+HREF="df-neg.html">df-neg</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#917C00">11439</SPAN> &nbsp;<A
+HREF="df-nn.html">df-nn</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#858000">12229</SPAN> &nbsp;<A
+HREF="df-2.html">df-2</A>&nbsp;<SPAN CLASS=r STYLE="color:#848100">12298</SPAN>
+&nbsp;<A HREF="df-sets.html">df-sets</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#488E00">17219</SPAN> &nbsp;<A
+HREF="df-slot.html">df-slot</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#488E00">17237</SPAN> &nbsp;<A
+HREF="df-ndx.html">df-ndx</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#478E00">17249</SPAN> &nbsp;<A
+HREF="df-base.html">df-base</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#478E00">17265</SPAN> &nbsp;<A
+HREF="df-plusg.html">df-plusg</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#468E00">17318</SPAN> &nbsp;<A
+HREF="df-0g.html">df-0g</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#448F00">17489</SPAN> &nbsp;<A
+HREF="df-mgm.html">df-mgm</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#319100">18693</SPAN> &nbsp;<A
+HREF="df-sgrp.html">df-sgrp</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#309100">18772</SPAN> &nbsp;<A
+HREF="df-mnd.html">df-mnd</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#309100">18788</SPAN> &nbsp;<A
+HREF="df-mhm.html">df-mhm</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#2F9100">18836</SPAN> &nbsp;<A
+HREF="df-grp.html">df-grp</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#2C9100">18998</SPAN> &nbsp;<A
+HREF="df-minusg.html">df-minusg</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#2C9100">18999</SPAN> &nbsp;<A
+HREF="df-sbg.html">df-sbg</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#2C9100">19000</SPAN> &nbsp;<A
+HREF="df-ghm.html">df-ghm</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#289100">19279</SPAN> &nbsp;<A
+HREF="df-mgp.html">df-mgp</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#189303">20212</SPAN> &nbsp;<A
+HREF="df-ur.html">df-ur</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#179304">20259</SPAN> &nbsp;<A
+HREF="df-ring.html">df-ring</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#169305">20312</SPAN> &nbsp;<A
+HREF="df-rhm.html">df-rhm</A>&nbsp;<SPAN CLASS=r
+STYLE="color:#139308">20550</SPAN></FONT></TD></TR>
+<TR><TD ALIGN=LEFT><FONT SIZE=-1><B>This theorem is referenced by:</B>
+(None)</FONT></TD></TR>
+</TABLE></CENTER>
+<TABLE BORDER=0 WIDTH="100%">
+<TR><TD WIDTH="25%">&nbsp;</TD>
+<TD ALIGN=CENTER VALIGN=BOTTOM>
+<FONT SIZE=-2 FACE=sans-serif>
+Copyright terms:
+<A HREF="../copyright.html#pd">Public domain</A>
+</FONT></TD><TD ALIGN=RIGHT VALIGN=BOTTOM WIDTH="25%">
+<FONT SIZE=-2 FACE=sans-serif>
+<A HREF="http://validator.w3.org/check?uri=referer">
+W3C validator</A>
+</FONT></TD></TR></TABLE>
+</BODY></HTML>
