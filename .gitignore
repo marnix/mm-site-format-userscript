@@ -1,6 +1,7 @@
 # LLM tooling
 .claude
 .kiro
+/.opencode/
 
 # Logs
 logs
