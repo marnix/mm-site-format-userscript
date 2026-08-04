@@ -116,6 +116,9 @@ describe("parseUniExpressions (mpeuni/bitrdi)", () => {
     readFixture("mpeuni", url.split("/").pop()!),
   );
 
+  // Parsing the real expressions fetches many syntax-definition pages through
+  // happy-dom; under the concurrent load of `npm run ci` it can exceed the
+  // default 5s timeout (it is flaky without this).
   it("parses the real expressions (the 2 syntax-hint operators do not)", async () => {
     const results = await parseUniExpressions(
       doc,
@@ -134,5 +137,5 @@ describe("parseUniExpressions (mpeuni/bitrdi)", () => {
     expect(evaluate(assertion.proof!).conclusion).toEqual([
       "$TOP", "\u22a2", "(", "\u{1d711}", "\u2192", "(", "\u{1d713}", "\u2194", "\u{1d703}", ")", ")",
     ]); // prettier-ignore
-  });
+  }, 20_000);
 });
