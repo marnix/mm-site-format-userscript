@@ -166,8 +166,9 @@ describe("gapUnits", () => {
   it("symmetric spacing around \u2194 when both sides are equally complex", () => {
     // ( r \u2208 On <-> s \u2208 On ) \u2014 wb(wcel(r, On), wcel(s, On))
     // Both sides have spacing 0; wb has spacing 1.
-    // Requirement: gap before first operand = gap before second operand
-    // (infix operators give both adjacent gaps |h(left) - h(right)| = 0).
+    // Requirement: an infix operator gives both adjacent gaps the same value,
+    // the operator's own spacing -- so the gap before <-> equals the gap before
+    // the right operand (here 1 on both sides).
     const wcelRule: InferenceRule = {
       assumptions: [
         ["class", "A"],
@@ -202,7 +203,8 @@ describe("gapUnits", () => {
     // tokens: (  r  \u2208  On  <->  s  \u2208  On  )
     //         0  1  2   3    4   5  6   7  8
     const units = gapUnits(wbProof);
-    expect(units[1]).toBe(units[5]);
+    expect(units[4]).toBe(units[5]);
+    expect(units[4]).toBe(1);
   });
 
   it("no space right after ( in wb(wcel, wcel)", () => {
