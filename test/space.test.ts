@@ -33,20 +33,17 @@ describe("insertSpacers", () => {
   // Unicode pages already carry whitespace around their operators (e.g. the
   // text node " -> "). The spacer must REPLACE that existing space, not add to
   // it -- otherwise the gap is the page space plus the spacer's padding.
-  it.fails(
-    "replaces the page's existing whitespace instead of adding to it",
-    () => {
-      const span = document.createElement("span");
-      span.innerHTML =
-        '<span class="wff">a</span> -&gt; <span class="wff">b</span>';
-      insertSpacers(locateMathSpan(span, kinds), [0, 1, 0]);
-      // The space before "->" is replaced by the spacer; the space after "->"
-      // (gap 0) stays, so exactly one literal space remains (after the arrow).
-      expect(span.textContent).toBe("a-> b");
-    },
-  );
+  it("replaces the page's existing whitespace instead of adding to it", () => {
+    const span = document.createElement("span");
+    span.innerHTML =
+      '<span class="wff">a</span> -&gt; <span class="wff">b</span>';
+    insertSpacers(locateMathSpan(span, kinds), [0, 1, 0]);
+    // The space before "->" is replaced by the spacer; the space after "->"
+    // (gap 0) stays, so exactly one literal space remains (after the arrow).
+    expect(span.textContent).toBe("a-> b");
+  });
 
-  it.fails("replaces the whitespace on both sides of an operator", () => {
+  it("replaces the whitespace on both sides of an operator", () => {
     const span = document.createElement("span");
     span.innerHTML =
       '<span class="wff">a</span> -&gt; <span class="wff">b</span>';
@@ -54,12 +51,12 @@ describe("insertSpacers", () => {
     expect(span.textContent).toBe("a->b");
   });
 
-  it.fails("makes a single gap 0.3ex wide", () => {
+  it("makes a single gap 0.3ex wide", () => {
     const span = document.createElement("span");
     span.innerHTML =
       '<span class="wff">a</span> -&gt; <span class="wff">b</span>';
     insertSpacers(locateMathSpan(span, kinds), [0, 1, 0]);
     const spacer = span.querySelector(".mm-site-format-space") as HTMLElement;
-    expect(spacer.style.paddingLeft).toBe("0.30ex");
+    expect(spacer.style.paddingLeft).toBe("0.3ex");
   });
 });

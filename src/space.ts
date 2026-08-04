@@ -1,13 +1,16 @@
 // Inserts parse-tree-guided whitespace into a rendered expression: an empty
 // inline spacer before each token whose gap (from spans.gapUnits) is non-zero.
-// The original glyphs are untouched -- only spacers are inserted (text nodes are
-// split where a gap falls mid-text). The caller re-runs its tokenizer afterward
-// to refresh hover locations: spacers are empty so the tokenizer ignores them.
+// The spacer REPLACES the page's existing whitespace rather than adding to it:
+// the whitespace in the gap (trailing whitespace of the preceding text, or of
+// the previous sibling when the token is an element) is removed, so the spacer's
+// padding is the whole gap. Text nodes are split where a gap falls mid-text.
+// The caller re-runs its tokenizer afterward to refresh hover locations:
+// spacers are empty so the tokenizer ignores them.
 
 import type { LocatedToken, TokenLocation } from "./token";
 
-/** Width of one spacing unit. */
-const EX_PER_UNIT = 0.2;
+/** Width of one spacing unit (a single "gap"). */
+const EX_PER_UNIT = 0.3;
 
 /** Class on inserted spacers, so the highlighter can colour them too. */
 export const SPACE_CLASS = "mm-site-format-space";
@@ -47,16 +50,37 @@ function insertBefore(
   onSplit?: (oldNode: Text, freshNode: Text) => void,
 ): void {
   if (loc.type === "element") {
+    // The whitespace before an element token is the trailing whitespace of its
+    // previous sibling (the text run ends before the element).
+    stripTrailingWhitespace(loc.node.previousSibling);
     loc.node.parentNode?.insertBefore(node, loc.node);
     return;
   }
   // text or folded: the gap goes before the token's first character.
   const at = loc.type === "folded" ? loc.offset : loc.start;
   if (at === 0) {
+    stripTrailingWhitespace(loc.node.previousSibling);
     loc.node.parentNode?.insertBefore(node, loc.node);
   } else {
     const fresh = loc.node.splitText(at);
     onSplit?.(loc.node, fresh);
+    // The whitespace between the previous token and this one now ends the left
+    // fragment (`loc.node`): remove it, so the spacer replaces the page's
+    // existing space instead of adding to it.
+    const value = loc.node.nodeValue ?? "";
+    const trimmed = value.replace(/\s+$/, "");
+    if (trimmed.length < value.length) loc.node.nodeValue = trimmed;
     fresh.parentNode?.insertBefore(node, fresh);
+  }
+}
+
+/** Removes the trailing whitespace of a text node -- the space a spacer
+ *  replaces when the token it precedes is an element or starts a text node. */
+function stripTrailingWhitespace(node: Node | null): void {
+  if (node && node.nodeType === Node.TEXT_NODE) {
+    const text = node as Text;
+    const value = text.nodeValue ?? "";
+    const trimmed = value.replace(/\s+$/, "");
+    if (trimmed.length < value.length) text.nodeValue = trimmed;
   }
 }
