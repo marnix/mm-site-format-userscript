@@ -14,9 +14,9 @@
     "postci": "node scripts/check-ascii.mjs dist"
   },
   "devDependencies": {
-    "@types/node": "^26.1.1",
-    "concurrently": "^10.0.3",
-    "happy-dom": "^20.11.0",
+    "@types/node": "^26.1.2",
+    "concurrently": "^10.0.4",
+    "happy-dom": "^20.11.1",
     "prettier": "^3.9.6",
     "tsup": "^8.5.1",
     "typescript": "^7.0.2",
@@ -24,5 +24,8 @@
   },
   "overrides": {
     "esbuild": "^0.28.1"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
   }
 }
