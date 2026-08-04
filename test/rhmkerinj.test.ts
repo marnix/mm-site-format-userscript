@@ -35,5 +35,10 @@ describe("parseUniExpressions (mpeuni/rhmkerinj) -- operator-level whitespace", 
 
     expect(gapBefore("\u2192")).toBeGreaterThan(gapBefore("\u2194"));
     expect(gapBefore("\u2194")).toBeGreaterThan(gapBefore("="));
+
+    // The pipeline also inserts the spacers into the page's DOM.
+    expect(
+      doc.querySelectorAll(".mm-site-format-space").length,
+    ).toBeGreaterThan(0);
   }, 20_000);
 });
