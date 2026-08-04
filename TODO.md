@@ -1,5 +1,25 @@
 # TODO
 
+## Whitespace symmetry
+
+- **Symmetrical, math-like whitespace**: the whitespace `gapUnits` inserts must
+  be symmetrical about every operator (gap before an operator = gap after it),
+  and ideally "math-like". Hard constraint: **no rule-specific knowledge** --
+  nothing keyed on a syntax rule's name, and no special treatment of parenthesis
+  tokens. Everything must follow from the structure of each individual syntax
+  rule and the structure/depth of its parse tree.
+
+  Agreed scheme: for an _infix_ literal (a pattern token that is a literal with
+  a hole immediately before and after it), give **both** adjacent gaps the value
+  `|h(left) − h(right)|`, where `h` is the subtree height (`spacingOf`: leaf
+  `−1`, else `1 + max(child heights)`); every other gap is `0`. This keeps the
+  brackets tight (wrappers are not infix) and every operator symmetric, keeps
+  the four existing `gapUnits` tests green, and makes the currently-failing
+  symmetry test (`( r ∈ On <-> s ∈ On )`) pass **unchanged** (its marker just
+  flips). Trade-off: extra space appears around an operator only when its
+  operands differ in structural depth (e.g. `ph -> ( ps <-> th )` gets 1 unit),
+  while equal-depth operands stay tight.
+
 ## Upstream issues to report
 
 - **Incomplete "Syntax hints"**: a theorem page's "Syntax hints" row can omit a
