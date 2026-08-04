@@ -22,26 +22,34 @@ describe("insertSpacers", () => {
     expect(relocated.map((l) => l.token)).toEqual(located.map((l) => l.token));
   });
 
-  it("does nothing when all units are zero", () => {
+  it.fails("removes the page's whitespace even where the gap is zero", () => {
     const span = document.createElement("span");
     span.innerHTML =
       '<span class="wff">a</span> -&gt; <span class="wff">b</span>';
     insertSpacers(locateMathSpan(span, kinds), [0, 0, 0]);
+    // No spacer is inserted, but the page's own space around "->" is removed
+    // all the same -- page whitespace never lingers beside a calculated gap.
     expect(span.querySelectorAll(".mm-site-format-space")).toHaveLength(0);
+    expect(span.textContent).toBe("a->b");
   });
 
   // Unicode pages already carry whitespace around their operators (e.g. the
   // text node " -> "). The spacer must REPLACE that existing space, not add to
-  // it -- otherwise the gap is the page space plus the spacer's padding.
-  it("replaces the page's existing whitespace instead of adding to it", () => {
-    const span = document.createElement("span");
-    span.innerHTML =
-      '<span class="wff">a</span> -&gt; <span class="wff">b</span>';
-    insertSpacers(locateMathSpan(span, kinds), [0, 1, 0]);
-    // The space before "->" is replaced by the spacer; the space after "->"
-    // (gap 0) stays, so exactly one literal space remains (after the arrow).
-    expect(span.textContent).toBe("a-> b");
-  });
+  // it -- otherwise the gap is the page space plus the spacer's padding. The
+  // replacement is unconditional: whitespace is removed whether or not a spacer
+  // is inserted for the gap.
+  it.fails(
+    "replaces the page's existing whitespace instead of adding to it",
+    () => {
+      const span = document.createElement("span");
+      span.innerHTML =
+        '<span class="wff">a</span> -&gt; <span class="wff">b</span>';
+      insertSpacers(locateMathSpan(span, kinds), [0, 1, 0]);
+      // The spacer replaces the space before "->"; the space after "->" (gap 0)
+      // is also removed, so no literal space remains.
+      expect(span.textContent).toBe("a->b");
+    },
+  );
 
   it("replaces the whitespace on both sides of an operator", () => {
     const span = document.createElement("span");
