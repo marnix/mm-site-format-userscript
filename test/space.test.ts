@@ -22,7 +22,7 @@ describe("insertSpacers", () => {
     expect(relocated.map((l) => l.token)).toEqual(located.map((l) => l.token));
   });
 
-  it.fails("removes the page's whitespace even where the gap is zero", () => {
+  it("removes the page's whitespace even where the gap is zero", () => {
     const span = document.createElement("span");
     span.innerHTML =
       '<span class="wff">a</span> -&gt; <span class="wff">b</span>';
@@ -38,18 +38,15 @@ describe("insertSpacers", () => {
   // it -- otherwise the gap is the page space plus the spacer's padding. The
   // replacement is unconditional: whitespace is removed whether or not a spacer
   // is inserted for the gap.
-  it.fails(
-    "replaces the page's existing whitespace instead of adding to it",
-    () => {
-      const span = document.createElement("span");
-      span.innerHTML =
-        '<span class="wff">a</span> -&gt; <span class="wff">b</span>';
-      insertSpacers(locateMathSpan(span, kinds), [0, 1, 0]);
-      // The spacer replaces the space before "->"; the space after "->" (gap 0)
-      // is also removed, so no literal space remains.
-      expect(span.textContent).toBe("a->b");
-    },
-  );
+  it("replaces the page's existing whitespace instead of adding to it", () => {
+    const span = document.createElement("span");
+    span.innerHTML =
+      '<span class="wff">a</span> -&gt; <span class="wff">b</span>';
+    insertSpacers(locateMathSpan(span, kinds), [0, 1, 0]);
+    // The spacer replaces the space before "->"; the space after "->" (gap 0)
+    // is also removed, so no literal space remains.
+    expect(span.textContent).toBe("a->b");
+  });
 
   it("replaces the whitespace on both sides of an operator", () => {
     const span = document.createElement("span");
