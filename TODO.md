@@ -1,50 +1,25 @@
 # TODO
 
-## Whitespace symmetry
+## Whitespace
 
-- **Symmetrical, math-like whitespace**: the whitespace `gapUnits` inserts must
-  be symmetrical about every operator (gap before an operator = gap after it),
-  and ideally "math-like". Hard constraint: **no rule-specific knowledge** --
-  nothing keyed on a syntax rule's name, and no special treatment of parenthesis
-  tokens. Everything must follow from the structure of each individual syntax
-  rule and the structure/depth of its parse tree.
+The `gapUnits` scheme is in place and matches the site (verified visually): for
+an operator (a pattern token with a hole immediately before and after it) both
+adjacent gaps get the operator's subtree height (`spacingOf`: leaf `−1`, else
+`1 + max(child heights)`, at least 1); word-like prefixes and adjacent-variable
+gaps get a fixed 1 unit; symbol prefixes, single-letter prefixes, paren tokens,
+and subscript-bracket delimiters stay tight (`csb [_ A / x ]_ B` → `⦋A / x⦌B`).
 
-  Agreed scheme: for an operator (a pattern token with a hole immediately before
-  and after it) give **both** adjacent gaps the operator's own subtree height
-  (`spacingOf`: leaf `−1`, else `1 + max(child heights)`); every other gap is
-  `0`. This keeps the brackets tight (wrappers are not infix) and every operator
-  symmetric, and makes the whitespace grow with operator level -- a parent's
-  height strictly exceeds its children's, so an outer `->` always gets more room
-  than a `<->` nested inside it, which gets more than an inner `=` (verified on
-  rhmkerinj's main statement, `test/rhmkerinj.test.ts`). Earlier scheme (both
-  gaps `|h(left) − h(right)|`) was symmetric but levelled `->` and `<->` when
-  the operand-height differences tied; dropped in favour of the level-based
-  value.
-
-  An operator need not be a literal pattern token: `co` is `class ( A F B )`,
-  where the operator `F` is itself a hole (a sub-expression filled by a class
-  constant such as `+no` in `( A +no B )`). The infix test therefore covers any
-  token -- literal or hole -- whose neighbours in the rule's pattern are both
-  holes. Both gaps around an operator hole get the same value as around a
-  literal operator, so `( A +no B )` spaces exactly like `( ph -> ps )`.
-
-  One non-operator gap also gets spacing: a **word-like prefix** -- a rule whose
-  whole pattern is a 2+ alphabetic-character literal immediately followed by its
-  single hole (`csuc` is `class suc A`). Its operand's gap gets a fixed 1 unit:
-  the page's whitespace removal would otherwise glue the word to its operand
-  (`sucA`). The space is a word boundary, fixed at 1 unit regardless of the
-  operand's height; symbol prefixes (`wn`'s `-.`, `cint`'s `|^|`) and
-  single-letter prefixes stay tight, matching the site's `-.A`.
-
-  Another non-operator gap gets spacing: an **adjacent-variable** gap -- two
-  holes next to each other in a pattern (`wral`'s `A ph` in `A. x e. A ph`,
-  `wal`'s `x ph` in `A. x ph`). It gets a fixed 1 unit like a word-prefix
-  boundary, regardless of the operand's height. Operator gaps take precedence (a
-  hole-pair inside an operator, like `co`'s `F B` in `( A F B )`, keeps the
-  operator's height-based spacing so the operator stays symmetric). Note this is
-  an intentional divergence from the site for `wal`/`wex`, which render the
-  bound-variable gap tight (`∀𝑥𝛗`); the site matches for `wral`/`wrex`, which
-  space `A ph`.
+- **Reduce depth-based spacing around `∈` in binder and class-builder
+  patterns**: `{ 𝑥 ∈ On ∣ … }` (`crab`) and `∀ 𝑎 ∈ 𝑝 …` (`wral`) give the
+  shallow `∈` the full depth-based gap even though the depth comes only from the
+  trailing `…` expression, which is the part that should carry the space. An
+  operator's gap is sized by the whole containing node's height (`spacingOf(p)`
+  = `1 + max` over *all* children), so a deep non-adjacent sibling operand
+  inflates a shallow operator's gaps. Want a consistent way to size operator
+  gaps from the operator's own adjacent operands only -- `∈` stays small and the
+  deep trailing expression carries the room -- while keeping everything
+  achieved. `wi`/`co` are unaffected: every child of those rules is adjacent to
+  the operator.
 
 ## Upstream issues to report
 
@@ -157,6 +132,11 @@
 
 ## Features
 
+- **Insert newlines at break points**: actually insert newlines into a long
+  rendered expression at its main operator (recursively at outer operators)
+  rather than relying on CSS `white-space` wrapping. Distinct from the CSS
+  approach below; should pick break points from the same per-gap spacing
+  (`spans.gapUnits`).
 - **Break long expressions at natural (operator) points**: when an expression
   wraps, break around its main operator (and recursively at outer operators)
   rather than mid-expression. CSS has no break-_priority_ ("break here first,
