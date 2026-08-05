@@ -88,16 +88,18 @@ function spacingOf(proof: Proof, memo: Map<Proof, number>): number {
 /**
  * Units of extra whitespace to put *before* each token of the proof's token
  * sequence (`units[0]` is 0). A gap gets spacing only when it is adjacent to an
- * *infix* literal -- a pattern token that is a literal with a hole immediately
- * before and after it (e.g. `->` or `e.`, but not a wrapper like `(` / `)`).
- * Both sides of the operator get the same value: the operator's own subtree
- * height (`spacingOf`), but at least 1 unit even when both operands are leaves
- * (height 0) -- an infix operator between two simple classes like `( F o. G )`
- * must still show some spacing. A parent operator's height strictly exceeds its
- * children's, so the whitespace grows with operator level -- a high-level `->`
- * gets more room than a `<->` nested inside it, which gets more than an inner
- * `=`. Everything follows from the parse-tree heights and each rule's own
- * pattern structure -- nothing is keyed on a rule name or paren token.
+ * *operator*: a pattern token with a hole immediately before and after it. The
+ * operator can be a literal (e.g. `->` or `e.`) or a hole -- `co` is
+ * `class ( A F B )`, so an operator like `+no` fills the hole `F` and is itself
+ * a sub-expression. Both sides of an operator get the same value: the operator's
+ * own subtree height (`spacingOf`), but at least 1 unit even when both operands
+ * are leaves (height 0) -- an infix operator between two simple classes like
+ * `( F o. G )` or `( A +no B )` must still show some spacing. A parent
+ * operator's height strictly exceeds its children's, so the whitespace grows
+ * with operator level -- a high-level `->` gets more room than a `<->` nested
+ * inside it, which gets more than an inner `=`. Everything follows from the
+ * parse-tree heights and each rule's own pattern structure -- nothing is keyed
+ * on a rule name or paren token.
  */
 export function gapUnits(proof: Proof): number[] {
   const memo = new Map<Proof, number>();
@@ -112,15 +114,21 @@ export function gapUnits(proof: Proof): number[] {
     let nextSub = 0;
     pattern.forEach((tok, j) => {
       if (j > 0) {
-        // The gap before pattern token j is adjacent to an infix operator when
-        // the literal right before it (j-1) has holes on both sides (tok is the
-        // right operand), or when j itself is an infix literal (its left and
-        // right operands are the holes at j-1 and j+1).
+        // The gap before pattern token j is adjacent to an operator when the
+        // token right before it has sub-expressions on both sides (tok is the
+        // right operand), or when j itself is an operator. An operator is a
+        // token with a hole immediately before and after it -- either a literal
+        // (e.g. `->` in ( ph -> ps )) or a hole (e.g. `co`'s operator F in
+        // ( A F B ), filled by a class constant like +no in ( A +no B )).
         const beforeIsInfix =
           isHole(j - 2) && !p.subst.has(pattern[j - 1]) && isHole(j);
         const jIsInfix = isHole(j - 1) && !p.subst.has(tok) && isHole(j + 1);
+        const beforeIsOp = isHole(j - 2) && isHole(j - 1) && isHole(j);
+        const jIsOp = isHole(j - 1) && isHole(j) && isHole(j + 1);
         units[offset] =
-          beforeIsInfix || jIsInfix ? Math.max(spacingOf(p, memo), 1) : 0;
+          beforeIsInfix || jIsInfix || beforeIsOp || jIsOp
+            ? Math.max(spacingOf(p, memo), 1)
+            : 0;
       }
       if (p.subst.has(tok)) offset = walk(p.subproofs[nextSub++], offset);
       else offset += 1;

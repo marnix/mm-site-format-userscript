@@ -123,43 +123,40 @@ describe("gapUnits", () => {
     expect(units[3]).toBeGreaterThan(0); // before G (after \u2218)
   });
 
-  it.fails(
-    "co: an operator hole ( A F B ) gets a minimum unit on both sides",
-    () => {
-      // co is class ( A F B ): the operator F is a HOLE -- a sub-expression filled
-      // by a class constant like +no (cnadd), not a literal pattern token -- so the
-      // literal-infix detection does not fire and every gap comes out 0, which the
-      // page's whitespace removal turns into (A+noB). An operator hole (a hole with
-      // a hole on each side) must space its two adjacent gaps exactly like a
-      // literal operator: spacingOf(co) = 0 here (three leaf operands), floored to
-      // the minimum 1 unit. Nothing at the brackets.
-      const coRule: InferenceRule = {
-        assumptions: [
-          ["class", "A"],
-          ["class", "F"],
-          ["class", "B"],
-        ],
-        conclusion: ["class", "(", "A", "F", "B", ")"],
-      };
-      const cnadd: InferenceRule = {
-        assumptions: [],
-        conclusion: ["class", "+no"],
-      };
-      const kindOf: KindOf = (t) =>
-        ["A", "B", "F"].includes(t) ? "class" : undefined;
-      const proof = parseExpression(
-        ["(", "A", "+no", "B", ")"],
-        "class",
-        [coRule, cnadd],
-        kindOf,
-      )!;
-      // tokens: (  A  +no  B  )
-      //         0  1  2   3  4
-      expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 0]);
-    },
-  );
+  it("co: an operator hole ( A F B ) gets a minimum unit on both sides", () => {
+    // co is class ( A F B ): the operator F is a HOLE -- a sub-expression filled
+    // by a class constant like +no (cnadd), not a literal pattern token -- so the
+    // literal-infix detection does not fire and every gap comes out 0, which the
+    // page's whitespace removal turns into (A+noB). An operator hole (a hole with
+    // a hole on each side) must space its two adjacent gaps exactly like a
+    // literal operator: spacingOf(co) = 0 here (three leaf operands), floored to
+    // the minimum 1 unit. Nothing at the brackets.
+    const coRule: InferenceRule = {
+      assumptions: [
+        ["class", "A"],
+        ["class", "F"],
+        ["class", "B"],
+      ],
+      conclusion: ["class", "(", "A", "F", "B", ")"],
+    };
+    const cnadd: InferenceRule = {
+      assumptions: [],
+      conclusion: ["class", "+no"],
+    };
+    const kindOf: KindOf = (t) =>
+      ["A", "B", "F"].includes(t) ? "class" : undefined;
+    const proof = parseExpression(
+      ["(", "A", "+no", "B", ")"],
+      "class",
+      [coRule, cnadd],
+      kindOf,
+    )!;
+    // tokens: (  A  +no  B  )
+    //         0  1  2   3  4
+    expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 0]);
+  });
 
-  it.fails("co: nested operator holes keep the level-based spacing", () => {
+  it("co: nested operator holes keep the level-based spacing", () => {
     // ( A +no ( B +no C ) ): the outer co's right operand is a whole inner co
     // (height 0), so spacingOf(outer co) = 1 and spacingOf(inner co) = 0 -- both
     // floored to the minimum 1 unit. Every +no gap is 1; the brackets stay tight.
