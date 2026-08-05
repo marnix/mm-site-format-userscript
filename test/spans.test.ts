@@ -75,22 +75,55 @@ function makeLeaf(typecode: string, token: string): Proof {
 }
 
 describe("gapUnits", () => {
-  it("puts space around the outer operator, none around the inner one", () => {
-    // spacing: leaves -1; ( ps <-> th ) = 0; ( ph -> ... ) = 1.
-    // 1 unit before "->" and before the "(" after it (symmetric around "->");
-    // 0 around "<->"; nothing at brackets or the turnstile.
-    expect(gapUnits(proof)).toEqual([
-      0, // |-
-      0, // (
-      0, // ph
-      1, // -> (after ph)
-      1, // (  (before the inner subexpression)
-      0, // ps
-      0, // <->
-      0, // th
-      0, // )
-      0, // )
-    ]);
+  it.fails(
+    "more space around the outer operator, a minimum unit for the inner one",
+    () => {
+      // spacing: leaves -1; ( ps <-> th ) = 0; ( ph -> ... ) = 1.
+      // 1 unit before "->" and before the "(" after it (symmetric around "->");
+      // "<->" between two leaf wffs has subtree height 0, but an infix operator
+      // must still get at least 1 unit -- otherwise the page's whitespace is
+      // removed and the operator renders glued to its operands. Nothing at
+      // brackets or the turnstile.
+      expect(gapUnits(proof)).toEqual([
+        0, // |-
+        0, // (
+        0, // ph
+        1, // -> (after ph)
+        1, // (  (before the inner subexpression)
+        0, // ps
+        1, // <->
+        1, // th
+        0, // )
+        0, // )
+      ]);
+    },
+  );
+
+  it.fails("co: leaf-level infix operators get some spacing", () => {
+    // ccom is class ( A \u2218 B ); applied to two leaf classes it renders
+    // ( F \u2218 G ). The operator's subtree height is 0 (leaf operands), yet the
+    // two gaps around \u2218 must still get at least 1 unit -- with 0 units the
+    // page's whitespace is removed and the composition renders as (F\u2218G).
+    const ccomRule: InferenceRule = {
+      assumptions: [
+        ["class", "A"],
+        ["class", "B"],
+      ],
+      conclusion: ["class", "(", "A", "\u2218", "B", ")"],
+    };
+    const kindOf: KindOf = (t) =>
+      ["A", "B", "F", "G"].includes(t) ? "class" : undefined;
+    const proof = parseExpression(
+      ["(", "F", "\u2218", "G", ")"],
+      "class",
+      [ccomRule],
+      kindOf,
+    )!;
+    // tokens: (  F  \u2218  G  )
+    //         0  1  2    3  4
+    const units = gapUnits(proof);
+    expect(units[2]).toBeGreaterThan(0); // before \u2218
+    expect(units[3]).toBeGreaterThan(0); // before G (after \u2218)
   });
 
   it("no space between \u2229 and { when applied to a class abstraction", () => {
