@@ -273,6 +273,94 @@ describe("gapUnits", () => {
     expect(gapUnits(proof)).toEqual([0, 1, 0, 1, 1, 0]);
   });
 
+  it.fails(
+    "wral: the gap between the domain and body variables gets one unit",
+    () => {
+      // wral is wff A. x e. A ph -- pattern [A., x, e., A, ph]. The gap before
+      // ph (between the two adjacent variables A and ph) is not operator-
+      // adjacent, so gapUnits gives it 0 and the page's whitespace removal
+      // glues the body to the domain (A ph -> Aph). An adjacent-variable gap
+      // must get one unit, like the site's A. x e. A ph.
+      const wralRule: InferenceRule = {
+        assumptions: [
+          ["setvar", "x"],
+          ["class", "A"],
+          ["wff", "ph"],
+        ],
+        conclusion: ["wff", "A.", "x", "e.", "A", "ph"],
+      };
+      const kindOf: KindOf = (t) =>
+        t === "x"
+          ? "setvar"
+          : t === "A"
+            ? "class"
+            : t === "ph"
+              ? "wff"
+              : undefined;
+      const proof = parseExpression(
+        ["A.", "x", "e.", "A", "ph"],
+        "wff",
+        [wralRule],
+        kindOf,
+      )!;
+      // tokens: A.  x  e.  A  ph
+      //         0   1  2   3  4
+      expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 1]);
+    },
+  );
+
+  it.fails(
+    "wal: the gap between the bound and body variables gets one unit",
+    () => {
+      // wal is wff A. x ph -- pattern [A., x, ph]: the body ph is a variable
+      // immediately after the bound variable x. The gap between them is an
+      // adjacent-variable gap and gets one unit like every other.
+      const walRule: InferenceRule = {
+        assumptions: [
+          ["setvar", "x"],
+          ["wff", "ph"],
+        ],
+        conclusion: ["wff", "A.", "x", "ph"],
+      };
+      const kindOf: KindOf = (t) =>
+        t === "x" ? "setvar" : t === "ph" ? "wff" : undefined;
+      const proof = parseExpression(
+        ["A.", "x", "ph"],
+        "wff",
+        [walRule],
+        kindOf,
+      )!;
+      // tokens: A.  x  ph
+      //         0   1  2
+      expect(gapUnits(proof)).toEqual([0, 0, 1]);
+    },
+  );
+
+  it.fails("adjacent-variable spacing stays one unit over a large body", () => {
+    // A. x ( ph -> ( ps -> ch ) ): the body is a nested wi (subtree height 1),
+    // but the gap between the bound variable x and the body stays exactly 1
+    // unit -- an adjacent-variable gap is a plain word space, not an operator
+    // level, so it does not grow with the body's height (spacingOf(wal) is 2).
+    const walRule: InferenceRule = {
+      assumptions: [
+        ["setvar", "x"],
+        ["wff", "ph"],
+      ],
+      conclusion: ["wff", "A.", "x", "ph"],
+    };
+    const kindOf: KindOf = (t) =>
+      t === "x" ? "setvar" : wff.has(t) ? "wff" : undefined;
+    const proof = parseExpression(
+      ["A.", "x", "(", "ph", "->", "(", "ps", "->", "ch", ")", ")"],
+      "wff",
+      [walRule, wi],
+      kindOf,
+    )!;
+    // tokens: A.  x  (  ph  ->  (  ps  ->  ch  )  )
+    //         0   1  2  3   4  5  6   7  8   9  10
+    expect(gapUnits(proof)).toEqual([0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0]);
+  });
+
   it("no space between \u2229 and { when applied to a class abstraction", () => {
     // \u2229 { x \u2208 B | P } \u2014 cint(crab(x, B, P))
     // cint pattern ["\u2229", "A"]: single hole at end, not interior, gap = 0.
