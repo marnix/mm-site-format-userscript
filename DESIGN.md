@@ -166,7 +166,11 @@ would need transitive syntax loading (see TODO — "Correctness").
   `⇔ TRUE`.
 - **Hover + occurrence highlighting** — `highlight.ts`: smallest containing node
   span, plus `matchingOccurrences` (same token sequence ⇒ same parse tree).
-- **Parse-tree whitespace** — `spans.ts` (`gapUnits`) + `space.ts`.
+- **Parse-tree whitespace** — `spans.ts` (`gapUnits`) + `space.ts`. The point of
+  the whitespace is to help a human's "precedence parser": the spacing should
+  make binding visible (e.g. `¬ 𝑧=1` shows that `=` binds tighter than `¬`).
+  Looking like conventional math notation is secondary — a means to that end,
+  not the goal.
 - **Calculational rendering** — `table.ts`/`calculation.ts`/`render.ts`, sized
   and toggled in `index.ts`/`view.ts`. A step whose single premise barely
   differs from its own expression (`isSmallStep`, `spine.ts`) is marked

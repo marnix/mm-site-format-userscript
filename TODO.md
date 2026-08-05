@@ -21,6 +21,13 @@ and subscript-bracket delimiters stay tight (`csb [_ A / x ]_ B` → `⦋A / x�
   achieved. `wi`/`co` are unaffected: every child of those rules is adjacent to
   the operator.
 
+- **Space after a prefix like `¬` when its operand is an operator**: `¬ 𝑧=1`
+  should show a space between `¬` and `𝑧=1`, signalling that `=` binds tighter
+  than `¬` -- the spacing encodes precedence. Symbol prefixes currently stay
+  tight (`wn`'s `-.` renders `¬𝑧=1`); give the prefix a fixed space (like the
+  word-prefix rule) when its operand is itself an operator expression, so the
+  prefix reads as applying to the whole `𝑧=1` rather than gluing to `𝑧`.
+
 ## Upstream issues to report
 
 - **Incomplete "Syntax hints"**: a theorem page's "Syntax hints" row can omit a
