@@ -191,20 +191,24 @@ export function locateMathSpan(
           });
       } else if (INLINE_FORMATTING_TAGS.has(el.tagName) && run.length > 0) {
         // Inline formatting or subscript: absorb text into the current run.
-        // Subscript characters are tagged with `sub: el` so the token location
-        // spans from the base character through the subscript element.
+        // A subscript's characters are folded into the preceding token (tagged
+        // with `sub: el`, so the token location spans from the base character
+        // through the subscript element); other inline elements are anchored at
+        // the element itself. Inheriting the previous character's position here
+        // would give consecutive inline tokens (e.g. nmulprop's `]_`/`[_` <b>
+        // brackets) the same DOM anchor, so every spacer would be inserted
+        // before the first one.
         // Push per UTF-16 code unit (not per code point), so run indices stay
         // aligned with the joined run text's offsets.
-        const base = run[run.length - 1];
         const isSub = isSubscript(el);
         const chars = el.textContent ?? "";
+        const base = run[run.length - 1];
         for (let k = 0; k < chars.length; k++)
-          run.push({
-            ch: chars[k],
-            node: base.node,
-            offset: base.offset,
-            ...(isSub && { sub: el }),
-          });
+          run.push(
+            isSub
+              ? { ch: chars[k], node: base.node, offset: base.offset, sub: el }
+              : { ch: chars[k], node: el as unknown as Text, offset: k },
+          );
       } else if (INLINE_FORMATTING_TAGS.has(el.tagName)) {
         // Same tags but at the START of a run (run.length === 0): no base to
         // inherit position from, so use the element itself as position anchor.

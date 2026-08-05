@@ -65,7 +65,7 @@ describe("insertSpacers", () => {
     expect(spacer.style.paddingLeft).toBe("0.3ex");
   });
 
-  it.fails("anchors consecutive inline-element tokens at their own element (nmulprop csb brackets)", () => {
+  it("anchors consecutive inline-element tokens at their own element (nmulprop csb brackets)", () => {
     // nmulprop step 62 renders the csb brackets as adjacent <b> elements
     // (\u298c = ]_ and \u298b = [_). The second token's characters inherit the
     // first's element position, so both tokens end up at the same DOM anchor and
@@ -108,7 +108,7 @@ describe("insertSpacers", () => {
     ]);
   });
 
-  it.fails("anchors an inline-element token after a <b> at its own element (nmulprop csb then \u2229)", () => {
+  it("anchors an inline-element token after a <b> at its own element (nmulprop csb then \u2229)", () => {
     // Same fold bug via a <font>-wrapped \u2229 following a <b> bracket: the
     // \u2229's characters inherited the bracket's element position, so both
     // spacers landed before the <b> and the gap before \u2229 disappeared.
