@@ -91,7 +91,9 @@ function spacingOf(proof: Proof, memo: Map<Proof, number>): number {
  * *infix* literal -- a pattern token that is a literal with a hole immediately
  * before and after it (e.g. `->` or `e.`, but not a wrapper like `(` / `)`).
  * Both sides of the operator get the same value: the operator's own subtree
- * height (`spacingOf`). A parent operator's height strictly exceeds its
+ * height (`spacingOf`), but at least 1 unit even when both operands are leaves
+ * (height 0) -- an infix operator between two simple classes like `( F o. G )`
+ * must still show some spacing. A parent operator's height strictly exceeds its
  * children's, so the whitespace grows with operator level -- a high-level `->`
  * gets more room than a `<->` nested inside it, which gets more than an inner
  * `=`. Everything follows from the parse-tree heights and each rule's own
@@ -117,7 +119,8 @@ export function gapUnits(proof: Proof): number[] {
         const beforeIsInfix =
           isHole(j - 2) && !p.subst.has(pattern[j - 1]) && isHole(j);
         const jIsInfix = isHole(j - 1) && !p.subst.has(tok) && isHole(j + 1);
-        units[offset] = beforeIsInfix || jIsInfix ? spacingOf(p, memo) : 0;
+        units[offset] =
+          beforeIsInfix || jIsInfix ? Math.max(spacingOf(p, memo), 1) : 0;
       }
       if (p.subst.has(tok)) offset = walk(p.subproofs[nextSub++], offset);
       else offset += 1;
