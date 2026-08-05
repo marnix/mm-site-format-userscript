@@ -551,7 +551,7 @@ describe("gapUnits", () => {
           ? "wff"
           : undefined;
 
-  it.fails("csb: a subscript-bracket constructor keeps its brackets tight", () => {
+  it("csb: a subscript-bracket constructor keeps its brackets tight", () => {
     const proof = parseExpression(
       ["[_", "A", "/", "x", "]_", "B"],
       "class",
@@ -563,7 +563,7 @@ describe("gapUnits", () => {
     expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 0, 0]);
   });
 
-  it.fails("wsbc: [. A / x ]. ph spaces like a subscript bracket", () => {
+  it("wsbc: [. A / x ]. ph spaces like a subscript bracket", () => {
     const proof = parseExpression(
       ["[.", "A", "/", "x", "].", "ph"],
       "wff",
@@ -575,7 +575,7 @@ describe("gapUnits", () => {
     expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 0, 0]);
   });
 
-  it.fails("wsb: [ y / x ] ph spaces like a subscript bracket", () => {
+  it("wsb: [ y / x ] ph spaces like a subscript bracket", () => {
     const proof = parseExpression(
       ["[", "y", "/", "x", "]", "ph"],
       "wff",
@@ -587,7 +587,7 @@ describe("gapUnits", () => {
     expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 0, 0]);
   });
 
-  it.fails("csb: the separator stays fixed and the close bracket tight over a complex operand", () => {
+  it("csb: the separator stays fixed and the close bracket tight over a complex operand", () => {
     const proof = parseExpression(
       ["[_", "A", "/", "x", "]_", "(", "B", "\u2218", "C", ")"],
       "class",
@@ -602,7 +602,7 @@ describe("gapUnits", () => {
     expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 0, 0, 0, 1, 1, 0]);
   });
 
-  it.fails("csb: nested csb keeps both close brackets tight", () => {
+  it("csb: nested csb keeps both close brackets tight", () => {
     const proof = parseExpression(
       ["[_", "A", "/", "x", "]_", "[_", "B", "/", "y", "]_", "C"],
       "class",

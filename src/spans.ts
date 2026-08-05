@@ -119,6 +119,19 @@ const WORD_PREFIX = /^[A-Za-z]{2,}$/;
  * 1 unit and stays there regardless of the operand's height. Operator gaps take
  * precedence: a hole-pair inside an operator, like `co`'s `F B` in `( A F B )`,
  * keeps the operator's height-based spacing so the operator stays symmetric.
+ *
+ * A *subscript-bracket constructor* (`csb`'s `[_ A / x ]_ B`, `wsbc`'s
+ * `[. A / x ]. ph`, `wsb`'s `[ y / x ] ph`) behaves like a word-prefix rule,
+ * not an operator rule, even though its close bracket (`]_`, `].`) has a hole
+ * on each side. Such a pattern ends with a literal close-bracket immediately
+ * followed by its single operand and contains an interior separator literal --
+ * a literal strictly between the first and last constants with a hole on each
+ * side, like the `/` -- so the site renders it as `⦋A / x⦌B` rather than an
+ * operator's `⦋A / x⦌B`. The close bracket and its operand are tight on both
+ * sides, and the interior separators are fixed 1-unit word spaces, never
+ * height-scaled operators. Purely structural: nothing is keyed on a rule name
+ * or constant text, so `cec`'s `[ A ] R` and `citg`'s `S. A B _d x` (no
+ * separator between the first and last constant) stay operator-based.
  */
 export function gapUnits(proof: Proof): number[] {
   const memo = new Map<Proof, number>();
@@ -129,38 +142,67 @@ export function gapUnits(proof: Proof): number[] {
     const isHole = (j: number) =>
       j >= 0 && j < pattern.length && p.subst.has(pattern[j]);
 
+    // Subscript-bracket constructor, purely structural (see the docstring).
+    const literals: number[] = [];
+    pattern.forEach((t, j) => {
+      if (!p.subst.has(t)) literals.push(j);
+    });
+    const firstLit = literals[0];
+    const lastLit = literals[literals.length - 1];
+    const closeBracketThenOperand =
+      pattern.length >= 2 &&
+      !isHole(pattern.length - 2) &&
+      isHole(pattern.length - 1);
+    const isSeparator = (k: number) =>
+      firstLit < k && k < lastLit && isHole(k - 1) && isHole(k + 1);
+    const bracketStyle =
+      closeBracketThenOperand && literals.some((k) => isSeparator(k));
+
     let offset = start;
     let nextSub = 0;
     pattern.forEach((tok, j) => {
       if (j > 0) {
-        // The gap before pattern token j is adjacent to an operator when the
-        // token right before it has sub-expressions on both sides (tok is the
-        // right operand), or when j itself is an operator. An operator is a
-        // token with a hole immediately before and after it -- either a literal
-        // (e.g. `->` in ( ph -> ps )) or a hole (e.g. `co`'s operator F in
-        // ( A F B ), filled by a class constant like +no in ( A +no B )).
-        const beforeIsInfix =
-          isHole(j - 2) && !p.subst.has(pattern[j - 1]) && isHole(j);
-        const jIsInfix = isHole(j - 1) && !p.subst.has(tok) && isHole(j + 1);
-        const beforeIsOp = isHole(j - 2) && isHole(j - 1) && isHole(j);
-        const jIsOp = isHole(j - 1) && isHole(j) && isHole(j + 1);
-        // Word-like prefix: the whole pattern is a word literal followed by its
-        // single hole, so tok (j = 1) is the operand and its gap is a fixed
-        // word boundary (1 unit), not an operator level.
-        const beforeIsPrefix =
-          pattern.length === 2 &&
-          !p.subst.has(pattern[0]) &&
-          WORD_PREFIX.test(pattern[0]) &&
-          p.subst.has(pattern[1]);
-        // Adjacent variables: two holes next to each other in the pattern
-        // (wral's A ph, wal's x ph). A fixed word space, not an operator level.
-        const adjacentVar = isHole(j - 1) && isHole(j);
-        units[offset] =
-          beforeIsInfix || jIsInfix || beforeIsOp || jIsOp
-            ? Math.max(spacingOf(p, memo), 1)
-            : beforeIsPrefix || adjacentVar
-              ? 1
-              : 0;
+        if (bracketStyle) {
+          // Close bracket and operand are tight; interior separators are fixed
+          // 1-unit word spaces; adjacent variables get a word space.
+          units[offset] =
+            j === pattern.length - 2 || j === pattern.length - 1
+              ? 0
+              : isSeparator(j) || isSeparator(j - 1)
+                ? 1
+                : isHole(j - 1) && isHole(j)
+                  ? 1
+                  : 0;
+        } else {
+          // The gap before pattern token j is adjacent to an operator when the
+          // token right before it has sub-expressions on both sides (tok is the
+          // right operand), or when j itself is an operator. An operator is a
+          // token with a hole immediately before and after it -- either a literal
+          // (e.g. `->` in ( ph -> ps )) or a hole (e.g. `co`'s operator F in
+          // ( A F B ), filled by a class constant like +no in ( A +no B )).
+          const beforeIsInfix =
+            isHole(j - 2) && !p.subst.has(pattern[j - 1]) && isHole(j);
+          const jIsInfix = isHole(j - 1) && !p.subst.has(tok) && isHole(j + 1);
+          const beforeIsOp = isHole(j - 2) && isHole(j - 1) && isHole(j);
+          const jIsOp = isHole(j - 1) && isHole(j) && isHole(j + 1);
+          // Word-like prefix: the whole pattern is a word literal followed by its
+          // single hole, so tok (j = 1) is the operand and its gap is a fixed
+          // word boundary (1 unit), not an operator level.
+          const beforeIsPrefix =
+            pattern.length === 2 &&
+            !p.subst.has(pattern[0]) &&
+            WORD_PREFIX.test(pattern[0]) &&
+            p.subst.has(pattern[1]);
+          // Adjacent variables: two holes next to each other in the pattern
+          // (wral's A ph, wal's x ph). A fixed word space, not an operator level.
+          const adjacentVar = isHole(j - 1) && isHole(j);
+          units[offset] =
+            beforeIsInfix || jIsInfix || beforeIsOp || jIsOp
+              ? Math.max(spacingOf(p, memo), 1)
+              : beforeIsPrefix || adjacentVar
+                ? 1
+                : 0;
+        }
       }
       if (p.subst.has(tok)) offset = walk(p.subproofs[nextSub++], offset);
       else offset += 1;
