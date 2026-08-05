@@ -536,8 +536,8 @@ describe("gapUnits", () => {
 
   // csb is class [_ A / x ]_ B -- pattern [ [_ A / x ]_ B ]. The _] literal
   // has a hole on each side, so the operator rule gives it and the operand a
-  // spacing unit; but the site renders [_ A / x ]_ B as "⦋A / x⦌B" with only
-  // the / spaced. A subscript-bracket constructor: the pattern ends with a
+  // spacing unit; but the site renders [_ A / x ]_ B as "\u298bA / x\u298cB"
+  // with only the / spaced. A subscript-bracket constructor: the pattern ends with a
   // literal close-bracket followed by its operand and contains an interior
   // separator literal (the /, a literal between the first and last constant
   // with a hole on each side). The close bracket is tight on both sides and

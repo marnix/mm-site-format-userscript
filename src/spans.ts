@@ -126,8 +126,9 @@ const WORD_PREFIX = /^[A-Za-z]{2,}$/;
  * on each side. Such a pattern ends with a literal close-bracket immediately
  * followed by its single operand and contains an interior separator literal --
  * a literal strictly between the first and last constants with a hole on each
- * side, like the `/` -- so the site renders it as `⦋A / x⦌B` rather than an
- * operator's `⦋A / x⦌B`. The close bracket and its operand are tight on both
+ * side, like the `/` -- so the site renders it as `\u298bA / x\u298cB` (the
+ * brackets tight) rather than an operator's spaced brackets. The close bracket
+ * and its operand are tight on both
  * sides, and the interior separators are fixed 1-unit word spaces, never
  * height-scaled operators. Purely structural: nothing is keyed on a rule name
  * or constant text, so `cec`'s `[ A ] R` and `citg`'s `S. A B _d x` (no
