@@ -64,4 +64,74 @@ describe("insertSpacers", () => {
     const spacer = span.querySelector(".mm-site-format-space") as HTMLElement;
     expect(spacer.style.paddingLeft).toBe("0.3ex");
   });
+
+  it.fails("anchors consecutive inline-element tokens at their own element (nmulprop csb brackets)", () => {
+    // nmulprop step 62 renders the csb brackets as adjacent <b> elements
+    // (\u298c = ]_ and \u298b = [_). The second token's characters inherit the
+    // first's element position, so both tokens end up at the same DOM anchor and
+    // insertSpacers piles both spacers before the first <b> -- the gap looks
+    // doubled, and the token between the two spacers loses its own gap.
+    const span = document.createElement("span");
+    span.innerHTML =
+      '<span class="setvar">c</span><b>\u298c</b><b>\u298b</b><span class="setvar">v</span>';
+    // Vocab-based splitting (as on a real page): neither bracket is a constant,
+    // so the run-together \u298c\u298b splits into two single-char tokens.
+    const located = locateMathSpan(span, new Set(["setvar"]), new Set([")"]));
+    expect(located.map((l) => l.token.text)).toEqual([
+      "c",
+      "\u298c",
+      "\u298b",
+      "v",
+    ]);
+
+    insertSpacers(located, [0, 9, 9, 0]);
+
+    const bars = span.querySelectorAll("b");
+    const spacers = span.querySelectorAll(".mm-site-format-space");
+    expect(spacers).toHaveLength(2);
+    const [beforeRib, beforeLbr] = Array.from(spacers);
+    expect(bars[0].previousElementSibling).toBe(beforeRib);
+    expect(beforeRib.previousElementSibling).toHaveProperty(
+      "className",
+      "setvar",
+    );
+    expect(bars[1].previousElementSibling).toBe(beforeLbr);
+    expect(beforeLbr.previousElementSibling).toBe(bars[0]);
+
+    // Re-locating is stable: the two spacers do not merge or drop tokens.
+    const relocated = locateMathSpan(span, new Set(["setvar"]));
+    expect(relocated.map((l) => l.token.text)).toEqual([
+      "c",
+      "\u298c",
+      "\u298b",
+      "v",
+    ]);
+  });
+
+  it.fails("anchors an inline-element token after a <b> at its own element (nmulprop csb then \u2229)", () => {
+    // Same fold bug via a <font>-wrapped \u2229 following a <b> bracket: the
+    // \u2229's characters inherited the bracket's element position, so both
+    // spacers landed before the <b> and the gap before \u2229 disappeared.
+    const span = document.createElement("span");
+    span.innerHTML =
+      '<span class="setvar">d</span><b>\u298c</b><font size="+1">\u2229</font><span class="setvar">x</span>';
+    const located = locateMathSpan(span, new Set(["setvar"]), new Set([")"]));
+    expect(located.map((l) => l.token.text)).toEqual([
+      "d",
+      "\u298c",
+      "\u2229",
+      "x",
+    ]);
+
+    insertSpacers(located, [0, 8, 8, 0]);
+
+    const spacers = span.querySelectorAll(".mm-site-format-space");
+    expect(spacers).toHaveLength(2);
+    const [beforeRib, beforeInt] = Array.from(spacers);
+    const rib = span.querySelector("b")!;
+    const inter = span.querySelector("font")!;
+    expect(rib.previousElementSibling).toBe(beforeRib);
+    expect(inter.previousElementSibling).toBe(beforeInt);
+    expect(beforeInt.previousElementSibling).toBe(rib);
+  });
 });
