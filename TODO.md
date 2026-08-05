@@ -9,17 +9,24 @@
   tokens. Everything must follow from the structure of each individual syntax
   rule and the structure/depth of its parse tree.
 
-  Agreed scheme: for an _infix_ literal (a pattern token that is a literal with
-  a hole immediately before and after it), give **both** adjacent gaps the
-  operator's own subtree height (`spacingOf`: leaf `−1`, else
-  `1 + max(child heights)`); every other gap is `0`. This keeps the brackets
-  tight (wrappers are not infix) and every operator symmetric, and makes the
-  whitespace grow with operator level -- a parent's height strictly exceeds its
-  children's, so an outer `->` always gets more room than a `<->` nested inside
-  it, which gets more than an inner `=` (verified on rhmkerinj's main statement,
-  `test/rhmkerinj.test.ts`). Earlier scheme (both gaps `|h(left) − h(right)|`)
-  was symmetric but levelled `->` and `<->` when the operand-height differences
-  tied; dropped in favour of the level-based value.
+  Agreed scheme: for an operator (a pattern token with a hole immediately before
+  and after it) give **both** adjacent gaps the operator's own subtree height
+  (`spacingOf`: leaf `−1`, else `1 + max(child heights)`); every other gap is
+  `0`. This keeps the brackets tight (wrappers are not infix) and every operator
+  symmetric, and makes the whitespace grow with operator level -- a parent's
+  height strictly exceeds its children's, so an outer `->` always gets more room
+  than a `<->` nested inside it, which gets more than an inner `=` (verified on
+  rhmkerinj's main statement, `test/rhmkerinj.test.ts`). Earlier scheme (both
+  gaps `|h(left) − h(right)|`) was symmetric but levelled `->` and `<->` when
+  the operand-height differences tied; dropped in favour of the level-based
+  value.
+
+  An operator need not be a literal pattern token: `co` is `class ( A F B )`,
+  where the operator `F` is itself a hole (a sub-expression filled by a class
+  constant such as `+no` in `( A +no B )`). The infix test therefore covers any
+  token -- literal or hole -- whose neighbours in the rule's pattern are both
+  holes. Both gaps around an operator hole get the same value as around a
+  literal operator, so `( A +no B )` spaces exactly like `( ph -> ps )`.
 
 ## Upstream issues to report
 
