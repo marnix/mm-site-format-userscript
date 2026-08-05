@@ -185,6 +185,97 @@ describe("gapUnits", () => {
     expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 0, 1, 1, 0, 0]);
   });
 
+  it.fails("csuc: a word-like prefix literal gets one unit after it", () => {
+    // csuc is class suc A -- pattern ["suc", "A"]: a literal of 2+ alphabetic
+    // characters immediately followed by its single hole. The prefix gap is not
+    // adjacent to an operator, so gapUnits gives it 0 and the page's whitespace
+    // removal glues the word to its operand (sucA). A word-like prefix literal
+    // must keep a full unit after it -- the site renders suc A and Fun A with a
+    // space, but never tight like the single-symbol ¬A.
+    const csucRule: InferenceRule = {
+      assumptions: [["class", "A"]],
+      conclusion: ["class", "suc", "A"],
+    };
+    const kindOf: KindOf = (t) => (t === "A" ? "class" : undefined);
+    const proof = parseExpression(["suc", "A"], "class", [csucRule], kindOf)!;
+    // tokens: suc  A
+    //         0    1
+    expect(gapUnits(proof)).toEqual([0, 1]);
+  });
+
+  it("wn: a symbol prefix stays tight", () => {
+    // wn is wff -. ph -- the prefix literal -. is a symbol, not a word-like
+    // prefix (2+ alphabetic characters), so the gap after it stays 0 and the
+    // operand renders glued (-.ph), matching the site's tight ¬A.
+    const wnRule: InferenceRule = {
+      assumptions: [["wff", "ph"]],
+      conclusion: ["wff", "-.", "ph"],
+    };
+    const kindOf: KindOf = (t) => (t === "ph" ? "wff" : undefined);
+    const proof = parseExpression(["-.", "ph"], "wff", [wnRule], kindOf)!;
+    // tokens: -.  ph
+    //         0    1
+    expect(gapUnits(proof)).toEqual([0, 0]);
+  });
+
+  it("a one-letter prefix literal stays tight", () => {
+    // A unary prefix whose literal is a single alphabetic character is not a
+    // word-like prefix -- only 2+ characters qualify -- so it stays tight like a
+    // symbol prefix. No such rule exists in set.mm (synthetic here); it guards
+    // the "2+ alphabetic characters" half of the word-prefix rule.
+    const oneLetterRule: InferenceRule = {
+      assumptions: [["class", "A"]],
+      conclusion: ["class", "l", "A"],
+    };
+    const kindOf: KindOf = (t) => (t === "A" ? "class" : undefined);
+    const proof = parseExpression(
+      ["l", "A"],
+      "class",
+      [oneLetterRule],
+      kindOf,
+    )!;
+    // tokens: l  A
+    //         0  1
+    expect(gapUnits(proof)).toEqual([0, 0]);
+  });
+
+  it.fails(
+    "csuc: prefix spacing stays one unit even over a large operand",
+    () => {
+      // suc ( A +no B ): the prefix's operand is a whole co application (subtree
+      // height 0), but the gap after suc stays exactly 1 unit -- a word-prefix
+      // space is a fixed word boundary, not an operator level, so it does not
+      // grow with the operand's height. The +no operator keeps its own minimum 1.
+      const csucRule: InferenceRule = {
+        assumptions: [["class", "A"]],
+        conclusion: ["class", "suc", "A"],
+      };
+      const coRule: InferenceRule = {
+        assumptions: [
+          ["class", "A"],
+          ["class", "F"],
+          ["class", "B"],
+        ],
+        conclusion: ["class", "(", "A", "F", "B", ")"],
+      };
+      const cnadd: InferenceRule = {
+        assumptions: [],
+        conclusion: ["class", "+no"],
+      };
+      const kindOf: KindOf = (t) =>
+        ["A", "B", "F"].includes(t) ? "class" : undefined;
+      const proof = parseExpression(
+        ["suc", "(", "A", "+no", "B", ")"],
+        "class",
+        [csucRule, coRule, cnadd],
+        kindOf,
+      )!;
+      // tokens: suc  (  A  +no  B  )
+      //         0    1  2  3   4  5
+      expect(gapUnits(proof)).toEqual([0, 1, 0, 1, 1, 0]);
+    },
+  );
+
   it("no space between \u2229 and { when applied to a class abstraction", () => {
     // \u2229 { x \u2208 B | P } \u2014 cint(crab(x, B, P))
     // cint pattern ["\u2229", "A"]: single hole at end, not interior, gap = 0.
