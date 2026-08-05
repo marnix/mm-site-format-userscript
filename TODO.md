@@ -28,6 +28,14 @@
   holes. Both gaps around an operator hole get the same value as around a
   literal operator, so `( A +no B )` spaces exactly like `( ph -> ps )`.
 
+  One non-operator gap also gets spacing: a **word-like prefix** -- a rule whose
+  whole pattern is a 2+ alphabetic-character literal immediately followed by its
+  single hole (`csuc` is `class suc A`). Its operand's gap gets a fixed 1 unit:
+  the page's whitespace removal would otherwise glue the word to its operand
+  (`sucA`). The space is a word boundary, fixed at 1 unit regardless of the
+  operand's height; symbol prefixes (`wn`'s `-.`, `cint`'s `|^|`) and
+  single-letter prefixes stay tight, matching the site's `-.A`.
+
 ## Upstream issues to report
 
 - **Incomplete "Syntax hints"**: a theorem page's "Syntax hints" row can omit a

@@ -85,6 +85,10 @@ function spacingOf(proof: Proof, memo: Map<Proof, number>): number {
   return s;
 }
 
+/** A word-like prefix literal: 2+ ASCII alphabetic characters (e.g. `suc`,
+ *  `Fun`, `dom`), as opposed to a symbol like `-.`, `U_`, or a single letter. */
+const WORD_PREFIX = /^[A-Za-z]{2,}$/;
+
 /**
  * Units of extra whitespace to put *before* each token of the proof's token
  * sequence (`units[0]` is 0). A gap gets spacing only when it is adjacent to an
@@ -100,6 +104,14 @@ function spacingOf(proof: Proof, memo: Map<Proof, number>): number {
  * inside it, which gets more than an inner `=`. Everything follows from the
  * parse-tree heights and each rule's own pattern structure -- nothing is keyed
  * on a rule name or paren token.
+ *
+ * The one non-operator gap that gets spacing is a *word-like prefix*: a rule
+ * whose whole pattern is a 2+ alphabetic-character literal immediately followed
+ * by its single hole (`csuc` is `class suc A`). Its operand's gap gets a fixed
+ * 1 unit -- the page otherwise removes the whitespace and the word glues to its
+ * operand (`sucA`). The space is a word boundary, so it stays 1 unit regardless
+ * of the operand's height, and symbol prefixes (`wn`'s `-.`, `cint`'s `|^|`)
+ * stay tight, matching the site's `-.A`.
  */
 export function gapUnits(proof: Proof): number[] {
   const memo = new Map<Proof, number>();
@@ -125,8 +137,17 @@ export function gapUnits(proof: Proof): number[] {
         const jIsInfix = isHole(j - 1) && !p.subst.has(tok) && isHole(j + 1);
         const beforeIsOp = isHole(j - 2) && isHole(j - 1) && isHole(j);
         const jIsOp = isHole(j - 1) && isHole(j) && isHole(j + 1);
-        units[offset] =
-          beforeIsInfix || jIsInfix || beforeIsOp || jIsOp
+        // Word-like prefix: the whole pattern is a word literal followed by its
+        // single hole, so tok (j = 1) is the operand and its gap is a fixed
+        // word boundary (1 unit), not an operator level.
+        const beforeIsPrefix =
+          pattern.length === 2 &&
+          !p.subst.has(pattern[0]) &&
+          WORD_PREFIX.test(pattern[0]) &&
+          p.subst.has(pattern[1]);
+        units[offset] = beforeIsPrefix
+          ? 1
+          : beforeIsInfix || jIsInfix || beforeIsOp || jIsOp
             ? Math.max(spacingOf(p, memo), 1)
             : 0;
       }
