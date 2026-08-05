@@ -14,7 +14,7 @@ and subscript-bracket delimiters stay tight (`csb [_ A / x ]_ B` → `⦋A / x�
   shallow `∈` the full depth-based gap even though the depth comes only from the
   trailing `…` expression, which is the part that should carry the space. An
   operator's gap is sized by the whole containing node's height (`spacingOf(p)`
-  = `1 + max` over *all* children), so a deep non-adjacent sibling operand
+  = `1 + max` over _all_ children), so a deep non-adjacent sibling operand
   inflates a shallow operator's gaps. Want a consistent way to size operator
   gaps from the operator's own adjacent operands only -- `∈` stays small and the
   deep trailing expression carries the room -- while keeping everything
