@@ -112,6 +112,13 @@ const WORD_PREFIX = /^[A-Za-z]{2,}$/;
  * operand (`sucA`). The space is a word boundary, so it stays 1 unit regardless
  * of the operand's height, and symbol prefixes (`wn`'s `-.`, `cint`'s `|^|`)
  * stay tight, matching the site's `-.A`.
+ *
+ * The other non-operator gap with spacing is an *adjacent-variable* gap: two
+ * holes next to each other in a pattern (`wral`'s `A ph` in `A. x e. A ph`,
+ * `wal`'s `x ph` in `A. x ph`). Like a word-prefix boundary, it gets a fixed
+ * 1 unit and stays there regardless of the operand's height. Operator gaps take
+ * precedence: a hole-pair inside an operator, like `co`'s `F B` in `( A F B )`,
+ * keeps the operator's height-based spacing so the operator stays symmetric.
  */
 export function gapUnits(proof: Proof): number[] {
   const memo = new Map<Proof, number>();
@@ -145,11 +152,15 @@ export function gapUnits(proof: Proof): number[] {
           !p.subst.has(pattern[0]) &&
           WORD_PREFIX.test(pattern[0]) &&
           p.subst.has(pattern[1]);
-        units[offset] = beforeIsPrefix
-          ? 1
-          : beforeIsInfix || jIsInfix || beforeIsOp || jIsOp
+        // Adjacent variables: two holes next to each other in the pattern
+        // (wral's A ph, wal's x ph). A fixed word space, not an operator level.
+        const adjacentVar = isHole(j - 1) && isHole(j);
+        units[offset] =
+          beforeIsInfix || jIsInfix || beforeIsOp || jIsOp
             ? Math.max(spacingOf(p, memo), 1)
-            : 0;
+            : beforeIsPrefix || adjacentVar
+              ? 1
+              : 0;
       }
       if (p.subst.has(tok)) offset = walk(p.subproofs[nextSub++], offset);
       else offset += 1;

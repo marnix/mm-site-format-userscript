@@ -36,6 +36,16 @@
   operand's height; symbol prefixes (`wn`'s `-.`, `cint`'s `|^|`) and
   single-letter prefixes stay tight, matching the site's `-.A`.
 
+  Another non-operator gap gets spacing: an **adjacent-variable** gap -- two
+  holes next to each other in a pattern (`wral`'s `A ph` in `A. x e. A ph`,
+  `wal`'s `x ph` in `A. x ph`). It gets a fixed 1 unit like a word-prefix
+  boundary, regardless of the operand's height. Operator gaps take precedence (a
+  hole-pair inside an operator, like `co`'s `F B` in `( A F B )`, keeps the
+  operator's height-based spacing so the operator stays symmetric). Note this is
+  an intentional divergence from the site for `wal`/`wex`, which render the
+  bound-variable gap tight (`∀𝑥𝛗`); the site matches for `wral`/`wrex`, which
+  space `A ph`.
+
 ## Upstream issues to report
 
 - **Incomplete "Syntax hints"**: a theorem page's "Syntax hints" row can omit a
