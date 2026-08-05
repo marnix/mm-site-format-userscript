@@ -22,6 +22,37 @@ const top: InferenceRule = {
   conclusion: ["$TOP", "|-", "chi"],
 };
 const rules = [top, wi, wb];
+const csb: InferenceRule = {
+  assumptions: [
+    ["class", "A"],
+    ["setvar", "x"],
+    ["class", "B"],
+  ],
+  conclusion: ["class", "[_", "A", "/", "x", "]_", "B"],
+};
+const wsbc: InferenceRule = {
+  assumptions: [
+    ["class", "A"],
+    ["setvar", "x"],
+    ["wff", "ph"],
+  ],
+  conclusion: ["wff", "[.", "A", "/", "x", "].", "ph"],
+};
+const wsb: InferenceRule = {
+  assumptions: [
+    ["setvar", "y"],
+    ["setvar", "x"],
+    ["wff", "ph"],
+  ],
+  conclusion: ["wff", "[", "y", "/", "x", "]", "ph"],
+};
+const ccom: InferenceRule = {
+  assumptions: [
+    ["class", "A"],
+    ["class", "B"],
+  ],
+  conclusion: ["class", "(", "A", "\u2218", "B", ")"],
+};
 const wff = new Set(["ph", "ps", "ch", "th", "chi"]);
 const kindOf: KindOf = (t) => (wff.has(t) ? "wff" : undefined);
 
@@ -501,5 +532,85 @@ describe("gapUnits", () => {
     // tokens: (  r  \u2208  On  <->  s  \u2208  On  )
     //         0  1  2   3    4   5  6   7  8
     expect(gapUnits(wbProof)[1]).toBe(0);
+  });
+
+  // csb is class [_ A / x ]_ B -- pattern [ [_ A / x ]_ B ]. The _] literal
+  // has a hole on each side, so the operator rule gives it and the operand a
+  // spacing unit; but the site renders [_ A / x ]_ B as "⦋A / x⦌B" with only
+  // the / spaced. A subscript-bracket constructor: the pattern ends with a
+  // literal close-bracket followed by its operand and contains an interior
+  // separator literal (the /, a literal between the first and last constant
+  // with a hole on each side). The close bracket is tight on both sides and
+  // the separator is a fixed 1 unit.
+  const subscriptKindOf: KindOf = (t) =>
+    t === "x" || t === "y"
+      ? "setvar"
+      : t === "A" || t === "B" || t === "C"
+        ? "class"
+        : wff.has(t)
+          ? "wff"
+          : undefined;
+
+  it.fails("csb: a subscript-bracket constructor keeps its brackets tight", () => {
+    const proof = parseExpression(
+      ["[_", "A", "/", "x", "]_", "B"],
+      "class",
+      [csb],
+      subscriptKindOf,
+    )!;
+    // tokens: [_  A  /  x  ]_  B
+    //         0   1  2  3  4   5
+    expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 0, 0]);
+  });
+
+  it.fails("wsbc: [. A / x ]. ph spaces like a subscript bracket", () => {
+    const proof = parseExpression(
+      ["[.", "A", "/", "x", "].", "ph"],
+      "wff",
+      [wsbc],
+      subscriptKindOf,
+    )!;
+    // tokens: [.  A  /  x  ].  ph
+    //         0   1  2  3  4   5
+    expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 0, 0]);
+  });
+
+  it.fails("wsb: [ y / x ] ph spaces like a subscript bracket", () => {
+    const proof = parseExpression(
+      ["[", "y", "/", "x", "]", "ph"],
+      "wff",
+      [wsb],
+      subscriptKindOf,
+    )!;
+    // tokens: [  y  /  x  ]  ph
+    //         0  1  2  3  4  5
+    expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 0, 0]);
+  });
+
+  it.fails("csb: the separator stays fixed and the close bracket tight over a complex operand", () => {
+    const proof = parseExpression(
+      ["[_", "A", "/", "x", "]_", "(", "B", "\u2218", "C", ")"],
+      "class",
+      [csb, ccom],
+      subscriptKindOf,
+    )!;
+    // tokens: [_  A  /  x  ]_  (  B  \u2218  C  )
+    //         0   1  2  3  4  5  6  7     8  9
+    // The outer csb is a class of height 1 (its operand is a height-0
+    // ccom), so an operator rule would scale the / to 2 units; the
+    // subscript-bracket rule keeps it a fixed 1 and the ]_ tight.
+    expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 0, 0, 0, 1, 1, 0]);
+  });
+
+  it.fails("csb: nested csb keeps both close brackets tight", () => {
+    const proof = parseExpression(
+      ["[_", "A", "/", "x", "]_", "[_", "B", "/", "y", "]_", "C"],
+      "class",
+      [csb],
+      subscriptKindOf,
+    )!;
+    // tokens: [_  A  /  x  ]_  [_  B  /  y  ]_  C
+    //         0   1  2  3  4   5  6  7  8  9   10
+    expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0]);
   });
 });
