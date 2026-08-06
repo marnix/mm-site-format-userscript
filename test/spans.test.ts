@@ -100,6 +100,14 @@ const whad: InferenceRule = {
   ],
   conclusion: ["wff", "hadd", "(", "ph", ",", "ps", ",", "ch", ")"],
 };
+const w3a: InferenceRule = {
+  assumptions: [
+    ["wff", "ph"],
+    ["wff", "ps"],
+    ["wff", "ch"],
+  ],
+  conclusion: ["wff", "(", "ph", "\u2227", "ps", "\u2227", "ch", ")"],
+};
 const wff = new Set(["ph", "ps", "ch", "th", "chi"]);
 const kindOf: KindOf = (t) => (wff.has(t) ? "wff" : undefined);
 
@@ -784,4 +792,93 @@ describe("gapUnits", () => {
       0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0,
     ]);
   });
+
+  it("w3a: a ternary conjunction with leaf operands keeps every \u2227 at one unit", () => {
+    // ( ph \u2227 ps \u2227 ch ): all operands are leaves, so spacingOf(w3a)
+    // is 0, floored to the minimum 1 unit -- the same flat gaps a fixed-1
+    // phrase would have. Guards the leaf case while the operator rule holds.
+    const proof = parseExpression(
+      ["(", "ph", "\u2227", "ps", "\u2227", "ch", ")"],
+      "wff",
+      [w3a],
+      subscriptKindOf,
+    )!;
+    // tokens: (  ph  \u2227  ps  \u2227  ch  )
+    //         0  1   2   3   4   5   6
+    expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 1, 1, 0]);
+  });
+
+  it.fails(
+    "w3a: a ternary conjunction is an operator, scaling \u2227 with the chain level",
+    () => {
+      // ( ph \u2227 ps \u2227 ( ( ch -> th ) -> ps ) ): a flattened n-ary
+      // conjunction is one operator, so every \u2227 gap is the chain's level
+      // spacingOf(w3a) = 2 (its deepest conjunct is a height-1 wi), not a fixed
+      // 1. The deep conjunct keeps its own operator spacing.
+      const proof = parseExpression(
+        [
+          "(",
+          "ph",
+          "\u2227",
+          "ps",
+          "\u2227",
+          "(",
+          "(",
+          "ch",
+          "->",
+          "th",
+          ")",
+          "->",
+          "ps",
+          ")",
+          ")",
+        ],
+        "wff",
+        [w3a, wi],
+        subscriptKindOf,
+      )!;
+      // tokens: (  ph  \u2227  ps  \u2227  (  (  ch  ->  th  )  ->  ps  )  )
+      //         0  1   2   3   4   5  6  7   8   9 10 11   12 13 14
+      expect(gapUnits(proof)).toEqual([
+        0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 1, 1, 0, 0,
+      ]);
+    },
+  );
+
+  it.fails(
+    "whad: a ternary function call is an operator, scaling its commas",
+    () => {
+      // hadd( ph , ps , ( ( ch -> th ) -> ps ) ): like w3a the pattern is
+      // homogeneous (all wff), so it is not a binder constructor and its commas
+      // scale with the call's level spacingOf(whad) = 2 over a height-1 body.
+      const proof = parseExpression(
+        [
+          "hadd",
+          "(",
+          "ph",
+          ",",
+          "ps",
+          ",",
+          "(",
+          "(",
+          "ch",
+          "->",
+          "th",
+          ")",
+          "->",
+          "ps",
+          ")",
+          ")",
+        ],
+        "wff",
+        [whad, wi],
+        subscriptKindOf,
+      )!;
+      // tokens: hadd  (  ph  ,  ps  ,  (  (  ch  ->  th  )  ->  ps  )  )
+      //         0     1  2   3  4   5  6  7  8   9  10 11 12  13 14 15
+      expect(gapUnits(proof)).toEqual([
+        0, 0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 1, 1, 0, 0,
+      ]);
+    },
+  );
 });
