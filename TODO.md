@@ -90,22 +90,6 @@ and subscript-bracket delimiters stay tight (`csb [_ A / x ]_ B` → `⦋A / x�
   <https://github.com/metamath/metamath-website-scripts> and
   <https://github.com/metamath/metamath-website-seed>.
 
-## Build / CI
-
-- **Warnings must fail the build**: `npm run ci` currently passes even when the
-  build emits warnings, so a real problem could hide behind a warning. Concrete
-  case today: the IIFE build warns on `src/config.ts:41` -- `import.meta.env` in
-  a non-ESM bundle makes esbuild warn "You need to set the output format to
-  'esm' for import.meta to work correctly" (the cast
-  `(import.meta as unknown as …)` silences the type error, not the warning; the
-  warning is spurious here because the check only runs under vitest, where the
-  code is bundled as ESM). Two separate steps:
-  1. Make the build fail on warnings (tsup/esbuild `logLevel` / `onwarn`) so
-     `npm run ci` catches them.
-  2. Then remove the `import.meta` access in `src/config.ts` so the build is
-     clean again (e.g. derive the test-mode check from a build-injected constant
-     instead of `import.meta.env.MODE`).
-
 ## Calculational proof rendering
 
 - **Deduplicate shared sub-derivations**: when a proof step is cited multiple

@@ -1,5 +1,9 @@
 // Configuration for the MM Site Format userscript -- edit these to taste.
 
+/** True when bundled under vitest (the test suite), false in the shipped
+ *  userscript. Injected by the build; see tsup.config.ts and vitest.config.ts. */
+declare const __TEST_MODE__: boolean;
+
 /** Width (in `ex`) of one whitespace unit. Every parse-tree gap is an integer
  *  number of these; 0.3 is tight, 0.5 is airy. */
 export const SPACING_EX_PER_UNIT = 0.5;
@@ -38,11 +42,13 @@ export const DEV_PERF_LOG = false;
  * When true, runs the expensive shared-subtree coverage self-check (builds a
  * mini-calc for each shared node to verify completeness). O(S*N) on large
  * proofs; disable in production.
+ *
+ * `__TEST_MODE__` is injected by the build: vitest.config.ts defines it as
+ * `true`, tsup.config.ts as `false`. Reading a build-injected constant instead
+ * of `import.meta.env.MODE` keeps the IIFE bundle free of `import.meta` (which
+ * esbuild warns about for the `iife` output format).
  */
-export const DEV_CHECK_SHARED_COVERAGE =
-  // Always enabled in test runs (vitest sets import.meta.env.MODE to "test").
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  (import.meta as unknown as { env?: { MODE?: string } }).env?.MODE === "test";
+export const DEV_CHECK_SHARED_COVERAGE = __TEST_MODE__;
 
 /**
  * When true, logs spine-choice decisions and their metric scores to the console

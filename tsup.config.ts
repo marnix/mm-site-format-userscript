@@ -1,4 +1,5 @@
 import { defineConfig } from "tsup";
+import type { Plugin } from "esbuild";
 import pkg from "./package.json";
 
 // Release builds take their version from the git tag (the release workflow sets
@@ -38,6 +39,32 @@ const header = `\
 // @grant        none
 // ==/UserScript==`;
 
+// Fail the build on any esbuild warning, so a real problem cannot hide behind a
+// warning that merely prints. (Before this plugin, `npm run ci` passed while
+// the build emitted one.)
+function failOnWarnings(): Plugin {
+  return {
+    name: "fail-on-warnings",
+    setup(build) {
+      build.onEnd((result) => {
+        if (result.warnings.length > 0) {
+          const details = result.warnings
+            .map((warning) => {
+              const location = warning.location
+                ? `${warning.location.file}:${warning.location.line}:${warning.location.column}`
+                : "";
+              return `  ${location}${location ? ": " : ""}${warning.text}`;
+            })
+            .join("\n");
+          throw new Error(
+            `Build produced ${result.warnings.length} warning(s):\n${details}`,
+          );
+        }
+      });
+    },
+  };
+}
+
 export default defineConfig({
   entry: { "mm-site-format": "src/index.ts" },
   outDir: "dist",
@@ -49,6 +76,8 @@ export default defineConfig({
   define: {
     __USERSCRIPT_VERSION__: JSON.stringify(version),
     __USERSCRIPT_BUILD_TIME__: JSON.stringify(buildTime),
+    __TEST_MODE__: "false",
   },
+  esbuildPlugins: [failOnWarnings()],
   onSuccess: "prettier --write dist/mm-site-format.user.js",
 });
