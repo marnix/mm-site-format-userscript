@@ -28,6 +28,21 @@ and subscript-bracket delimiters stay tight (`csb [_ A / x ]_ B` → `⦋A / x�
   word-prefix rule) when its operand is itself an operator expression, so the
   prefix reads as applying to the whole `𝑧=1` rather than gluing to `𝑧`.
 
+- **`cmpo`/`cmpt` treat `∈`, `,`, `↦` as height-scaled operators** (visible on
+  `nmulfn.html`): `class ( x e. A , y e. B |-> C )` spaces every separator --
+  `∈`, `,`, and `↦` -- by `spacingOf(cmpo)`, which grows with `C`'s depth, so a
+  large body `C` balloons the gaps around the whole `x e. A , y e. B |->` prefix
+  (`( x e. A , y e. B |-> ( ( C o. A ) o. B ) )` puts 2 units around each
+  separator). The prefix is a quantifier over `C`, like `csb`'s `[_ A / x ]_ B`,
+  not a chain of operators, so the separators should be fixed small units and
+  `C` should carry the depth. Structural candidate (no rule names): a pattern
+  with **more than one infix literal** (`cmpo`: `∈ , ∈ ↦`; `cmpt`: `∈ ↦`;
+  `whad`/`cadd`: `, ,`) is a binder/list, so every infix literal becomes a fixed
+  1-unit separator like the `/` of the subscript-bracket constructors instead of
+  `spacingOf(p)`. Open questions: whether `cop`'s single `,` in `< A , B >`
+  should also stop scaling, and how this composes with the binder-`∈` item
+  above.
+
 ## Upstream issues to report
 
 - **Incomplete "Syntax hints"**: a theorem page's "Syntax hints" row can omit a
