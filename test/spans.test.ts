@@ -392,6 +392,60 @@ describe("gapUnits", () => {
     expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 1]);
   });
 
+  it.fails("wral: the binder's e. stays a fixed unit over a deep body", () => {
+    // A. x e. A ( ph /\ ps /\ ( ( ch -> th ) -> ps ) ): the e. belongs to the
+    // binder, not to the body -- its adjacent operands x and A are leaves, so
+    // it must stay one unit even though the body is a height-2 w3a chain
+    // (spacingOf(wral) would be 3). The body carries its own spacing.
+    const wralRule: InferenceRule = {
+      assumptions: [
+        ["setvar", "x"],
+        ["class", "A"],
+        ["wff", "ph"],
+      ],
+      conclusion: ["wff", "A.", "x", "e.", "A", "ph"],
+    };
+    const wralKindOf: KindOf = (t) =>
+      t === "x"
+        ? "setvar"
+        : t === "A"
+          ? "class"
+          : wff.has(t)
+            ? "wff"
+            : undefined;
+    const proof = parseExpression(
+      [
+        "A.",
+        "x",
+        "e.",
+        "A",
+        "(",
+        "ph",
+        "\u2227",
+        "ps",
+        "\u2227",
+        "(",
+        "(",
+        "ch",
+        "->",
+        "th",
+        ")",
+        "->",
+        "ps",
+        ")",
+        ")",
+      ],
+      "wff",
+      [wralRule, w3a, wi],
+      wralKindOf,
+    )!;
+    // tokens: A.  x  e.  A  (  ph  /\  ps  /\  (  (  ch  ->  th  )  ->  ps  )  )
+    //         0  1  2   3  4  5  6   7   8  9 10 11  12  13 14 15  16 17 18
+    expect(gapUnits(proof)).toEqual([
+      0, 0, 1, 1, 1, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 1, 1, 0, 0,
+    ]);
+  });
+
   it("wal: the gap between the bound and body variables gets one unit", () => {
     // wal is wff A. x ph -- pattern [A., x, ph]: the body ph is a variable
     // immediately after the bound variable x. The gap between them is an
