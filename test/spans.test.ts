@@ -53,6 +53,53 @@ const ccom: InferenceRule = {
   ],
   conclusion: ["class", "(", "A", "\u2218", "B", ")"],
 };
+const cmpo: InferenceRule = {
+  assumptions: [
+    ["setvar", "x"],
+    ["class", "A"],
+    ["setvar", "y"],
+    ["class", "B"],
+    ["class", "C"],
+  ],
+  conclusion: [
+    "class",
+    "(",
+    "x",
+    "\u2208",
+    "A",
+    ",",
+    "y",
+    "\u2208",
+    "B",
+    "\u21a6",
+    "C",
+    ")",
+  ],
+};
+const cmpt: InferenceRule = {
+  assumptions: [
+    ["setvar", "x"],
+    ["class", "A"],
+    ["class", "C"],
+  ],
+  conclusion: ["class", "(", "x", "\u2208", "A", "\u21a6", "C", ")"],
+};
+const crab: InferenceRule = {
+  assumptions: [
+    ["setvar", "x"],
+    ["class", "A"],
+    ["wff", "ph"],
+  ],
+  conclusion: ["class", "{", "x", "\u2208", "A", "|", "ph", "}"],
+};
+const whad: InferenceRule = {
+  assumptions: [
+    ["wff", "ph"],
+    ["wff", "ps"],
+    ["wff", "ch"],
+  ],
+  conclusion: ["wff", "hadd", "(", "ph", ",", "ps", ",", "ch", ")"],
+};
 const wff = new Set(["ph", "ps", "ch", "th", "chi"]);
 const kindOf: KindOf = (t) => (wff.has(t) ? "wff" : undefined);
 
@@ -613,4 +660,131 @@ describe("gapUnits", () => {
     //         0   1  2  3  4   5  6  7  8  9   10
     expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0]);
   });
+
+  it("cmpo: a binder constructor keeps its separators fixed with leaf operands", () => {
+    // cmpo is class ( x \u2208 A , y \u2208 B \u21a6 C ) -- pattern
+    // [ ( x \u2208 A , y \u2208 B \u21a6 C ) ]. Two separators (\u2208, \u21a6)
+    // plus a comma, each a literal between the first and last constant with a
+    // hole on each side. Like csb it is a constructor, not an operator: the
+    // brackets are tight and the separator phrase is a fixed 1-unit word
+    // spacing. With leaf operands the operator rule happens to agree (its
+    // spacing is floored to 1), so this guards the leaf case.
+    const proof = parseExpression(
+      ["(", "x", "\u2208", "A", ",", "y", "\u2208", "B", "\u21a6", "C", ")"],
+      "class",
+      [cmpo],
+      subscriptKindOf,
+    )!;
+    // tokens: (  x  \u2208  A  ,  y  \u2208  B  \u21a6  C  )
+    //         0  1  2    3  4  5  6    7  8     9  10
+    expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0]);
+  });
+
+  it.fails("cmpo: binder separators stay fixed 1 over a deep body", () => {
+    // ( x \u2208 A , y \u2208 B \u21a6 ( ( C \u2218 A ) \u2218 B ) ): the body is a
+    // height-1 ccom, so an operator rule would scale every \u2208, the commas
+    // and the \u21a6 to 2 units; the binder rule keeps the separator phrase a
+    // fixed 1 and lets the body carry the depth (its own \u2218s keep their
+    // level spacing). The gap before the body is the fixed 1 after \u21a6.
+    const proof = parseExpression(
+      [
+        "(",
+        "x",
+        "\u2208",
+        "A",
+        ",",
+        "y",
+        "\u2208",
+        "B",
+        "\u21a6",
+        "(",
+        "(",
+        "C",
+        "\u2218",
+        "A",
+        ")",
+        "\u2218",
+        "B",
+        ")",
+        ")",
+      ],
+      "class",
+      [cmpo, ccom],
+      subscriptKindOf,
+    )!;
+    // tokens: (  x  \u2208  A  ,  y  \u2208  B  \u21a6  (  (  C  \u2218  A  )  \u2218  B  )  )
+    //         0  1  2    3  4  5  6    7  8     9 10 11  12    13 14 15    16 17 18
+    expect(gapUnits(proof)).toEqual([
+      0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0,
+    ]);
+  });
+
+  it.fails("cmpt: the binder separators stay fixed 1 over a deep body", () => {
+    // cmpt is class ( x \u2208 A \u21a6 C ). Same constructor as cmpo with a
+    // single \u2208 plus \u21a6: fixed 1 over the deep body, which carries the
+    // depth.
+    const proof = parseExpression(
+      [
+        "(",
+        "x",
+        "\u2208",
+        "A",
+        "\u21a6",
+        "(",
+        "(",
+        "C",
+        "\u2218",
+        "A",
+        ")",
+        "\u2218",
+        "B",
+        ")",
+        ")",
+      ],
+      "class",
+      [cmpt, ccom],
+      subscriptKindOf,
+    )!;
+    // tokens: (  x  \u2208  A  \u21a6  (  (  C  \u2218  A  )  \u2218  B  )  )
+    //         0  1  2    3  4  5  6  7  8    9 10 11    12 13 14
+    expect(gapUnits(proof)).toEqual([
+      0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0,
+    ]);
+  });
+
+  it.fails(
+    "crab: a brace binder keeps its separators fixed 1 over a deep body",
+    () => {
+      // crab is class { x \u2208 A | ph } -- pattern [ { x \u2208 A | ph } ].
+      // \u2208 and | are separators, so it is a constructor: the brackets are tight
+      // and the separator phrase fixed 1, with the deep body carrying the depth.
+      const proof = parseExpression(
+        [
+          "{",
+          "x",
+          "\u2208",
+          "A",
+          "|",
+          "(",
+          "(",
+          "ph",
+          "->",
+          "ps",
+          ")",
+          "->",
+          "ch",
+          ")",
+          "}",
+        ],
+        "class",
+        [crab, wi],
+        subscriptKindOf,
+      )!;
+      // tokens: {  x  \u2208  A  |  (  (  ph  ->  ps  )  ->  ch  )  }
+      //         0  1  2    3  4  5  6  7   8   9 10 11  12 13 14
+      expect(gapUnits(proof)).toEqual([
+        0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0,
+      ]);
+    },
+  );
 });
