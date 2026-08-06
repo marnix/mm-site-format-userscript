@@ -128,7 +128,13 @@ const WORD_PREFIX = /^[A-Za-z]{2,}$/;
  * `,`, `|->`, `|`) has a hole on each side. A pattern is a constructor when it
  * ends with a literal close-bracket immediately followed by its single operand
  * (`[_ A / x ]_ B`) and contains an interior separator literal, or when it
- * contains two or more separator literals. The site renders these with the
+ * contains two or more separator literals -- and its assumptions mix variable
+ * kinds (a binder binds a variable of one kind and builds operands of another;
+ * the kind is each assumption's first token, so no kind names are hard-coded).
+ * An n-ary operator chain like `w3a`'s `( ph /\ ps /\ ch )`, `whad`'s
+ * `hadd( ph , ps , ch )`, or `ctp`'s `{ A , B , C }` is homogeneous and keeps
+ * operator scaling, so its operators still read at the chain's level. The site
+ * renders the constructors with the
  * brackets tight and the separator phrase a fixed word space --
  * `\u298bA / x\u298cB`, `( x e. A , y e. B |-> C )` -- never with
  * height-scaled operators. The close bracket is tight on both sides, an
@@ -164,8 +170,17 @@ export function gapUnits(proof: Proof): number[] {
       (n, k) => n + (isSeparator(k) ? 1 : 0),
       0,
     );
+    // A constructor must also mix variable kinds in its assumptions -- a binder
+    // binds a variable of one kind and builds operands of another (cmpo's setvar
+    // x/y with class A/B/C), while an n-ary operator chain is homogeneous (w3a's
+    // all-wff `( ph /\ ps /\ ch )`, whad's all-wff `hadd( ph , ps , ch )`, ctp's
+    // all-class `{ A , B , C }`). The kind is the first token of each assumption,
+    // so no database's kind names are hard-coded.
+    const kindCount = new Set(p.rule.assumptions.map((a) => a[0])).size;
     const bracketStyle =
-      (closeBracketThenOperand && separatorCount >= 1) || separatorCount >= 2;
+      ((closeBracketThenOperand && separatorCount >= 1) ||
+        separatorCount >= 2) &&
+      kindCount >= 2;
     // The pattern's last hole is the operand / body. When it is the last token
     // (csb's B), the close bracket before it is tight on both sides. When the
     // body is followed by a close bracket (cmpo's C), only that final bracket

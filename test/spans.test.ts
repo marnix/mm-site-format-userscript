@@ -808,77 +808,71 @@ describe("gapUnits", () => {
     expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 1, 1, 0]);
   });
 
-  it.fails(
-    "w3a: a ternary conjunction is an operator, scaling \u2227 with the chain level",
-    () => {
-      // ( ph \u2227 ps \u2227 ( ( ch -> th ) -> ps ) ): a flattened n-ary
-      // conjunction is one operator, so every \u2227 gap is the chain's level
-      // spacingOf(w3a) = 2 (its deepest conjunct is a height-1 wi), not a fixed
-      // 1. The deep conjunct keeps its own operator spacing.
-      const proof = parseExpression(
-        [
-          "(",
-          "ph",
-          "\u2227",
-          "ps",
-          "\u2227",
-          "(",
-          "(",
-          "ch",
-          "->",
-          "th",
-          ")",
-          "->",
-          "ps",
-          ")",
-          ")",
-        ],
-        "wff",
-        [w3a, wi],
-        subscriptKindOf,
-      )!;
-      // tokens: (  ph  \u2227  ps  \u2227  (  (  ch  ->  th  )  ->  ps  )  )
-      //         0  1   2   3   4   5  6  7   8   9 10 11   12 13 14
-      expect(gapUnits(proof)).toEqual([
-        0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 1, 1, 0, 0,
-      ]);
-    },
-  );
+  it("w3a: a ternary conjunction is an operator, scaling \u2227 with the chain level", () => {
+    // ( ph \u2227 ps \u2227 ( ( ch -> th ) -> ps ) ): a flattened n-ary
+    // conjunction is one operator, so every \u2227 gap is the chain's level
+    // spacingOf(w3a) = 2 (its deepest conjunct is a height-1 wi), not a fixed
+    // 1. The deep conjunct keeps its own operator spacing.
+    const proof = parseExpression(
+      [
+        "(",
+        "ph",
+        "\u2227",
+        "ps",
+        "\u2227",
+        "(",
+        "(",
+        "ch",
+        "->",
+        "th",
+        ")",
+        "->",
+        "ps",
+        ")",
+        ")",
+      ],
+      "wff",
+      [w3a, wi],
+      subscriptKindOf,
+    )!;
+    // tokens: (  ph  \u2227  ps  \u2227  (  (  ch  ->  th  )  ->  ps  )  )
+    //         0  1   2   3   4   5  6  7   8   9 10 11   12 13 14
+    expect(gapUnits(proof)).toEqual([
+      0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 1, 1, 0, 0,
+    ]);
+  });
 
-  it.fails(
-    "whad: a ternary function call is an operator, scaling its commas",
-    () => {
-      // hadd( ph , ps , ( ( ch -> th ) -> ps ) ): like w3a the pattern is
-      // homogeneous (all wff), so it is not a binder constructor and its commas
-      // scale with the call's level spacingOf(whad) = 2 over a height-1 body.
-      const proof = parseExpression(
-        [
-          "hadd",
-          "(",
-          "ph",
-          ",",
-          "ps",
-          ",",
-          "(",
-          "(",
-          "ch",
-          "->",
-          "th",
-          ")",
-          "->",
-          "ps",
-          ")",
-          ")",
-        ],
-        "wff",
-        [whad, wi],
-        subscriptKindOf,
-      )!;
-      // tokens: hadd  (  ph  ,  ps  ,  (  (  ch  ->  th  )  ->  ps  )  )
-      //         0     1  2   3  4   5  6  7  8   9  10 11 12  13 14 15
-      expect(gapUnits(proof)).toEqual([
-        0, 0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 1, 1, 0, 0,
-      ]);
-    },
-  );
+  it("whad: a ternary function call is an operator, scaling its commas", () => {
+    // hadd( ph , ps , ( ( ch -> th ) -> ps ) ): like w3a the pattern is
+    // homogeneous (all wff), so it is not a binder constructor and its commas
+    // scale with the call's level spacingOf(whad) = 2 over a height-1 body.
+    const proof = parseExpression(
+      [
+        "hadd",
+        "(",
+        "ph",
+        ",",
+        "ps",
+        ",",
+        "(",
+        "(",
+        "ch",
+        "->",
+        "th",
+        ")",
+        "->",
+        "ps",
+        ")",
+        ")",
+      ],
+      "wff",
+      [whad, wi],
+      subscriptKindOf,
+    )!;
+    // tokens: hadd  (  ph  ,  ps  ,  (  (  ch  ->  th  )  ->  ps  )  )
+    //         0     1  2   3  4   5  6  7  8   9  10 11 12  13 14 15
+    expect(gapUnits(proof)).toEqual([
+      0, 0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 1, 1, 0, 0,
+    ]);
+  });
 });
