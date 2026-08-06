@@ -120,19 +120,23 @@ const WORD_PREFIX = /^[A-Za-z]{2,}$/;
  * precedence: a hole-pair inside an operator, like `co`'s `F B` in `( A F B )`,
  * keeps the operator's height-based spacing so the operator stays symmetric.
  *
- * A *subscript-bracket constructor* (`csb`'s `[_ A / x ]_ B`, `wsbc`'s
- * `[. A / x ]. ph`, `wsb`'s `[ y / x ] ph`) behaves like a word-prefix rule,
- * not an operator rule, even though its close bracket (`]_`, `].`) has a hole
- * on each side. Such a pattern ends with a literal close-bracket immediately
- * followed by its single operand and contains an interior separator literal --
- * a literal strictly between the first and last constants with a hole on each
- * side, like the `/` -- so the site renders it as `\u298bA / x\u298cB` (the
- * brackets tight) rather than an operator's spaced brackets. The close bracket
- * and its operand are tight on both
- * sides, and the interior separators are fixed 1-unit word spaces, never
- * height-scaled operators. Purely structural: nothing is keyed on a rule name
- * or constant text, so `cec`'s `[ A ] R` and `citg`'s `S. A B _d x` (no
- * separator between the first and last constant) stay operator-based.
+ * The *constructor* rules -- subscript-bracket constructors (`csb`'s
+ * `[_ A / x ]_ B`, `wsbc`'s `[. A / x ]. ph`, `wsb`'s `[ y / x ] ph`) and
+ * binder constructors (`cmpo`'s `( x e. A , y e. B |-> C )`, `cmpt`'s
+ * `( x e. A |-> C )`, `crab`'s `{ x e. A | ph }`) -- behave like word-prefix
+ * rules, not operator rules, even though a separator literal (the `/`, `e.`,
+ * `,`, `|->`, `|`) has a hole on each side. A pattern is a constructor when it
+ * ends with a literal close-bracket immediately followed by its single operand
+ * (`[_ A / x ]_ B`) and contains an interior separator literal, or when it
+ * contains two or more separator literals. The site renders these with the
+ * brackets tight and the separator phrase a fixed word space --
+ * `\u298bA / x\u298cB`, `( x e. A , y e. B |-> C )` -- never with
+ * height-scaled operators. The close bracket is tight on both sides, an
+ * operand gap right after it is tight, and the separator gaps (including the
+ * fixed gap before a binder's body) are fixed 1-unit word spaces. Purely
+ * structural: nothing is keyed on a rule name or constant text, so a single
+ * infix like `( ph -> ps )`, `cec`'s `[ A ] R`, and `citg`'s `S. A B _d x`
+ * (no separator between the first and last constant) stay operator-based.
  */
 export function gapUnits(proof: Proof): number[] {
   const memo = new Map<Proof, number>();
@@ -156,8 +160,17 @@ export function gapUnits(proof: Proof): number[] {
       isHole(pattern.length - 1);
     const isSeparator = (k: number) =>
       firstLit < k && k < lastLit && isHole(k - 1) && isHole(k + 1);
+    const separatorCount = literals.reduce(
+      (n, k) => n + (isSeparator(k) ? 1 : 0),
+      0,
+    );
     const bracketStyle =
-      closeBracketThenOperand && literals.some((k) => isSeparator(k));
+      (closeBracketThenOperand && separatorCount >= 1) || separatorCount >= 2;
+    // The pattern's last hole is the operand / body. When it is the last token
+    // (csb's B), the close bracket before it is tight on both sides. When the
+    // body is followed by a close bracket (cmpo's C), only that final bracket
+    // is tight and the body gap is the fixed 1 after the last separator.
+    const trailingOperand = isHole(pattern.length - 1);
 
     let offset = start;
     let nextSub = 0;
@@ -167,7 +180,8 @@ export function gapUnits(proof: Proof): number[] {
           // Close bracket and operand are tight; interior separators are fixed
           // 1-unit word spaces; adjacent variables get a word space.
           units[offset] =
-            j === pattern.length - 2 || j === pattern.length - 1
+            j === pattern.length - 1 ||
+            (trailingOperand && j === pattern.length - 2)
               ? 0
               : isSeparator(j) || isSeparator(j - 1)
                 ? 1

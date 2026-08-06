@@ -680,7 +680,7 @@ describe("gapUnits", () => {
     expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0]);
   });
 
-  it.fails("cmpo: binder separators stay fixed 1 over a deep body", () => {
+  it("cmpo: binder separators stay fixed 1 over a deep body", () => {
     // ( x \u2208 A , y \u2208 B \u21a6 ( ( C \u2218 A ) \u2218 B ) ): the body is a
     // height-1 ccom, so an operator rule would scale every \u2208, the commas
     // and the \u21a6 to 2 units; the binder rule keeps the separator phrase a
@@ -719,7 +719,7 @@ describe("gapUnits", () => {
     ]);
   });
 
-  it.fails("cmpt: the binder separators stay fixed 1 over a deep body", () => {
+  it("cmpt: the binder separators stay fixed 1 over a deep body", () => {
     // cmpt is class ( x \u2208 A \u21a6 C ). Same constructor as cmpo with a
     // single \u2208 plus \u21a6: fixed 1 over the deep body, which carries the
     // depth.
@@ -752,39 +752,36 @@ describe("gapUnits", () => {
     ]);
   });
 
-  it.fails(
-    "crab: a brace binder keeps its separators fixed 1 over a deep body",
-    () => {
-      // crab is class { x \u2208 A | ph } -- pattern [ { x \u2208 A | ph } ].
-      // \u2208 and | are separators, so it is a constructor: the brackets are tight
-      // and the separator phrase fixed 1, with the deep body carrying the depth.
-      const proof = parseExpression(
-        [
-          "{",
-          "x",
-          "\u2208",
-          "A",
-          "|",
-          "(",
-          "(",
-          "ph",
-          "->",
-          "ps",
-          ")",
-          "->",
-          "ch",
-          ")",
-          "}",
-        ],
-        "class",
-        [crab, wi],
-        subscriptKindOf,
-      )!;
-      // tokens: {  x  \u2208  A  |  (  (  ph  ->  ps  )  ->  ch  )  }
-      //         0  1  2    3  4  5  6  7   8   9 10 11  12 13 14
-      expect(gapUnits(proof)).toEqual([
-        0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0,
-      ]);
-    },
-  );
+  it("crab: a brace binder keeps its separators fixed 1 over a deep body", () => {
+    // crab is class { x \u2208 A | ph } -- pattern [ { x \u2208 A | ph } ].
+    // \u2208 and | are separators, so it is a constructor: the brackets are tight
+    // and the separator phrase fixed 1, with the deep body carrying the depth.
+    const proof = parseExpression(
+      [
+        "{",
+        "x",
+        "\u2208",
+        "A",
+        "|",
+        "(",
+        "(",
+        "ph",
+        "->",
+        "ps",
+        ")",
+        "->",
+        "ch",
+        ")",
+        "}",
+      ],
+      "class",
+      [crab, wi],
+      subscriptKindOf,
+    )!;
+    // tokens: {  x  \u2208  A  |  (  (  ph  ->  ps  )  ->  ch  )  }
+    //         0  1  2    3  4  5  6  7   8   9 10 11  12 13 14
+    expect(gapUnits(proof)).toEqual([
+      0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0,
+    ]);
+  });
 });
