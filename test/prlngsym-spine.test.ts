@@ -12,7 +12,7 @@ import {
   type ProofTree,
 } from "../src/calculation";
 import { parseUniExpressions, type ParsedExpression } from "../src/page";
-import { chooseSpine, anchorSpine } from "../src/spine";
+import { chooseSpine, anchorSpine, caseSplitSubproofs } from "../src/spine";
 import type { Proof } from "../src/proof";
 import { readFixture } from "./helpers";
 
@@ -64,6 +64,8 @@ function buildChoosers(results: ParsedExpression[]) {
       subs as { parse: Proof; trivial: boolean }[],
     );
     if (result !== null || anchor === null) return result;
+    if (caseSplitSubproofs(subs as { parse: Proof; trivial: boolean }[]))
+      return null;
     return anchorSpine(
       anchor,
       node.subproofs.map((s) => tokensOf(s)),

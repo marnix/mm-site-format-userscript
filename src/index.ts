@@ -45,7 +45,12 @@ import {
   attachRuleTooltipsToPage,
   makeRuleTooltipFetcher,
 } from "./rule-tooltip";
-import { anchorSpine, chooseSpine, isSmallStep } from "./spine";
+import {
+  anchorSpine,
+  caseSplitSubproofs,
+  chooseSpine,
+  isSmallStep,
+} from "./spine";
 import { injectStyles } from "./styles";
 import { materializeExpressions, parseProofTableLazy } from "./table";
 import { formatTokens } from "./token";
@@ -202,6 +207,11 @@ if (!document.querySelector('table[summary="Proof of theorem"]')) {
         label,
       );
       if (result !== null || anchor === null) return result;
+      // A symmetric case-split (pm2.61d) is a deliberate terminal: the step's
+      // hypotheses are its cases, so don't let the anchor tiebreaker pick one
+      // of them as a spine continuation.
+      if (caseSplitSubproofs(subs as { parse: Proof; trivial: boolean }[]))
+        return null;
       const anchorResult = anchorSpine(
         anchor,
         node.subproofs.map((s) => tokensOf(s)),

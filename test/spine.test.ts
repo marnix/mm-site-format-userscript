@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import type { InferenceRule, Proof } from "../src/proof";
 import {
   anchorSpine,
+  caseSplitSubproofs,
+  caseSymmetric,
   chooseSpine,
   isSmallStep,
   structuralOverlap,
@@ -159,7 +161,7 @@ describe("chooseSpine", () => {
     ).toBeNull();
   });
 
-  it.fails("pm2.61d: two case hypotheses identical up to a negation -> no spine", () => {
+  it("pm2.61d: two case hypotheses identical up to a negation -> no spine", () => {
     // pm2.61d: ( ph -> ( ps -> ch ) ) and ( ph -> ( -. ps -> ch ) ) |- ( ph -> ch ).
     // The hypotheses are the two cases of a proof by cases, so neither is the
     // main line; the size tiebreaker currently picks the negation hypothesis
@@ -367,5 +369,89 @@ describe("chooseSpine: multiple trivial hypotheses", () => {
     const hyp = leaf("wff", "ph");
     const result = chooseSpine(conclusion, [{ parse: hyp, trivial: true }]);
     expect(result).toBe(0);
+  });
+});
+
+describe("caseSymmetric", () => {
+  const ph = leaf("wff", "ph");
+  const ps = leaf("wff", "ps");
+  const ch = leaf("wff", "ch");
+
+  it("is true for identical trees (zero differences)", () => {
+    const a = node(WI, ph, node(WI, ps, ch));
+    expect(caseSymmetric(a, node(WI, ph, node(WI, ps, ch)))).toBe(true);
+  });
+
+  it("is true for two cases identical up to a single negation (pm2.61d)", () => {
+    const h1 = node(WI, ph, node(WI, ps, ch));
+    const h2 = node(WI, ph, node(WI, neg(ps), ch));
+    expect(caseSymmetric(h1, h2)).toBe(true);
+    expect(caseSymmetric(h2, h1)).toBe(true);
+  });
+
+  it("handles a $TOP wrapper around both hypotheses", () => {
+    const top = (inner: Proof): Proof => ({
+      rule: rule(["wff"], "$TOP"),
+      subst: new Map(),
+      subproofs: [inner],
+    });
+    const h1 = top(node(WI, ph, node(WI, ps, ch)));
+    const h2 = top(node(WI, ph, node(WI, neg(ps), ch)));
+    expect(caseSymmetric(h1, h2)).toBe(true);
+  });
+
+  it("is false when the non-negated position differs too", () => {
+    const a = node(WI, ph, node(WI, ps, ch));
+    const b = node(WI, ph, node(WI, neg(ps), leaf("wff", "th")));
+    expect(caseSymmetric(a, b)).toBe(false);
+  });
+
+  it("is false for a plain different structure (not a negation swap)", () => {
+    const a = node(WI, ph, ps);
+    const b = node(WI, ph, node(WB, ps, ch));
+    expect(caseSymmetric(a, b)).toBe(false);
+  });
+});
+
+describe("caseSplitSubproofs", () => {
+  const ph = leaf("wff", "ph");
+  const ps = leaf("wff", "ps");
+  const ch = leaf("wff", "ch");
+
+  it("is true when all non-trivial hypotheses are symmetric cases (pm2.61d)", () => {
+    const h1 = node(WI, ph, node(WI, ps, ch));
+    const h2 = node(WI, ph, node(WI, neg(ps), ch));
+    expect(
+      caseSplitSubproofs([
+        { parse: h1, trivial: false },
+        { parse: h2, trivial: false },
+      ]),
+    ).toBe(true);
+  });
+
+  it("is false when only some hypotheses are symmetric cases (ecased)", () => {
+    // ecased's three hypotheses: ( ph -> ps ), ( ph -> ( -. ps -> ch ) ),
+    // ( ph -> ( -. ps -> -. ch ) ) -- the last two alone are symmetric, but
+    // not the first.
+    const h1 = node(WI, ph, ps);
+    const h2 = node(WI, ph, node(WI, neg(ps), ch));
+    const h3 = node(WI, ph, node(WI, neg(ps), neg(ch)));
+    expect(
+      caseSplitSubproofs([
+        { parse: h1, trivial: false },
+        { parse: h2, trivial: false },
+        { parse: h3, trivial: false },
+      ]),
+    ).toBe(false);
+  });
+
+  it("is false with fewer than two non-trivial hypotheses", () => {
+    const a = node(WI, ph, ps);
+    expect(
+      caseSplitSubproofs([
+        { parse: a, trivial: false },
+        { parse: ph, trivial: true },
+      ]),
+    ).toBe(false);
   });
 });

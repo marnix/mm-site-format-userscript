@@ -57,6 +57,61 @@ function treeSize(proof: Proof): number {
   return n;
 }
 
+/** Whether two parse trees are structurally identical (same rules and leaves). */
+function sameParseTree(a: Proof, b: Proof): boolean {
+  if (a.rule.conclusion.join(" ") !== b.rule.conclusion.join(" ")) return false;
+  if (a.subproofs.length !== b.subproofs.length) return false;
+  for (let i = 0; i < a.subproofs.length; i++)
+    if (!sameParseTree(a.subproofs[i], b.subproofs[i])) return false;
+  return true;
+}
+
+/**
+ * Whether `a` and `b` are the two cases of a symmetric case-split: identical
+ * parse trees except that at exactly one corresponding position one is the
+ * negation (`wn`) of the other. E.g. pm2.61d's hypotheses
+ * `( ph -> ( ps -> ch ) )` and `( ph -> ( -. ps -> ch ) )`. A linear top-down
+ * comparison (no subtree search), so it stays cheap on large trees -- unlike
+ * `maxSubtreeOverlap`, which blows up on unwrapped trees.
+ */
+export function caseSymmetric(a: Proof, b: Proof): boolean {
+  if (a.rule.conclusion.join(" ") === b.rule.conclusion.join(" ")) {
+    if (a.subproofs.length !== b.subproofs.length) return false;
+    let differences = 0;
+    for (let i = 0; i < a.subproofs.length; i++) {
+      if (sameParseTree(a.subproofs[i], b.subproofs[i])) continue;
+      if (differences > 0 || !caseSymmetric(a.subproofs[i], b.subproofs[i]))
+        return false;
+      differences++;
+    }
+    return true;
+  }
+  return (
+    (a.rule.label === "wn" &&
+      a.subproofs.length === 1 &&
+      sameParseTree(a.subproofs[0], b)) ||
+    (b.rule.label === "wn" &&
+      b.subproofs.length === 1 &&
+      sameParseTree(b.subproofs[0], a))
+  );
+}
+
+/**
+ * Whether a step's non-trivial hypotheses are all pairwise symmetric
+ * case-splits (see `caseSymmetric`) -- e.g. a pm2.61d step's two hypotheses.
+ * A step with such hypotheses has no main line: the calculation should show
+ * each case as a separate sub-proof rather than carrying one down the spine.
+ */
+export function caseSplitSubproofs(
+  subproofs: { parse: Proof; trivial: boolean }[],
+): boolean {
+  const nonTrivial = subproofs.filter((s) => !s.trivial);
+  if (nonTrivial.length < 2) return false;
+  return nonTrivial.every((t, _, arr) =>
+    arr.every((u) => caseSymmetric(t.parse, u.parse)),
+  );
+}
+
 /** Length of the longest common subsequence of two token sequences. */
 export function lcsLength(a: string[], b: string[]): number {
   const prev = new Array(b.length + 1).fill(0);
@@ -236,6 +291,15 @@ export function chooseSpine(
         `[spine] ${label ?? "?"}: single non-trivial #${nonTrivial[0].index}`,
       );
     return nonTrivial[0].index;
+  }
+
+  // Symmetric case-split (e.g. pm2.61d): every non-trivial hypothesis is a
+  // case of a proof by cases, identical to the others up to a negation at one
+  // position. Neither is the main line, so the step is terminal (=> TRUE).
+  if (caseSplitSubproofs(subproofs)) {
+    if (DEV_SPINE_LOG)
+      console.log(`[spine] ${label ?? "?"}: symmetric case-split => null`);
+    return null;
   }
 
   // 1. First diverging position: lower = better (preserves trailing args).
