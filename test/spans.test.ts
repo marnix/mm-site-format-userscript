@@ -304,6 +304,32 @@ describe("gapUnits", () => {
     expect(gapUnits(proof)).toEqual([0, 0]);
   });
 
+  it.fails(
+    "wn: a symbol prefix gets a fixed space over an operator operand",
+    () => {
+      // -. ( ph -> ps ): the operand of -. is a whole wi (subtree height 0). A
+      // symbol prefix stays tight over a leaf (site's -.A) but must show a fixed
+      // 1 unit when its operand is an operator expression, so -. reads as applying
+      // to the whole ( ph -> ps ) rather than gluing to its first token. The wi
+      // operator keeps its own spacing.
+      const wnRule: InferenceRule = {
+        assumptions: [["wff", "ph"]],
+        conclusion: ["wff", "-.", "ph"],
+      };
+      const kindOf: KindOf = (t) =>
+        t === "ph" || t === "ps" ? "wff" : undefined;
+      const proof = parseExpression(
+        ["-.", "(", "ph", "->", "ps", ")"],
+        "wff",
+        [wnRule, wi],
+        kindOf,
+      )!;
+      // tokens: -.  (  ph  ->  ps  )
+      //         0   1  2  3   4  5
+      expect(gapUnits(proof)).toEqual([0, 1, 0, 1, 1, 0]);
+    },
+  );
+
   it("a one-letter prefix literal stays tight", () => {
     // A unary prefix whose literal is a single alphabetic character is not a
     // word-like prefix -- only 2+ characters qualify -- so it stays tight like a
