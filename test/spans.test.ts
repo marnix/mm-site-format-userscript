@@ -392,7 +392,7 @@ describe("gapUnits", () => {
     expect(gapUnits(proof)).toEqual([0, 0, 1, 1, 1]);
   });
 
-  it.fails("wral: the binder's e. stays a fixed unit over a deep body", () => {
+  it("wral: the binder's e. stays a fixed unit over a deep body", () => {
     // A. x e. A ( ph /\ ps /\ ( ( ch -> th ) -> ps ) ): the e. belongs to the
     // binder, not to the body -- its adjacent operands x and A are leaves, so
     // it must stay one unit even though the body is a height-2 w3a chain

@@ -139,10 +139,19 @@ const WORD_PREFIX = /^[A-Za-z]{2,}$/;
  * `\u298bA / x\u298cB`, `( x e. A , y e. B |-> C )` -- never with
  * height-scaled operators. The close bracket is tight on both sides, an
  * operand gap right after it is tight, and the separator gaps (including the
- * fixed gap before a binder's body) are fixed 1-unit word spaces. Purely
- * structural: nothing is keyed on a rule name or constant text, so a single
- * infix like `( ph -> ps )`, `cec`'s `[ A ] R`, and `citg`'s `S. A B _d x`
- * (no separator between the first and last constant) stay operator-based.
+ *  fixed gap before a binder's body) are fixed 1-unit word spaces. Purely
+ *  structural: nothing is keyed on a rule name or constant text, so a single
+ *  infix like `( ph -> ps )`, `cec`'s `[ A ] R`, and `citg`'s `S. A B _d x`
+ *  (no separator between the first and last constant) stay operator-based.
+ *
+ *  A *binder separator* is the same idea without the close bracket: an infix
+ *  literal that is not the pattern's first literal, in a rule mixing variable
+ *  kinds (`wral`'s `e.` in `A. x e. A ph`, `cab`'s `|` in `{ x | ph }`), gets a
+ *  fixed 1-unit gap on both sides instead of `spacingOf(p)`. The separator
+ *  belongs to the binder, whose leaf operands carry no depth, so it stays small
+ *  while the deep trailing body carries the room. Homogeneous single infixes
+ *  (`cxp`'s `X.`, `cop`'s `,`) are true operators and keep height scaling, and
+ *  `wcel`'s `e.` is the pattern's first literal, never a binder separator.
  */
 export function gapUnits(proof: Proof): number[] {
   const memo = new Map<Proof, number>();
@@ -180,6 +189,22 @@ export function gapUnits(proof: Proof): number[] {
     const bracketStyle =
       ((closeBracketThenOperand && separatorCount >= 1) ||
         separatorCount >= 2) &&
+      kindCount >= 2;
+    // A binder's "e."/"|" separator: an infix literal (hole on both sides) that
+    // is not the pattern's first literal, in a rule mixing at least two variable
+    // kinds (wral's `e.` in `A. x e. A ph`, `wrex`'s, `csu`'s, `ciun`'s `e.`,
+    // `cab`'s `|` in `{ x | ph }`). Like a constructor separator it is a fixed
+    // 1-unit word space: the separator belongs to the binder, whose operands on
+    // both sides are leaves, so it must not grow with the deep trailing body.
+    // A homogeneous single infix (`cxp`'s `X.` in `( A X. B )`, `cop`'s `,` in
+    // `< A , B >`) is a true operator and keeps height scaling. `wcel`'s `e.`
+    // in `x e. A` is the pattern's first literal, so it is never a binder
+    // separator.
+    const isBinderSeparator = (k: number) =>
+      k > firstLit &&
+      !p.subst.has(pattern[k]) &&
+      isHole(k - 1) &&
+      isHole(k + 1) &&
       kindCount >= 2;
     // The pattern's last hole is the operand / body. When it is the last token
     // (csb's B), the close bracket before it is tight on both sides. When the
@@ -226,8 +251,12 @@ export function gapUnits(proof: Proof): number[] {
           // Adjacent variables: two holes next to each other in the pattern
           // (wral's A ph, wal's x ph). A fixed word space, not an operator level.
           const adjacentVar = isHole(j - 1) && isHole(j);
-          units[offset] =
-            beforeIsInfix || jIsInfix || beforeIsOp || jIsOp
+          // Binder separator: fixed 1-unit word space (see isBinderSeparator).
+          const binderSeparatorGap =
+            isBinderSeparator(j) || isBinderSeparator(j - 1);
+          units[offset] = binderSeparatorGap
+            ? 1
+            : beforeIsInfix || jIsInfix || beforeIsOp || jIsOp
               ? Math.max(spacingOf(p, memo), 1)
               : beforeIsPrefix || adjacentVar
                 ? 1
