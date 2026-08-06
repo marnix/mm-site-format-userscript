@@ -199,6 +199,13 @@ and subscript-bracket delimiters stay tight (`csb [_ A / x ]_ B` → `⦋A / x�
   grammar-level parse trees of the expressions, not the theorem's hypothesis
   structure.
 
+- **Spine: `pm2.61d` uses should be symmetric**: like the symmetric case-split
+  item above, a `pm2.61d` step's two hypotheses (`( ph -> ps )` and
+  `( -. ph -> ps )`) are two symmetrical cases, so neither should be picked as
+  the spine -- both should render as separate sub-proofs, each `=> TRUE`. An
+  exception: if one hypothesis is much shorter than the other, the shorter one
+  may still be the spine.
+
   The shared-vars metric was prototyped and verified manually on dvelimf (picks
   .3), bi2anan9 (null), 3eqtr2i (null), sylanbrc (null), ax-mp (picks .2), bitrd
   (null), isermulc2 (picks .5). The algorithm: exclude "context" variables
