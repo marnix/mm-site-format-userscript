@@ -7,9 +7,10 @@ import {
   structuralOverlap,
 } from "../src/spine";
 
-const rule = (conclusion: string[]): InferenceRule => ({
+const rule = (conclusion: string[], label?: string): InferenceRule => ({
   assumptions: [],
   conclusion,
+  label,
 });
 const leaf = (kind: string, name: string): Proof => ({
   rule: rule([kind, name]),
@@ -32,6 +33,14 @@ const WCEL = ["wff", "A", "e.", "B"];
 const WCEQ = ["wff", "A", "=", "B"];
 const CXP = ["class", "(", "A", "X.", "B", ")"];
 const COP = ["class", "<.", "A", ",", "B", ">."];
+const WN = ["wff", "-.", "ph"];
+
+/** A negation wrapper (the `wn` syntax constructor). */
+const neg = (inner: Proof): Proof => ({
+  rule: rule(WN, "wn"),
+  subst: new Map(),
+  subproofs: [inner],
+});
 
 describe("structuralOverlap", () => {
   it("counts matching nodes top-down, leaf<->leaf included", () => {
@@ -146,6 +155,25 @@ describe("chooseSpine", () => {
       chooseSpine(concl, [
         { parse: a, trivial: false },
         { parse: b, trivial: false },
+      ]),
+    ).toBeNull();
+  });
+
+  it.fails("pm2.61d: two case hypotheses identical up to a negation -> no spine", () => {
+    // pm2.61d: ( ph -> ( ps -> ch ) ) and ( ph -> ( -. ps -> ch ) ) |- ( ph -> ch ).
+    // The hypotheses are the two cases of a proof by cases, so neither is the
+    // main line; the size tiebreaker currently picks the negation hypothesis
+    // (6 nodes) over the plain one (5 nodes).
+    const ph = leaf("wff", "ph");
+    const ps = leaf("wff", "ps");
+    const ch = leaf("wff", "ch");
+    const conclusion = node(WI, ph, ch);
+    const h1 = node(WI, ph, node(WI, ps, ch));
+    const h2 = node(WI, ph, node(WI, neg(ps), ch));
+    expect(
+      chooseSpine(conclusion, [
+        { parse: h1, trivial: false },
+        { parse: h2, trivial: false },
       ]),
     ).toBeNull();
   });
