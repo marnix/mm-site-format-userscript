@@ -60,6 +60,44 @@ describe("renderCalculation", () => {
     expect(box.style.fontFamily).toBe("");
   });
 
+  it.fails("puts a non-first step's rule ref first in its hint", () => {
+    // Goal <= { r1 } over a spine continuation that is itself a step: that
+    // second step is not the first of its calculation, so its hint must read
+    // "using r2, h1" (rule ref first) rather than "using h1 and r2".
+    const calc: Calculation = {
+      kind: "step",
+      inferenceRuleRefHtml: el("r1"),
+      expressionHtml: el("GOAL"),
+      subcalculations: [
+        {
+          kind: "step",
+          inferenceRuleRefHtml: el("r2"),
+          expressionHtml: el("MID"),
+          subcalculations: [
+            {
+              kind: "given",
+              hypothesisRefHtml: el("h1"),
+              expressionHtml: el("HA"),
+            },
+            {
+              kind: "given",
+              hypothesisRefHtml: el("h2"),
+              expressionHtml: el("HB"),
+            },
+          ],
+          spine: 1,
+        },
+      ],
+      spine: 0,
+    };
+    const box = renderCalculation(calc);
+    const rows = [...box.querySelector("tbody")!.children].map((tr) =>
+      [...tr.children].map((td) => td.textContent),
+    );
+    // rows: GOAL | { using r1 } | MID | { using r2, h1 } | (h2) HB
+    expect(rows[3]).toEqual(["\u21d0", "{ using r2 and h1 }"]);
+  });
+
   it("collapses sub-calculations by default; a marker (or the hint) toggles them", () => {
     const box = renderCalculation(sample());
     const nested = box.querySelectorAll("table")[1]; // the a1i sub-calc
