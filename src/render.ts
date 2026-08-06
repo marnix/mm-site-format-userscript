@@ -133,6 +133,7 @@ function appendStep(
   step: Step,
   tbody: HTMLElement,
   options?: RenderOptions,
+  isFirst = false,
 ): HTMLElement {
   const expr = clone(step.expressionHtml);
   tbody.appendChild(row("", expr, "expr"));
@@ -192,10 +193,13 @@ function appendStep(
       ? () => fetchRule(ruleHref)
       : () => expr.cloneNode(true) as Node,
   );
-  items.push(ruleRef);
+  // First step of its calculation: hypothesis-derived refs first, rule last.
+  // A later step (the spine continuation) instead puts the rule ref first,
+  // signalling which rule produced the previous expression.
+  const seriesItems = isFirst ? [...items, ruleRef] : [ruleRef, ...items];
   const hint = document.createElement("span");
   hint.append("{ using ");
-  appendSeries(hint, items);
+  appendSeries(hint, seriesItems);
   for (const foldedRefEl of step.foldedRuleRefs ?? []) {
     const ref = clone(foldedRefEl);
     const href = foldedRefEl.querySelector("a")?.getAttribute("href") ?? null;
@@ -398,7 +402,7 @@ export function renderCalcTable(
   const tbody = document.createElement("tbody");
   table.appendChild(tbody);
   if (calc.kind === "given") appendGiven(calc, tbody, options);
-  else appendStep(calc, tbody, options);
+  else appendStep(calc, tbody, options, true);
   return table;
 }
 

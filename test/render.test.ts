@@ -60,7 +60,7 @@ describe("renderCalculation", () => {
     expect(box.style.fontFamily).toBe("");
   });
 
-  it.fails("puts a non-first step's rule ref first in its hint", () => {
+  it("puts a non-first step's rule ref first in its hint", () => {
     // Goal <= { r1 } over a spine continuation that is itself a step: that
     // second step is not the first of its calculation, so its hint must read
     // "using r2, h1" (rule ref first) rather than "using h1 and r2".
