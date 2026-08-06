@@ -9,13 +9,6 @@ adjacent gaps get the operator's subtree height (`spacingOf`: leaf `−1`, else
 gaps get a fixed 1 unit; symbol prefixes, single-letter prefixes, paren tokens,
 and subscript-bracket delimiters stay tight (`csb [_ A / x ]_ B` → `⦋A / x⦌B`).
 
-- **Space after a prefix like `¬` when its operand is an operator**: `¬ 𝑧=1`
-  should show a space between `¬` and `𝑧=1`, signalling that `=` binds tighter
-  than `¬` -- the spacing encodes precedence. Symbol prefixes currently stay
-  tight (`wn`'s `-.` renders `¬𝑧=1`); give the prefix a fixed space (like the
-  word-prefix rule) when its operand is itself an operator expression, so the
-  prefix reads as applying to the whole `𝑧=1` rather than gluing to `𝑧`.
-
 - **`cmpo`/`cmpt` treat `∈`, `,`, `↦` as height-scaled operators** (visible on
   `nmulfn.html`): `class ( x e. A , y e. B |-> C )` spaces every separator --
   `∈`, `,`, and `↦` -- by `spacingOf(cmpo)`, which grows with `C`'s depth, so a

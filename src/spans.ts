@@ -3,6 +3,7 @@
 // expression. Pure logic over a Proof -- no DOM, no data-type changes.
 
 import type { Proof } from "./proof";
+import { TOP_TYPE } from "./database-assumptions";
 
 export type Span = [start: number, end: number];
 
@@ -89,6 +90,96 @@ function spacingOf(proof: Proof, memo: Map<Proof, number>): number {
  *  `Fun`, `dom`), as opposed to a symbol like `-.`, `U_`, or a single letter. */
 const WORD_PREFIX = /^[A-Za-z]{2,}$/;
 
+interface PatternInfo {
+  isHole: (j: number) => boolean;
+  isSeparator: (k: number) => boolean;
+  separatorCount: number;
+  bracketStyle: boolean;
+  isBinderSeparator: (k: number) => boolean;
+}
+
+/** Structural facts about a rule's pattern token sequence (kind stripped),
+ *  shared by the gap logic and the operator-expression test. */
+function patternInfo(proof: Proof): PatternInfo {
+  const pattern = proof.rule.conclusion.slice(1);
+  const isHole = (j: number) =>
+    j >= 0 && j < pattern.length && proof.subst.has(pattern[j]);
+  const literals: number[] = [];
+  pattern.forEach((t, j) => {
+    if (!proof.subst.has(t)) literals.push(j);
+  });
+  const firstLit = literals[0];
+  const lastLit = literals[literals.length - 1];
+  const closeBracketThenOperand =
+    pattern.length >= 2 &&
+    !isHole(pattern.length - 2) &&
+    isHole(pattern.length - 1);
+  const isSeparator = (k: number) =>
+    firstLit < k && k < lastLit && isHole(k - 1) && isHole(k + 1);
+  const separatorCount = literals.reduce(
+    (n, k) => n + (isSeparator(k) ? 1 : 0),
+    0,
+  );
+  // A constructor must also mix variable kinds in its assumptions -- a binder
+  // binds a variable of one kind and builds operands of another (cmpo's setvar
+  // x/y with class A/B/C), while an n-ary operator chain is homogeneous (w3a's
+  // all-wff `( ph /\ ps /\ ch )`, whad's all-wff `hadd( ph , ps , ch )`, ctp's
+  // all-class `{ A , B , C }`). The kind is the first token of each assumption,
+  // so no database's kind names are hard-coded.
+  const kindCount = new Set(proof.rule.assumptions.map((a) => a[0])).size;
+  const bracketStyle =
+    ((closeBracketThenOperand && separatorCount >= 1) || separatorCount >= 2) &&
+    kindCount >= 2;
+  // A binder's "e."/"|" separator: an infix literal (hole on both sides) that
+  // is not the pattern's first literal, in a rule mixing at least two variable
+  // kinds (wral's `e.` in `A. x e. A ph`, `wrex`'s, `csu`'s, `ciun`'s `e.`,
+  // `cab`'s `|` in `{ x | ph }`). Like a constructor separator it is a fixed
+  // 1-unit word space: the separator belongs to the binder, whose operands on
+  // both sides are leaves, so it must not grow with the deep trailing body.
+  // A homogeneous single infix (`cxp`'s `X.` in `( A X. B )`, `cop`'s `,` in
+  // `< A , B >`) is a true operator and keeps height scaling. `wcel`'s `e.`
+  // in `x e. A` is the pattern's first literal, so it is never a binder
+  // separator.
+  const isBinderSeparator = (k: number) =>
+    k > firstLit &&
+    !proof.subst.has(pattern[k]) &&
+    isHole(k - 1) &&
+    isHole(k + 1) &&
+    kindCount >= 2;
+  return {
+    isHole,
+    isSeparator,
+    separatorCount,
+    bracketStyle,
+    isBinderSeparator,
+  };
+}
+
+/** A node is an *operator expression* when its root has an infix token whose
+ *  gaps would be height-scaled -- a fixed-separator constructor (`crab`'s
+ *  `{ x | ... }`), a binder separator (`wral`'s `e.`), and a leaf are not.
+ *  Used by the prefix-space rule: `-.` over `z = 1` gets a space, over a class
+ *  abstraction it stays tight. */
+function hasHeightScaledOperator(proof: Proof): boolean {
+  const { isHole, isBinderSeparator, bracketStyle } = patternInfo(proof);
+  if (bracketStyle) return false;
+  const pattern = proof.rule.conclusion.slice(1);
+  for (let j = 1; j < pattern.length; j++) {
+    const beforeIsInfix = isHole(j - 2) && !isHole(j - 1) && isHole(j);
+    const jIsInfix = isHole(j - 1) && !isHole(j) && isHole(j + 1);
+    const beforeIsOp = isHole(j - 2) && isHole(j - 1) && isHole(j);
+    const jIsOp = isHole(j - 1) && isHole(j) && isHole(j + 1);
+    if (
+      (beforeIsInfix || jIsInfix || beforeIsOp || jIsOp) &&
+      !isBinderSeparator(j) &&
+      !isBinderSeparator(j - 1)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /**
  * Units of extra whitespace to put *before* each token of the proof's token
  * sequence (`units[0]` is 0). A gap gets spacing only when it is adjacent to an
@@ -105,13 +196,16 @@ const WORD_PREFIX = /^[A-Za-z]{2,}$/;
  * parse-tree heights and each rule's own pattern structure -- nothing is keyed
  * on a rule name or paren token.
  *
- * The one non-operator gap that gets spacing is a *word-like prefix*: a rule
- * whose whole pattern is a 2+ alphabetic-character literal immediately followed
- * by its single hole (`csuc` is `class suc A`). Its operand's gap gets a fixed
- * 1 unit -- the page otherwise removes the whitespace and the word glues to its
- * operand (`sucA`). The space is a word boundary, so it stays 1 unit regardless
- * of the operand's height, and symbol prefixes (`wn`'s `-.`, `cint`'s `|^|`)
- * stay tight, matching the site's `-.A`.
+ * The one non-operator gap that gets spacing is a *prefix*: a rule whose whole
+ * pattern is a literal immediately followed by its single hole (`csuc` is
+ * `class suc A`). The operand's gap gets a fixed 1 unit -- the page otherwise
+ * removes the whitespace and the word glues to its operand (`sucA`). A
+ * *word-like* prefix (2+ alphabetic characters) always gets it; a symbol prefix
+ * (`wn`'s `-.`, `cint`'s `|^|`) stays tight over a leaf operand, matching the
+ * site's `-.A`, but also gets the fixed 1 when its operand is itself an
+ * operator expression -- `-. z = 1` reads as `-.` applying to the whole `z = 1`,
+ * encoding that `=` binds tighter than `-.`. Either way the space is a fixed
+ * word boundary, independent of the operand's height.
  *
  * The other non-operator gap with spacing is an *adjacent-variable* gap: two
  * holes next to each other in a pattern (`wral`'s `A ph` in `A. x e. A ph`,
@@ -159,53 +253,8 @@ export function gapUnits(proof: Proof): number[] {
 
   function walk(p: Proof, start: number): number {
     const pattern = p.rule.conclusion.slice(1);
-    const isHole = (j: number) =>
-      j >= 0 && j < pattern.length && p.subst.has(pattern[j]);
-
-    // Subscript-bracket constructor, purely structural (see the docstring).
-    const literals: number[] = [];
-    pattern.forEach((t, j) => {
-      if (!p.subst.has(t)) literals.push(j);
-    });
-    const firstLit = literals[0];
-    const lastLit = literals[literals.length - 1];
-    const closeBracketThenOperand =
-      pattern.length >= 2 &&
-      !isHole(pattern.length - 2) &&
-      isHole(pattern.length - 1);
-    const isSeparator = (k: number) =>
-      firstLit < k && k < lastLit && isHole(k - 1) && isHole(k + 1);
-    const separatorCount = literals.reduce(
-      (n, k) => n + (isSeparator(k) ? 1 : 0),
-      0,
-    );
-    // A constructor must also mix variable kinds in its assumptions -- a binder
-    // binds a variable of one kind and builds operands of another (cmpo's setvar
-    // x/y with class A/B/C), while an n-ary operator chain is homogeneous (w3a's
-    // all-wff `( ph /\ ps /\ ch )`, whad's all-wff `hadd( ph , ps , ch )`, ctp's
-    // all-class `{ A , B , C }`). The kind is the first token of each assumption,
-    // so no database's kind names are hard-coded.
-    const kindCount = new Set(p.rule.assumptions.map((a) => a[0])).size;
-    const bracketStyle =
-      ((closeBracketThenOperand && separatorCount >= 1) ||
-        separatorCount >= 2) &&
-      kindCount >= 2;
-    // A binder's "e."/"|" separator: an infix literal (hole on both sides) that
-    // is not the pattern's first literal, in a rule mixing at least two variable
-    // kinds (wral's `e.` in `A. x e. A ph`, `wrex`'s, `csu`'s, `ciun`'s `e.`,
-    // `cab`'s `|` in `{ x | ph }`). Like a constructor separator it is a fixed
-    // 1-unit word space: the separator belongs to the binder, whose operands on
-    // both sides are leaves, so it must not grow with the deep trailing body.
-    // A homogeneous single infix (`cxp`'s `X.` in `( A X. B )`, `cop`'s `,` in
-    // `< A , B >`) is a true operator and keeps height scaling. `wcel`'s `e.`
-    // in `x e. A` is the pattern's first literal, so it is never a binder
-    // separator.
-    const isBinderSeparator = (k: number) =>
-      k > firstLit &&
-      !p.subst.has(pattern[k]) &&
-      isHole(k - 1) &&
-      isHole(k + 1) &&
-      kindCount >= 2;
+    const { isHole, isSeparator, bracketStyle, isBinderSeparator } =
+      patternInfo(p);
     // The pattern's last hole is the operand / body. When it is the last token
     // (csb's B), the close bracket before it is tight on both sides. When the
     // body is followed by a close bracket (cmpo's C), only that final bracket
@@ -243,11 +292,24 @@ export function gapUnits(proof: Proof): number[] {
           // Word-like prefix: the whole pattern is a word literal followed by its
           // single hole, so tok (j = 1) is the operand and its gap is a fixed
           // word boundary (1 unit), not an operator level.
-          const beforeIsPrefix =
+          const prefixOperand =
             pattern.length === 2 &&
             !p.subst.has(pattern[0]) &&
-            WORD_PREFIX.test(pattern[0]) &&
             p.subst.has(pattern[1]);
+          // A word-like prefix always gets a fixed 1 unit; a symbol or one-letter
+          // prefix stays tight over a leaf operand (the site's `-.A`) but gets
+          // the same fixed 1 when its operand is itself an operator expression --
+          // `-. z = 1` then reads as `-.` applying to the whole `z = 1`, encoding
+          // that `=` binds tighter than `-.`. Not over the assertion turnstile
+          // (the `$TOP` root, tight to the statement) and not over a constructor
+          // operand like `|^| { x | ... }`, whose abstraction is a fixed-
+          // separator constructor, not an operator.
+          const operand = p.subproofs[0];
+          const prefixGap =
+            prefixOperand &&
+            operand !== undefined &&
+            p.rule.conclusion[0] !== TOP_TYPE &&
+            (WORD_PREFIX.test(pattern[0]) || hasHeightScaledOperator(operand));
           // Adjacent variables: two holes next to each other in the pattern
           // (wral's A ph, wal's x ph). A fixed word space, not an operator level.
           const adjacentVar = isHole(j - 1) && isHole(j);
@@ -258,7 +320,7 @@ export function gapUnits(proof: Proof): number[] {
             ? 1
             : beforeIsInfix || jIsInfix || beforeIsOp || jIsOp
               ? Math.max(spacingOf(p, memo), 1)
-              : beforeIsPrefix || adjacentVar
+              : prefixGap || adjacentVar
                 ? 1
                 : 0;
         }
