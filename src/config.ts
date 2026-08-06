@@ -1,5 +1,9 @@
 // Configuration for the MM Site Format userscript -- edit these to taste.
 
+/** Width (in `ex`) of one whitespace unit. Every parse-tree gap is an integer
+ *  number of these; 0.3 is tight, 0.5 is airy. */
+export const SPACING_EX_PER_UNIT = 0.5;
+
 /** Background colour used to highlight the hovered sub-expression. */
 export const HIGHLIGHT_COLOR = "#ffe066";
 

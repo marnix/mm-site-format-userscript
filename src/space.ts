@@ -9,9 +9,7 @@
 // locations: spacers are empty so the tokenizer ignores them.
 
 import type { LocatedToken, TokenLocation } from "./token";
-
-/** Width of one spacing unit (a single "gap"). */
-const EX_PER_UNIT = 0.3;
+import { SPACING_EX_PER_UNIT } from "./config";
 
 /** Class on inserted spacers, so the highlighter can colour them too. */
 export const SPACE_CLASS = "mm-site-format-space";
@@ -22,7 +20,7 @@ export const SPACE_CLASS = "mm-site-format-space";
 function spacer(units: number): HTMLElement {
   const span = document.createElement("span");
   span.className = SPACE_CLASS;
-  span.style.cssText = `padding-left:${(units * EX_PER_UNIT).toFixed(2)}ex`;
+  span.style.cssText = `padding-left:${(units * SPACING_EX_PER_UNIT).toFixed(2)}ex`;
   return span;
 }
 

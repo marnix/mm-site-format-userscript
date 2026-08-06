@@ -56,13 +56,13 @@ describe("insertSpacers", () => {
     expect(span.textContent).toBe("a->b");
   });
 
-  it("makes a single gap 0.3ex wide", () => {
+  it("makes a single gap 0.5ex wide", () => {
     const span = document.createElement("span");
     span.innerHTML =
       '<span class="wff">a</span> -&gt; <span class="wff">b</span>';
     insertSpacers(locateMathSpan(span, kinds), [0, 1, 0]);
     const spacer = span.querySelector(".mm-site-format-space") as HTMLElement;
-    expect(spacer.style.paddingLeft).toBe("0.3ex");
+    expect(spacer.style.paddingLeft).toBe("0.5ex");
   });
 
   it("anchors consecutive inline-element tokens at their own element (nmulprop csb brackets)", () => {
