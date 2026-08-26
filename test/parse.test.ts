@@ -304,3 +304,144 @@ describe("parseChunks with concatenated constants", () => {
     expect(proof).not.toBeNull();
   });
 });
+
+describe("parseChunks co+cfv with symvar + and 0 (idressid pattern)", () => {
+  // Rules matching the idressid page: co with symvar args, cfv with +g, cv for
+  // setvar-to-class coercion.
+  const cv: InferenceRule = {
+    assumptions: [["setvar", "\u{1d465}"]],
+    conclusion: ["class", "\u{1d465}"],
+  };
+  const cplusg: InferenceRule = {
+    assumptions: [],
+    conclusion: ["class", "+g"],
+  };
+  const co: InferenceRule = {
+    assumptions: [
+      ["class", "\u{1d434}"],
+      ["class", "\u{1d439}"],
+      ["class", "\u{1d435}"],
+    ],
+    conclusion: ["class", "(", "\u{1d434}", "\u{1d439}", "\u{1d435}", ")"],
+  };
+  const cfv: InferenceRule = {
+    assumptions: [
+      ["class", "\u{1d434}"],
+      ["class", "\u{1d439}"],
+    ],
+    conclusion: ["class", "(", "\u{1d439}", "\u2018", "\u{1d434}", ")"],
+  };
+  const wceq: InferenceRule = {
+    assumptions: [
+      ["class", "\u{1d434}"],
+      ["class", "\u{1d435}"],
+    ],
+    conclusion: ["wff", "\u{1d434}", "=", "\u{1d435}"],
+  };
+  const wi: InferenceRule = {
+    assumptions: [
+      ["wff", "\u{1d711}"],
+      ["wff", "\u{1d713}"],
+    ],
+    conclusion: ["wff", "(", "\u{1d711}", "\u2192", "\u{1d713}", ")"],
+  };
+  const top: InferenceRule = {
+    assumptions: [["wff", "chi"]],
+    conclusion: ["$TOP", "\u22a2", "chi"],
+  };
+  const rules = [top, wi, wceq, co, cfv, cplusg, cv].sort(
+    (a, b) =>
+      b.conclusion.length - a.conclusion.length ||
+      b.conclusion.reduce((s, t) => s + t.length, 0) -
+        a.conclusion.reduce((s, t) => s + t.length, 0),
+  );
+  const chunkKindOf: KindOf = (t) => {
+    if (
+      t === "\u{1d434}" ||
+      t === "\u{1d435}" ||
+      t === "\u{1d439}" ||
+      t === "\u{1d446}" ||
+      t === "0" ||
+      t === "+"
+    )
+      return "class";
+    if (t === "\u{1d465}") return "setvar";
+    if (t === "\u{1d711}" || t === "\u{1d713}" || t === "chi") return "wff";
+    return undefined;
+  };
+
+  it("parses co(0, +, cv(x)) with symvar + and 0", () => {
+    // ( 0 + x ) where 0 and + are class symvars, x is setvar
+    const chunks: import("../src/token").Chunk[] = [
+      { kind: null, text: " (" },
+      { kind: "class", text: "0" },
+      { kind: null, text: " " },
+      { kind: "class", text: "+" },
+      { kind: null, text: " " },
+      { kind: "setvar", text: "\u{1d465}" },
+      { kind: null, text: ")" },
+    ];
+    const proof = parseChunks(chunks, "class", rules, chunkKindOf);
+    expect(proof).not.toBeNull();
+    expect(evaluate(proof!).conclusion).toEqual([
+      "class",
+      "(",
+      "0",
+      "+",
+      "\u{1d465}",
+      ")",
+    ]);
+  });
+
+  it("parses co(0, cfv(+g, S), cv(x)) with concatenated text chunk", () => {
+    // ( 0 (+g\u2018S)x ) where the cfv opening paren + constant + tick are
+    // all in one text chunk: " (+g\u2018"
+    const chunks: import("../src/token").Chunk[] = [
+      { kind: null, text: " (" },
+      { kind: "class", text: "0" },
+      { kind: null, text: " (+g\u2018" },
+      { kind: "class", text: "\u{1d446}" },
+      { kind: null, text: ")" },
+      { kind: "setvar", text: "\u{1d465}" },
+      { kind: null, text: ")" },
+    ];
+    const proof = parseChunks(chunks, "class", rules, chunkKindOf);
+    expect(proof).not.toBeNull();
+    const established = evaluate(proof!);
+    expect(established.conclusion).toEqual([
+      "class",
+      "(",
+      "0",
+      "(",
+      "+g",
+      "\u2018",
+      "\u{1d446}",
+      ")",
+      "\u{1d465}",
+      ")",
+    ]);
+  });
+
+  it("parses full expression |- ( ph -> ( 0 + x ) = ( 0 (+g\u2018S)x ) )", () => {
+    // Chunks mimicking chunkifyMathSpan output for step 19 of idressid
+    const chunks: import("../src/token").Chunk[] = [
+      { kind: null, text: "\u22a2 (" },
+      { kind: "wff", text: "\u{1d711}" },
+      { kind: null, text: " \u2192 ( " },
+      { kind: "class", text: "0" },
+      { kind: null, text: " " },
+      { kind: "class", text: "+" },
+      { kind: null, text: " " },
+      { kind: "setvar", text: "\u{1d465}" },
+      { kind: null, text: ") = ( " },
+      { kind: "class", text: "0" },
+      { kind: null, text: " (+g\u2018" },
+      { kind: "class", text: "\u{1d446}" },
+      { kind: null, text: ")" },
+      { kind: "setvar", text: "\u{1d465}" },
+      { kind: null, text: "))" },
+    ];
+    const proof = parseChunks(chunks, "$TOP", rules, chunkKindOf);
+    expect(proof).not.toBeNull();
+  });
+});

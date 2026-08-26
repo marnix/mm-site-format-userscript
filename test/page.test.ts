@@ -139,3 +139,41 @@ describe("parseUniExpressions (mpeuni/bitrdi)", () => {
     ]); // prettier-ignore
   }, 20_000);
 });
+
+describe("parseUniExpressions (mpeuni/idressid)", () => {
+  const doc = new DOMParser().parseFromString(
+    readFixture("mpeuni", "idressid.html"),
+    "text/html",
+  );
+  const fetcher = vi.fn(async (url: string) =>
+    readFixture("mpeuni", url.split("/").pop()!),
+  );
+
+  // Regression test: the idressid page uses symvar class constants (0, +) that
+  // appear inside co/cfv expressions. After the upstream label rename
+  // ("Syntax hints:" -> "This proof depends on syntax axioms:") we need to
+  // verify these parse correctly through the full pipeline.
+  it.fails(
+    "parses all 50 real expressions (symvar class constants in co/cfv)",
+    async () => {
+      const results = await parseUniExpressions(
+        doc,
+        "https://us.metamath.org/mpeuni/idressid.html",
+        fetcher,
+      );
+
+      // 64 span.math total: 50 real expressions + 12 single-token syntax hints
+      // + 1 distinct-variable group + 1 distinct-variable group
+      const parsed = results.filter((r) => r.proof !== null);
+      expect(parsed).toHaveLength(50);
+
+      // The assertion: |- ( th -> ( 0g'S ) = 0 )
+      const assertion = results.find((r) => {
+        const text = r.tokens.map((t) => t.text).join(" ");
+        return text.startsWith("\u22a2 ( \u{1d711} \u2192 (0\u2082\u2018");
+      });
+      expect(assertion?.proof).not.toBeNull();
+    },
+    30_000,
+  );
+});
