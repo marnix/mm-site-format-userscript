@@ -2,7 +2,8 @@ export type Fetcher = (url: string) => Promise<string>;
 
 /**
  * Finds the URLs of the syntax-definition pages linked from the "Syntax hints:"
- * row -- these define the grammar rules used on the page.
+ * / "This proof depends on syntax axioms:" row -- these define the grammar
+ * rules used on the page.
  */
 export function extractSyntaxHintUrls(
   doc: Document,
@@ -11,7 +12,11 @@ export function extractSyntaxHintUrls(
   const base = new URL(pageUrl);
   const urls = new Set<string>();
   for (const b of doc.querySelectorAll("b")) {
-    if (b.textContent?.trim() === "Syntax hints:") {
+    const label = b.textContent?.trim();
+    if (
+      label === "Syntax hints:" ||
+      label === "This proof depends on syntax axioms:"
+    ) {
       const cell = b.closest("td") ?? b.closest("tr");
       for (const a of cell?.querySelectorAll("a[href]") ?? []) {
         const href = a.getAttribute("href");
