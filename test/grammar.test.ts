@@ -6,6 +6,7 @@ import {
   assembleUniGrammar,
   GRAMMAR_CACHE_VERSION,
 } from "../src/grammar";
+import { extractSyntaxHintUrls } from "../src/loader";
 import { GIF_TOP_RULE } from "../src/database-assumptions";
 import { parseExpression, type KindOf } from "../src/parse";
 import { evaluate } from "../src/proof";
@@ -64,6 +65,46 @@ describe("assembleUniGrammar: rule ordering (longer patterns first)", () => {
     expect(ciunIdx).toBeGreaterThanOrEqual(0); // ciun must be present
     expect(cuniIdx).toBeGreaterThanOrEqual(0); // cuni must be present
     expect(ciunIdx).toBeLessThan(cuniIdx); // ciun before cuni
+  });
+});
+
+describe("extractSyntaxHintUrls", () => {
+  it("recognizes the new 'This proof depends on syntax axioms:' label", () => {
+    const doc = new DOMParser().parseFromString(
+      `<html><body>
+        <table><tr><td><B>This proof depends on syntax axioms:</B>
+          &nbsp;<a href="wi.html">wi</a> &nbsp;<a href="wb.html">wb</a>
+        </td></tr></table>
+      </body></html>`,
+      "text/html",
+    );
+    const urls = extractSyntaxHintUrls(
+      doc,
+      "https://us.metamath.org/mpeuni/syl.html",
+    );
+    expect(urls).toEqual([
+      "https://us.metamath.org/mpeuni/wi.html",
+      "https://us.metamath.org/mpeuni/wb.html",
+    ]);
+  });
+
+  it("still recognizes the old 'Syntax hints:' label", () => {
+    const doc = new DOMParser().parseFromString(
+      `<html><body>
+        <table><tr><td><b>Syntax hints:</b>
+          <a href="wi.html">wi</a> &nbsp;<a href="wb.html">wb</a>
+        </td></tr></table>
+      </body></html>`,
+      "text/html",
+    );
+    const urls = extractSyntaxHintUrls(
+      doc,
+      "https://us.metamath.org/mpeuni/syl.html",
+    );
+    expect(urls).toEqual([
+      "https://us.metamath.org/mpeuni/wi.html",
+      "https://us.metamath.org/mpeuni/wb.html",
+    ]);
   });
 });
 
