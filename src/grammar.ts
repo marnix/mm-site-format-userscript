@@ -16,9 +16,11 @@ import {
 import type { InferenceRule, Proof } from "./proof";
 import { gifAssertionRule, uniAssertionRule } from "./rule";
 
-/** Bump when the cached extraction format (grammar rules / URL lists) changes,
- *  so stale entries from an older build are ignored. */
-export const GRAMMAR_CACHE_VERSION = "7";
+/** Bump when the cached extraction logic changes (grammar rules / URL lists /
+ *  label recognition), so stale entries from an older build are ignored, e.g.
+ *  ref-page hint lists cached as empty when the upstream label renamed from
+ *  "Syntax hints:" to "This proof depends on syntax axioms:". */
+export const GRAMMAR_CACHE_VERSION = "8";
 
 type RuleExtractor = (doc: Document) => InferenceRule | null;
 
