@@ -1,6 +1,6 @@
 {
   "name": "mm-site-format-userscript",
-  "version": "0.33.0-dev",
+  "version": "0.33.0",
   "private": true,
   "scripts": {
     "build": "tsup",
