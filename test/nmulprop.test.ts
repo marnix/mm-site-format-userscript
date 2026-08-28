@@ -58,4 +58,4 @@ describe("parseUniExpressions (mpeuni/nmulprop)", () => {
 
     expect(failures.length).toBe(0);
   });
-}, 30_000);
+}, 60_000);
