@@ -61,17 +61,14 @@ describe("insertSpacers", () => {
   // would otherwise render as one unbreakable single line. Each spacer must
   // therefore carry its own soft wrap opportunity, so long expressions still
   // auto-wrap (at the gap) instead of overflowing.
-  it.fails(
-    "gives each non-zero gap a soft wrap opportunity (so expressions can auto-wrap)",
-    () => {
-      const span = document.createElement("span");
-      span.innerHTML =
-        '<span class="wff">a</span> -&gt; <span class="wff">b</span>';
-      insertSpacers(locateMathSpan(span, kinds), [0, 1, 0]);
-      const spacer = span.querySelector(".mm-site-format-space") as HTMLElement;
-      expect(spacer.querySelector("wbr")).not.toBeNull();
-    },
-  );
+  it("gives each non-zero gap a soft wrap opportunity (so expressions can auto-wrap)", () => {
+    const span = document.createElement("span");
+    span.innerHTML =
+      '<span class="wff">a</span> -&gt; <span class="wff">b</span>';
+    insertSpacers(locateMathSpan(span, kinds), [0, 1, 0]);
+    const spacer = span.querySelector(".mm-site-format-space") as HTMLElement;
+    expect(spacer.querySelector("wbr")).not.toBeNull();
+  });
 
   it("makes a single gap 0.5ex wide", () => {
     const span = document.createElement("span");

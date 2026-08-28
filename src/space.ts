@@ -21,6 +21,11 @@ function spacer(units: number): HTMLElement {
   const span = document.createElement("span");
   span.className = SPACE_CLASS;
   span.style.cssText = `padding-left:${(units * SPACING_EX_PER_UNIT).toFixed(2)}ex`;
+  // The spacer replaced the gap's whitespace, which was the expression's only
+  // soft wrap opportunity; carry one here so long expressions still auto-wrap
+  // (at the gap) instead of rendering as one unbreakable single line. A `wbr`
+  // has no text and no width, so the tokenizer and highlighter ignore it.
+  span.append(document.createElement("wbr"));
   return span;
 }
 
