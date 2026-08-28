@@ -155,3 +155,12 @@ and subscript-bracket delimiters stay tight (`csb [_ A / x ]_ B` → `⦋A / x�
   rule's assumption patterns into `chooseSpine` -- currently it only receives
   grammar-level parse trees of the expressions, not the theorem's hypothesis
   structure.
+
+## Tests
+
+- **The nmulprop integration test is slow** (`test/nmulprop.test.ts`): parsing
+  183 fixture files through happy-dom takes ~20s in isolation and blew the 30s
+  timeout under the concurrent load of `npm run ci` (the same flakiness
+  `page.test.ts`'s explicit timeout fixed). Raised the timeout to 60s as a
+  stopgap; investigate and try to cut the runtime instead (parse cost and GC
+  pressure from the ~8 GB heap, fixture disk I/O, or parallelism).
