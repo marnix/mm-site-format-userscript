@@ -16,7 +16,7 @@ import { dirname } from "path";
 import { describe, expect, it } from "vitest";
 import { parseUniExpressions } from "../src/page";
 import { isProofExpression } from "../src/parse-status";
-import { readFixture } from "./helpers";
+import { readFixture, downsampleFetchedPageHtml } from "./helpers";
 
 const FIXTURE_DIR = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -26,11 +26,15 @@ const FIXTURE_DIR = join(
 
 const PAGE_URL = "https://us.metamath.org/mpeuni/nmulprop.html";
 
-/** Returns the fixture for the URL if it exists, otherwise empty HTML. */
+/** Returns the fixture for the URL if it exists, otherwise empty HTML. The
+ *  fetched reference pages are only read for grammar extraction (the main page
+ *  document is used for the expressions themselves), so they are downsized to
+ *  the extraction-relevant prefix first (see test/downsample-ref-page.test.ts). */
 const fetcher = async (url: string): Promise<string> => {
   const name = url.split("/").pop()!;
   const path = join(FIXTURE_DIR, name);
-  if (existsSync(path)) return readFixture("mpeuni", name);
+  if (existsSync(path))
+    return downsampleFetchedPageHtml(readFixture("mpeuni", name));
   return "<html></html>";
 };
 

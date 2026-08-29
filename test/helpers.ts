@@ -22,6 +22,22 @@ export function readFixtureBytes(variant: string, name: string): Uint8Array {
 }
 
 /**
+ * Downsizes a fetched metamath page to only the parts the grammar assembly
+ * reads (test-only; feeds the integration-test fetchers, e.g. nmulprop). A
+ * theorem reference page can be ~1.5 MB, nearly all of it a trailing "This
+ * theorem is referenced by" list and per-theorem navigation -- but extraction
+ * only consults the statement tables and the "Syntax hints:" row near the top,
+ * so the tail is pure parse cost.  The downsizing must keep every extraction
+ * target byte-for-byte identical (asserted in test/downsample-ref-page.test.ts).
+ *
+ * Not yet implemented: returns the input unchanged so the extraction pipelines
+ * behave exactly as before until the trimming behaviour lands.
+ */
+export function downsampleFetchedPageHtml(html: string): string {
+  return html;
+}
+
+/**
  * Stand-in for the browser canvas: returns a GIF's colour table as RGBA pixels
  * (one pixel per palette entry, the GIF's transparent index emitted as alpha 0)
  * -- what getImageData would expose for these flat two-colour glyphs.
