@@ -7,8 +7,12 @@
 //
 // Integration test: every proof-column expression must parse with 0 failures.
 //
-// Memory note: parsing 183 fixture files through happy-dom requires ~4-6 GB
-// of heap.  Run with NODE_OPTIONS='--max-old-space-size=8192' or equivalent.
+// The fetcher downsizes every fetched page to the extraction-relevant prefix
+// (see helpers.downsampleFetchedPageHtml) -- the statement tables and the
+// "Syntax hints:" row, everything the grammar assembly reads -- and drops the
+// trailing "This theorem is referenced by" / navigation tail.  That keeps the
+// grammar (and with it every parse) identical while cutting the happy-dom
+// DOM-parsing from ~19s to ~1s and dropping the former ~4-6 GB heap need.
 import { existsSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
@@ -62,4 +66,4 @@ describe("parseUniExpressions (mpeuni/nmulprop)", () => {
 
     expect(failures.length).toBe(0);
   });
-}, 60_000);
+}, 30_000);

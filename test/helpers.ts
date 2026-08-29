@@ -27,14 +27,22 @@ export function readFixtureBytes(variant: string, name: string): Uint8Array {
  * theorem reference page can be ~1.5 MB, nearly all of it a trailing "This
  * theorem is referenced by" list and per-theorem navigation -- but extraction
  * only consults the statement tables and the "Syntax hints:" row near the top,
- * so the tail is pure parse cost.  The downsizing must keep every extraction
+ * so the tail is pure parse cost.  The downsizing keeps every extraction
  * target byte-for-byte identical (asserted in test/downsample-ref-page.test.ts).
  *
- * Not yet implemented: returns the input unchanged so the extraction pipelines
- * behave exactly as before until the trimming behaviour lands.
+ * The statement tables (Hypotheses / Assertion / Proof of theorem) and the
+ * syntax-definition row all sit at the top of the page, in that order, before
+ * the "This theorem is proved from axioms" / "This theorem is referenced by"
+ * footers -- so keeping everything through the end of the syntax-definition row
+ * preserves every target.  Pages without a syntax-definition row (e.g. $a |-
+ * axiom pages) are returned unchanged.
  */
 export function downsampleFetchedPageHtml(html: string): string {
-  return html;
+  const match = html.match(
+    /((?:<B>\s*Syntax hints:\s*<\/B>|<B>\s*This proof depends on syntax axioms:\s*<\/B>)[\s\S]*?<\/TD><\/TR>)/i,
+  );
+  if (!match) return html;
+  return html.slice(0, match.index! + match[1].length);
 }
 
 /**

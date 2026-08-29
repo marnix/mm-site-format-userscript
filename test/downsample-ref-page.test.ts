@@ -15,16 +15,13 @@ import { downsampleFetchedPageHtml, readFixture } from "./helpers";
 const PAGE_URL = "https://us.metamath.org/mpeuni/syl.html";
 
 describe("downsampleFetchedPageHtml", () => {
-  it.fails(
-    "cuts the trailing referenced-by/navigation tail of a large ref page",
-    () => {
-      const full = readFixture("mpeuni", "syl.html");
-      expect(full.length).toBeGreaterThan(1_000_000);
-      const cut = downsampleFetchedPageHtml(full);
-      expect(cut).not.toContain("This theorem is referenced by");
-      expect(cut.length).toBeLessThan(100_000);
-    },
-  );
+  it("cuts the trailing referenced-by/navigation tail of a large ref page", () => {
+    const full = readFixture("mpeuni", "syl.html");
+    expect(full.length).toBeGreaterThan(1_000_000);
+    const cut = downsampleFetchedPageHtml(full);
+    expect(cut).not.toContain("This theorem is referenced by");
+    expect(cut.length).toBeLessThan(100_000);
+  });
 
   it("keeps the statement tables and the syntax-hints row", () => {
     const cut = downsampleFetchedPageHtml(readFixture("mpeuni", "syl.html"));

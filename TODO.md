@@ -158,9 +158,15 @@ and subscript-bracket delimiters stay tight (`csb [_ A / x ]_ B` → `⦋A / x�
 
 ## Tests
 
-- **The nmulprop integration test is slow** (`test/nmulprop.test.ts`): parsing
-  183 fixture files through happy-dom takes ~20s in isolation and blew the 30s
-  timeout under the concurrent load of `npm run ci` (the same flakiness
-  `page.test.ts`'s explicit timeout fixed). Raised the timeout to 60s as a
-  stopgap; investigate and try to cut the runtime instead (parse cost and GC
-  pressure from the ~8 GB heap, fixture disk I/O, or parallelism).
+- **Resolved: the nmulprop test's slowness** (`test/nmulprop.test.ts`): parsing
+  183 fixture files through happy-dom took ~20s in isolation and blew the 30s
+  timeout under the concurrent load of `npm run ci`. Root cause: the grammar
+  assembly parses every fetched reference page, and the fixture pages are up to
+  ~1.5 MB because of the trailing "This theorem is referenced by" list and
+  per-theorem navigation -- while extraction only reads the statement tables and
+  the "Syntax hints:" row at the top. The test fetcher now downsizes each
+  fetched page to that prefix (`downsampleFetchedPageHtml` in `test/helpers.ts`,
+  specified in `test/downsample-ref-page.test.ts`), which keeps extraction
+  byte-for-byte identical but cuts DOM-parsing time from ~19s to ~1s (10-20x)
+  and the heap need from ~4-6 GB down. Only the test changes: the userscript
+  itself still fetches and parses full pages.
