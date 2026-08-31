@@ -97,8 +97,12 @@ Interaction and rendering:
 ## Site-generation limitations and workarounds
 
 The metamath.org site's "Syntax hints" rows are incomplete in two known ways
-(tracked in TODO — "Incomplete Syntax hints", reported as metamath-exe issue
-[#187](https://github.com/metamath/metamath-exe/issues/187)).
+(reported as metamath-exe issue
+[#187](https://github.com/metamath/metamath-exe/issues/187), open as of Jun
+2026; the upstream fix branch `syntax-hints-def-bodies` is not yet merged). Two
+further gaps are _not_ covered by #187 and remain unreported (tracked in TODO —
+"Incomplete Syntax hints"): the categorical `cv` omission on every page, and
+syntax that appears only in a non-step expression.
 
 **Always-loaded primitives** (`database-assumptions.ts`): `cv`, `wcel`, `wceq`,
 `weq`, `wel` are unconditionally fetched on every page, even when absent from
@@ -106,7 +110,9 @@ the "Syntax hints" row. The site omits `cv` on _every_ page and omits `wcel` /
 `wceq` when their operands are setvars (e.g. `x e. y`) rather than classes.
 `weq` and `wel` are `$p` syntax theorems omitted because the site's hint
 collector only scanned `$a` statements — fixed in the upstream fix branch
-`syntax-hints-def-bodies`.
+`syntax-hints-def-bodies`. Once that fix merges and ships, `weq`/`wel` can be
+dropped from the always-loaded primitives; the categorical `cv` omission is a
+separate gap #187 does not cover, so `cv` stays.
 
 **Ref-page syntax hints** (`grammar.ts` — `assembleGrammar`): the syntax hints
 of every theorem cited in the proof table's Ref column are loaded on top of the
@@ -119,7 +125,8 @@ definition pages (like `df-mul`) have no "Syntax hints" row at all. As a
 fallback, their "Detailed syntax breakdown of definition" table is read instead
 — it lists every constructor in the definition body's parse tree. This covers
 constructors like `wo` (disjunction) that only appear inside a definition
-referenced in the proof.
+referenced in the proof. Once `syntax-hints-def-bodies` ships (it adds hints
+from `$a |-` definition bodies), this fallback could be simplified or removed.
 
 A residual gap remains for displayed expressions that are _not_ proof steps
 (e.g. a definitional cross-reference like `( Disj R <-> ... )` on `disjrel`);

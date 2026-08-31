@@ -2,38 +2,33 @@
 
 ## Upstream issues to report
 
-- **Incomplete "Syntax hints"**: a theorem page's "Syntax hints" row can omit a
-  constructor the page actually displays. This looks like a site-generation bug
-  (the hints are meant to list the syntax used). Patterns observed (raw material
-  for a bug report), found via our parser-based check (`missingSyntaxHints`,
-  which `console.warn`s on any affected page):
+- **Incomplete "Syntax hints" — the parts not yet reported**: the core issue
+  (proofs using `$a |-` definitions omit constructors from the body) is reported
+  as
+  [metamath-exe issue #187](https://github.com/metamath/metamath-exe/issues/187)
+  (open; upstream fix branch `syntax-hints-def-bodies` not yet merged). The
+  reported issue, the current workarounds, and the post-merge cleanup conditions
+  are documented in DESIGN.md ("Site-generation limitations and workarounds").
+  Two further gaps are **not** covered by #187 and still need a bug report:
+
   - `cv` (the setvar→class coercion) is omitted on **every** page — categorical.
+  - Syntax shown only in a **non-step** expression (e.g. the `<->` of disjrel's
+    definitional cross-reference `( Disj R <-> … )`) is hinted by neither the
+    page nor any Ref page. (Cannot be recovered from any reachable page; would
+    need transitive syntax loading — see Correctness.)
+
+  Repro material for the report (found via our parser check
+  `missingSyntaxHints`, which `console.warn`s on affected pages):
   - `wcel` (∈) and `wceq` (=) are omitted exactly when their operands are
     **setvars** (`x ∈ y`, `x = y`), but listed when they are **classes**
     (`A ∈ B`, `A = B`). Minimal controlled repro: `elirr` (`⊢ ¬ A ∈ A`, class)
     lists `wcel`; `elirrv` (`⊢ ¬ 𝑥 ∈ 𝑥`, setvar) does not. Likewise `elequ1`,
-    `cleljust`.
+    `cleljust`. (Note: `weq`/`wel` — the `$p` syntax theorems behind these — are
+    covered by #187's fix branch, but the categorical `cv` omission and the
+    setvar-operand pattern above are the residual, unreported part.)
   - The listed hints seem **proof-derived, not assertion-derived**: `elirrv`
     lists `wi`, `wb`, `wa`, `wal`, `wex` (connectives from its proof, absent
     from its assertion) yet drops the `wcel` that its assertion shows.
-  - A separate gap: syntax shown only in a **non-step** expression (e.g. the
-    `<->` of disjrel's definitional cross-reference `( Disj R <-> … )`) is
-    hinted by neither the page nor any Ref page.
-
-  Reported as
-  [metamath-exe issue #187](https://github.com/metamath/metamath-exe/issues/187).
-  A local branch `syntax-hints-def-bodies` (not yet pushed upstream) adds hints
-  from `$a |-` definition bodies and includes `$p` syntax theorems (fixing the
-  `weq`/`wel` omission). Worked around here by always loading the omitted
-  primitives `cv`/`wcel`/`wceq`/`weq`/`wel` (see `database-assumptions.ts`) and
-  by reading the Ref pages' hints with a breakdown-table fallback for `$a |-`
-  definition pages (see `grammar.ts`). Once the upstream fix is merged and
-  ships: `weq`/`wel` could be dropped from `PRIMITIVE_SYNTAX_PAGES`, and the
-  breakdown-table fallback (`extractBreakdownRefUrls` in `grammar.ts`) could be
-  simplified or removed. The categorical `cv` omission on every page is a
-  separate gap not covered by #187. The non-step gap would need transitive
-  loading (see Correctness — though that cannot recover a constructor listed on
-  _no_ reachable page).
 
 - **ILE / iset.mm rendering inconsistencies**: ilegif pages (e.g.
   `speano5.html`) render the "Colors of variables" legend with the old
