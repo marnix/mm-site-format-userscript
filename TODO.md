@@ -1,29 +1,5 @@
 # TODO
 
-## Whitespace
-
-The `gapUnits` scheme is in place and matches the site (verified visually): for
-an operator (a pattern token with a hole immediately before and after it) both
-adjacent gaps get the operator's subtree height (`spacingOf`: leaf `−1`, else
-`1 + max(child heights)`, at least 1); word-like prefixes and adjacent-variable
-gaps get a fixed 1 unit; symbol prefixes, single-letter prefixes, paren tokens,
-and subscript-bracket delimiters stay tight (`csb [_ A / x ]_ B` → `⦋A / x⦌B`).
-
-- **`cmpo`/`cmpt` treat `∈`, `,`, `↦` as height-scaled operators** (visible on
-  `nmulfn.html`): `class ( x e. A , y e. B |-> C )` spaces every separator --
-  `∈`, `,`, and `↦` -- by `spacingOf(cmpo)`, which grows with `C`'s depth, so a
-  large body `C` balloons the gaps around the whole `x e. A , y e. B |->` prefix
-  (`( x e. A , y e. B |-> ( ( C o. A ) o. B ) )` puts 2 units around each
-  separator). The prefix is a quantifier over `C`, like `csb`'s `[_ A / x ]_ B`,
-  not a chain of operators, so the separators should be fixed small units and
-  `C` should carry the depth. Structural candidate (no rule names): a pattern
-  with **more than one infix literal** (`cmpo`: `∈ , ∈ ↦`; `cmpt`: `∈ ↦`;
-  `whad`/`cadd`: `, ,`) is a binder/list, so every infix literal becomes a fixed
-  1-unit separator like the `/` of the subscript-bracket constructors instead of
-  `spacingOf(p)`. Open questions: whether `cop`'s single `,` in `< A , B >`
-  should also stop scaling, and how this composes with the binder-`∈` item
-  above.
-
 ## Upstream issues to report
 
 - **Incomplete "Syntax hints"**: a theorem page's "Syntax hints" row can omit a
@@ -111,6 +87,12 @@ and subscript-bracket delimiters stay tight (`csb [_ A / x ]_ B` → `⦋A / x�
 
 ## Features
 
+Note: a baseline auto-wrap already exists -- every non-zero gap's spacer carries
+a `wbr` soft-wrap opportunity (`space.ts`), so a long expression wraps at gap
+boundaries instead of overflowing. It is un-prioritized (greedy first-fit over
+all gaps), so the items below are refinements: bias which gaps break, and/or
+insert real newlines.
+
 - **Insert newlines at break points**: actually insert newlines into a long
   rendered expression at its main operator (recursively at outer operators)
   rather than relying on CSS `white-space` wrapping. Distinct from the CSS
@@ -133,40 +115,19 @@ and subscript-bracket delimiters stay tight (`csb [_ A / x ]_ B` → `⦋A / x�
   top/bottom edge currently moves up and down across a region, following
   subscripts/superscripts and differing image heights. See whether it can always
   be rendered as a single rectangle spanning the line's full height.
-- **Spine: symmetric case-split detection** (pm2.61dan on binomcxp): when two
-  hypotheses are logically symmetric (e.g. one has `psi` and the other `-.psi`),
-  the calculation should show both as sub-derivations (=> TRUE) rather than
-  picking one as spine. The current size tiebreaker picks the smaller one.
-  Attempted fix: unwrap $TOP + use commonSubtreeDiff/LCS as tiebreaker, but
-  `divergingSubtreeOverlap` (which calls `maxSubtreeOverlap` recursively) blows
-  up on large unwrapped trees (fouriersw hangs). A correct fix needs either: (a)
-  depth-bound `maxSubtreeOverlap` when using unwrapped trees, or (b) a different
-  symmetry criterion that doesn't require deep tree comparison (e.g. check if
-  both hypotheses use the same set of the rule's variables relative to the
-  conclusion).
-
-  Also affects `3eqtr*` transitivity chains (e.g. ballotfilemth step 153): all
-  three hypotheses are equivalent chain links, but one wins by size. Proposed
-  tiebreaker: count how many of the _inference rule's_ conclusion variables
-  appear in each hypothesis (from the rule's general form, not the ground
-  instance). A hypothesis sharing fewer conclusion variables is purely auxiliary
-  (e.g. the middle link `C = B` in `3eqtr2i` proving `A = D`); prefer those with
-  the most, and return null when they tie. This requires passing the inference
-  rule's assumption patterns into `chooseSpine` -- currently it only receives
-  grammar-level parse trees of the expressions, not the theorem's hypothesis
-  structure.
-
-## Tests
-
-- **Resolved: the nmulprop test's slowness** (`test/nmulprop.test.ts`): parsing
-  183 fixture files through happy-dom took ~20s in isolation and blew the 30s
-  timeout under the concurrent load of `npm run ci`. Root cause: the grammar
-  assembly parses every fetched reference page, and the fixture pages are up to
-  ~1.5 MB because of the trailing "This theorem is referenced by" list and
-  per-theorem navigation -- while extraction only reads the statement tables and
-  the "Syntax hints:" row at the top. The test fetcher now downsizes each
-  fetched page to that prefix (`downsampleFetchedPageHtml` in `test/helpers.ts`,
-  specified in `test/downsample-ref-page.test.ts`), which keeps extraction
-  byte-for-byte identical but cuts DOM-parsing time from ~19s to ~1s (10-20x)
-  and the heap need from ~4-6 GB down. Only the test changes: the userscript
-  itself still fetches and parses full pages.
+- **Spine: transitivity-chain case-split** (e.g. ballotfilemth step 153): a
+  `3eqtr*` step's three hypotheses are equivalent chain links (`A = B`, `B = C`,
+  `C = D` proving `A = D`), so none is the main line, yet one wins by size. This
+  is a different symmetry from the negation-based `caseSymmetric` (pm2.61d,
+  already handled): the hypotheses are not identical-up-to-a-negation but
+  successive links. Proposed tiebreaker: count how many of the _inference
+  rule's_ conclusion variables appear in each hypothesis (from the rule's
+  general form, not the ground instance). A hypothesis sharing fewer conclusion
+  variables is purely auxiliary (e.g. the middle link `C = B` in `3eqtr2i`
+  proving `A = D`); prefer those with the most, and return null when they tie.
+  This requires passing the inference rule's assumption patterns into
+  `chooseSpine` -- currently it only receives grammar-level parse trees of the
+  expressions, not the theorem's hypothesis structure. (The earlier attempt to
+  reuse `divergingSubtreeOverlap`/`maxSubtreeOverlap` on unwrapped trees was
+  abandoned because it blew up on large trees; the linear `caseSymmetric` path
+  now covers the negation case, but does not cover these chains.)
