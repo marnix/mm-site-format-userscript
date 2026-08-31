@@ -35,10 +35,10 @@
   `<FONT COLOR="#hex">` markup instead of the newer
   `<SPAN CLASS=… STYLE="color:…">`, and label the setvar kind `set` rather than
   its actual typecode `setvar`. Both are worked around in `parseKindColors`.
-  Check whether these are already reported on
-  <https://groups.google.com/g/metamath> or
-  <https://github.com/metamath/metamath-exe>; if a fix is wanted, it likely
-  belongs in the site-generation repos
+  Status check (Aug 2026): no matching issue found in metamath-exe (searched
+  setvar/iset/"Colors of variables"/FONT — unrelated hits only), and not yet
+  checked on <https://groups.google.com/g/metamath>. Still to report; if a fix
+  is wanted, it likely belongs in the site-generation repos
   <https://github.com/metamath/metamath-website-scripts> and
   <https://github.com/metamath/metamath-website-seed>.
 
